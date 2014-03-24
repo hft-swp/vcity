@@ -21,6 +21,7 @@ import static org.jocl.CL.clSetKernelArg;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 import java.util.Scanner;
 
 import javax.swing.JOptionPane;
@@ -54,7 +55,7 @@ public class VolumeCalculator {
 
 	public static void calculateVolume() {
 
-		init();
+		init2();
 	}
 
 	private static void init() {
@@ -133,7 +134,95 @@ public class VolumeCalculator {
 		clReleaseProgram(program);
 		clReleaseCommandQueue(commandQueue);
 		clReleaseContext(context);
+	}
+	
+	private static void init2() {
+		
+		try {
+			programSource = new Scanner(new File("volumeCalculation2.cl"))
+					.useDelimiter("\\Z").next();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+			// TODO: error handling
+			JOptionPane.showMessageDialog(null, e.getMessage());
+		}
 
+		defaultInitialization();
+
+		// Create input- and output data
+		int n = City.getInstance().getBuildings().size();
+
+		int verticesSize = 0;
+		for (Building b : City.getInstance().getBuildings()) {
+			verticesSize += b.getTriangles().size() * 9;
+		}
+		float[] vertices = new float[verticesSize];
+		int[] triangleCount = new int[n];
+		float[] volumeArray = new float[n];
+		int offset = 0;
+		for (int i = 0; i < n; i++) {
+			Building b = City.getInstance().getBuildings().get(i);
+			triangleCount[i] = b.getTriangles().size();
+			for (int j = 0; j < triangleCount[i]; j++) {
+				Triangle t = b.getTriangles().get(j);
+				vertices[offset + j * 9 + 0] = t.getVertices()[0].getX();
+				vertices[offset + j * 9 + 1] = t.getVertices()[0].getY();
+				vertices[offset + j * 9 + 2] = t.getVertices()[0].getZ();
+				vertices[offset + j * 9 + 3] = t.getVertices()[1].getX();
+				vertices[offset + j * 9 + 4] = t.getVertices()[1].getY();
+				vertices[offset + j * 9 + 5] = t.getVertices()[1].getZ();
+				vertices[offset + j * 9 + 6] = t.getVertices()[2].getX();
+				vertices[offset + j * 9 + 7] = t.getVertices()[2].getY();
+				vertices[offset + j * 9 + 8] = t.getVertices()[2].getZ();
+			}
+			offset = offset + triangleCount[i] * 9;
+		}
+		
+		System.out.println("Size of vertices array as float: " + verticesSize);
+		System.out.println("vertices Array: " + Arrays.toString(vertices));
+		System.out.println("triangleCount Array: " + Arrays.toString(triangleCount));
+		
+		cl_mem verticesMem = clCreateBuffer(context, CL.CL_MEM_READ_ONLY
+				| CL.CL_MEM_USE_HOST_PTR, Sizeof.cl_float * verticesSize,
+				Pointer.to(vertices), null);
+
+		cl_mem triangleCountMem = clCreateBuffer(context, CL.CL_MEM_READ_ONLY
+				| CL.CL_MEM_USE_HOST_PTR, Sizeof.cl_int * n,
+				Pointer.to(triangleCount), null);
+		
+		Pointer volumePointer = Pointer.to(volumeArray);
+		cl_mem volumeMem = clCreateBuffer(context, CL_MEM_READ_WRITE,
+				Sizeof.cl_float * n, null, null);
+
+		// Set the arguments for the kernel
+		clSetKernelArg(kernel, 0, Sizeof.cl_mem, Pointer.to(verticesMem));
+		clSetKernelArg(kernel, 1, Sizeof.cl_mem, Pointer.to(triangleCountMem));
+		clSetKernelArg(kernel, 2, Sizeof.cl_mem, Pointer.to(volumeMem));
+
+
+		
+		// Set the work-item dimensions
+		long global_work_size[] = new long[] {n};
+		long local_work_size[] = new long[] {1};
+
+		// Execute the kernel
+		clEnqueueNDRangeKernel(commandQueue, kernel, 1, null, global_work_size,
+				local_work_size, 0, null, null);
+
+		// Read the output data
+		clEnqueueReadBuffer(commandQueue, volumeMem, CL_TRUE, 0, n
+				* Sizeof.cl_float, volumePointer, 0, null, null);
+		
+		System.out.println("Ergebnis: " + Arrays.toString(volumeArray));
+		
+		// Release kernel, program, and memory objects
+		clReleaseMemObject(verticesMem);
+		clReleaseMemObject(triangleCountMem);
+		clReleaseMemObject(volumeMem);
+		clReleaseKernel(kernel);
+		clReleaseProgram(program);
+		clReleaseCommandQueue(commandQueue);
+		clReleaseContext(context);
 	}
 
 	/**
@@ -183,9 +272,13 @@ public class VolumeCalculator {
 				new String[] { programSource }, null, null);
 
 		// Build the program
-		int err = clBuildProgram(program, 0, null, null, null, null);
+		clBuildProgram(program, 0, null, null, null, null);
 		
-		
+		// Create the kernel
+		kernel = clCreateKernel(program, "calc", null);
+	}
+	
+	private void debugProgram(cl_device_id[] devices) {
 		long[] logSize = new long[1];
         CL.clGetProgramBuildInfo(program, devices[0], CL.CL_PROGRAM_BUILD_STATUS, 0, null, logSize);
         System.out.println("build status: "+logSize[0] +"");
@@ -193,40 +286,17 @@ public class VolumeCalculator {
         CL.clGetProgramBuildInfo(program, devices[0], CL.CL_PROGRAM_BUILD_STATUS, logSize[0], Pointer.to(logData), null);
         System.out.println("Obtained status data:");
         System.out.println(">"+new String(logData, 0, logData.length-1)+"<");
-
-       
         logSize = new long[1];
         CL.clGetProgramBuildInfo(program, devices[0], CL.CL_PROGRAM_BUILD_OPTIONS, 0, null, logSize);
         System.out.println("build options: "+logSize[0] +"");
         logData = new byte[(int)logSize[0]];
         CL.clGetProgramBuildInfo(program, devices[0], CL.CL_PROGRAM_BUILD_OPTIONS, logSize[0], Pointer.to(logData), null);
-        System.out.println("Obtained buiild options data:");
+        System.out.println("Obtained build options data:");
         System.out.println(">"+new String(logData, 0, logData.length-1)+"<");
 
         logSize = new long[1];
         CL.clGetProgramBuildInfo(program, devices[0], CL.CL_PROGRAM_BUILD_LOG, 0, null, logSize);
-		
-		
-		
-		
-		
-/*		if (err == CL.CL_BUILD_PROGRAM_FAILURE) {
-		    // Determine the size of the log
-		    long[] log_size = new long[1];
-		    CL.clGetProgramBuildInfo(program, devices[0], CL.CL_PROGRAM_BUILD_LOG, 0, null, log_size);
 
-		    // Allocate memory for the log
-		    char[] log = new char[(int) log_size[0]];
-		    Pointer logPointer = Pointer.to(log);
-		    // Get the log
-		    CL.clGetProgramBuildInfo(program, devices[0], CL.CL_PROGRAM_BUILD_LOG, log_size[0], logPointer, null);
-
-		    // Print the log
-		    System.out.println(Arrays.toString(log));
-		}	 */	
-
-		// Create the kernel
-		kernel = clCreateKernel(program, "calc", null);
 	}
 
 }

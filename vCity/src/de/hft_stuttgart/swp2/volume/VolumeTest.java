@@ -8,6 +8,12 @@ import de.hft_stuttgart.swp2.model.Vertex;
 public class VolumeTest {
 
 	public static void main(String[] args) {
+		testCity1();
+		testCity2();
+		VolumeCalculator.calculateVolume();
+	}
+	
+	private static void testCity1() {
 		City city = City.getInstance();
 		Building b = new Building();
 		city.addBuilding(b);
@@ -50,12 +56,45 @@ public class VolumeTest {
 		b.addTriangle(t);
 		t = new Triangle(new Vertex[] {p4, p8, p9});
 		b.addTriangle(t);
-		t = new Triangle(new Vertex[] {p0, p9, p1});
+		t = new Triangle(new Vertex[] {p9, p4, p0});
 		b.addTriangle(t);
-		t = new Triangle(new Vertex[] {p1, p9, p5});
+		t = new Triangle(new Vertex[] {p0, p9, p5});
 		b.addTriangle(t);
-		
-		VolumeCalculator.calculateVolume();
+	}
+	
+	private static void testCity2() {
+		City city = City.getInstance();
+		Building b = new Building();
+		city.addBuilding(b);
+
+		Vertex p0 = new Vertex(0, 0, 0);
+		Vertex p1 = new Vertex(0, 2, 0);
+		Vertex p2 = new Vertex(2, 2, 0);
+		Vertex p3 = new Vertex(2, 0, 0);
+		Vertex p4 = new Vertex(2, 0, 2);
+		Vertex p5 = new Vertex(2, 2, 2);
+		Vertex p6 = new Vertex(0, 2, 2);
+		Vertex p7 = new Vertex(0, 0, 2);
+		Triangle t = new Triangle(new Vertex[] {p0, p3, p2});
+		b.addTriangle(t);
+		t = new Triangle(new Vertex[] {p0, p2, p1});
+		b.addTriangle(t);
+		t = new Triangle(new Vertex[] {p3, p4, p5});
+		b.addTriangle(t);
+		t = new Triangle(new Vertex[] {p5, p2, p3});
+		b.addTriangle(t);
+		t = new Triangle(new Vertex[] {p1, p2, p5});
+		b.addTriangle(t);
+		t = new Triangle(new Vertex[] {p1, p5, p6});
+		b.addTriangle(t);
+		t = new Triangle(new Vertex[] {p0, p1, p6});
+		b.addTriangle(t);
+		t = new Triangle(new Vertex[] {p6, p7, p0});
+		b.addTriangle(t);
+		t = new Triangle(new Vertex[] {p6, p5, p4});
+		b.addTriangle(t);
+		t = new Triangle(new Vertex[] {p4, p7, p6});
+		b.addTriangle(t);
 	}
 
 }
