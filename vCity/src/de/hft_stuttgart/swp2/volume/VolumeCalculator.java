@@ -20,8 +20,6 @@ import static org.jocl.CL.clSetKernelArg;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.nio.ByteBuffer;
-import java.util.Arrays;
 import java.util.Scanner;
 
 import javax.swing.JOptionPane;
@@ -37,13 +35,18 @@ import org.jocl.cl_kernel;
 import org.jocl.cl_mem;
 import org.jocl.cl_platform_id;
 import org.jocl.cl_program;
-import org.jocl.struct.Buffers;
-import org.jocl.struct.SizeofStruct;
 
 import de.hft_stuttgart.swp2.model.Building;
 import de.hft_stuttgart.swp2.model.City;
 import de.hft_stuttgart.swp2.model.Triangle;
 
+/**
+ * This is a utility class with only one method to initiate the calculation of
+ * the volume of the whole city.
+ * 
+ * @author 12bema1bif, 12tost1bif, 12riju1bif
+ * 
+ */
 public class VolumeCalculator {
 
 	private static String programSource;
@@ -53,100 +56,41 @@ public class VolumeCalculator {
 	private static cl_kernel kernel;
 	private static cl_program program;
 
+	/**
+	 * This method calculates the volume of all buildings stored in the city
+	 * singleton. If no buildings are stored this does nothing.
+	 */
 	public static void calculateVolume() {
+		init();
+	}
 
-		init2();
+	private VolumeCalculator() {
+	}
+
+	private static String loadProgramText(String fileName) {
+		Scanner sc = null;
+		String source = "";
+		try {
+			sc = new Scanner(new File(fileName)).useDelimiter("\\Z");
+			source = sc.next();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+			// TODO: error handling
+			JOptionPane.showMessageDialog(null, e.getMessage());
+		} finally {
+			if (sc != null) {
+				sc.close();
+			}
+		}
+		return source;
 	}
 
 	private static void init() {
-		try {
-			programSource = new Scanner(new File("volumeCalculation.cl"))
-					.useDelimiter("\\Z").next();
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-			// TODO: error handling
-			JOptionPane.showMessageDialog(null, e.getMessage());
+
+		programSource = loadProgramText("volumeCalculation.cl");
+		if (programSource.length() == 0) {
+			return;
 		}
-
-		defaultInitialization();
-
-		// Create input- and output data
-		int n = City.getInstance().getBuildings().size();
-
-		BuildingStruct buildingArray[] = new BuildingStruct[n];
-		float volumeArray[] = new float[n];
-		for (int i = 0; i < n; i++) {
-			Building b = City.getInstance().getBuildings().get(i);
-			buildingArray[i] = new BuildingStruct();
-			buildingArray[i].triangleCount = b.getTriangles().size();
-			float[] points = new float[b.getTriangles().size() * 9];
-			for (int j = 0; j < b.getTriangles().size(); j++) {
-				Triangle t = b.getTriangles().get(j);
-				points[j * 9 + 0] = t.getVertices()[0].getX();
-				points[j * 9 + 1] = t.getVertices()[0].getY();
-				points[j * 9 + 2] = t.getVertices()[0].getZ();
-				points[j * 9 + 3] = t.getVertices()[1].getX();
-				points[j * 9 + 4] = t.getVertices()[1].getY();
-				points[j * 9 + 5] = t.getVertices()[1].getZ();
-				points[j * 9 + 6] = t.getVertices()[2].getX();
-				points[j * 9 + 7] = t.getVertices()[2].getY();
-				points[j * 9 + 8] = t.getVertices()[2].getZ();
-			}
-			buildingArray[i].vertices = points;
-		}
-
-		int structsize = SizeofStruct.sizeof(BuildingStruct.class);
-		// Allocate a buffer that can store the building data
-		ByteBuffer buildingBuffer = Buffers.allocateBuffer(buildingArray);
-
-		// Write the buildings into the buffer
-		Buffers.writeToBuffer(buildingBuffer, buildingArray);
-
-		// Allocate the memory object for the buildings that
-		// contains the data from the buildings buffer
-		cl_mem buildingsMem = clCreateBuffer(context, CL.CL_MEM_READ_ONLY
-				| CL.CL_MEM_USE_HOST_PTR, structsize * n,
-				Pointer.to(buildingBuffer), null);
-
-		Pointer volumePointer = Pointer.to(volumeArray);
-		cl_mem volumeMem = clCreateBuffer(context, CL_MEM_READ_WRITE,
-				Sizeof.cl_float * n, volumePointer, null);
-
-		// Set the arguments for the kernel
-		clSetKernelArg(kernel, 0, Sizeof.cl_mem, Pointer.to(buildingsMem));
-		clSetKernelArg(kernel, 1, Sizeof.cl_mem, Pointer.to(volumeMem));
-
-		// Set the work-item dimensions
-		long global_work_size[] = new long[] { n };
-
-		// Execute the kernel
-		clEnqueueNDRangeKernel(commandQueue, kernel, 1, null, global_work_size,
-				null, 0, null, null);
-
-		// Read the output data
-		clEnqueueReadBuffer(commandQueue, volumeMem, CL_TRUE, 0, n
-				* Sizeof.cl_float, volumePointer, 0, null, null);
-
-		// Release kernel, program, and memory objects
-		clReleaseMemObject(buildingsMem);
-		clReleaseMemObject(volumeMem);
-		clReleaseKernel(kernel);
-		clReleaseProgram(program);
-		clReleaseCommandQueue(commandQueue);
-		clReleaseContext(context);
-	}
-	
-	private static void init2() {
-		
-		try {
-			programSource = new Scanner(new File("volumeCalculation2.cl"))
-					.useDelimiter("\\Z").next();
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-			// TODO: error handling
-			JOptionPane.showMessageDialog(null, e.getMessage());
-		}
-
 		defaultInitialization();
 
 		// Create input- and output data
@@ -177,11 +121,14 @@ public class VolumeCalculator {
 			}
 			offset = offset + triangleCount[i] * 9;
 		}
-		
-		System.out.println("Size of vertices array as float: " + verticesSize);
-		System.out.println("vertices Array: " + Arrays.toString(vertices));
-		System.out.println("triangleCount Array: " + Arrays.toString(triangleCount));
-		
+
+		// System.out.println("Size of vertices array as float: " +
+		// verticesSize);
+		// System.out.println("vertices Array: " + Arrays.toString(vertices));
+		// System.out.println("triangleCount Array: " +
+		// Arrays.toString(triangleCount));
+
+		// allocate memory on the gpu
 		cl_mem verticesMem = clCreateBuffer(context, CL.CL_MEM_READ_ONLY
 				| CL.CL_MEM_USE_HOST_PTR, Sizeof.cl_float * verticesSize,
 				Pointer.to(vertices), null);
@@ -189,7 +136,7 @@ public class VolumeCalculator {
 		cl_mem triangleCountMem = clCreateBuffer(context, CL.CL_MEM_READ_ONLY
 				| CL.CL_MEM_USE_HOST_PTR, Sizeof.cl_int * n,
 				Pointer.to(triangleCount), null);
-		
+
 		Pointer volumePointer = Pointer.to(volumeArray);
 		cl_mem volumeMem = clCreateBuffer(context, CL_MEM_READ_WRITE,
 				Sizeof.cl_float * n, null, null);
@@ -199,22 +146,29 @@ public class VolumeCalculator {
 		clSetKernelArg(kernel, 1, Sizeof.cl_mem, Pointer.to(triangleCountMem));
 		clSetKernelArg(kernel, 2, Sizeof.cl_mem, Pointer.to(volumeMem));
 
-
-		
 		// Set the work-item dimensions
-		long global_work_size[] = new long[] {n};
-		long local_work_size[] = new long[] {1};
+		long global_work_size[] = new long[] { n };
+		long local_work_size[] = new long[] { 1 };
+
+		// long begin = System.nanoTime();
 
 		// Execute the kernel
 		clEnqueueNDRangeKernel(commandQueue, kernel, 1, null, global_work_size,
 				local_work_size, 0, null, null);
 
+		// System.out.println("Time calculating: " + verticesSize + " floats: "
+		// + (System.nanoTime() - begin) + "ns");
+
 		// Read the output data
 		clEnqueueReadBuffer(commandQueue, volumeMem, CL_TRUE, 0, n
 				* Sizeof.cl_float, volumePointer, 0, null, null);
 		
-		System.out.println("Ergebnis: " + Arrays.toString(volumeArray));
+		for (int i = 0; i < n; i++) {
+			City.getInstance().getBuildings().get(i).setVolume(volumeArray[i]);
+		}
 		
+		// System.out.println("Ergebnis: " + Arrays.toString(volumeArray));
+
 		// Release kernel, program, and memory objects
 		clReleaseMemObject(verticesMem);
 		clReleaseMemObject(triangleCountMem);
@@ -273,29 +227,39 @@ public class VolumeCalculator {
 
 		// Build the program
 		clBuildProgram(program, 0, null, null, null, null);
-		
+
 		// Create the kernel
 		kernel = clCreateKernel(program, "calc", null);
 	}
-	
+
+	@SuppressWarnings("unused")
 	private void debugProgram(cl_device_id[] devices) {
 		long[] logSize = new long[1];
-        CL.clGetProgramBuildInfo(program, devices[0], CL.CL_PROGRAM_BUILD_STATUS, 0, null, logSize);
-        System.out.println("build status: "+logSize[0] +"");
-        byte[] logData = new byte[(int)logSize[0]];
-        CL.clGetProgramBuildInfo(program, devices[0], CL.CL_PROGRAM_BUILD_STATUS, logSize[0], Pointer.to(logData), null);
-        System.out.println("Obtained status data:");
-        System.out.println(">"+new String(logData, 0, logData.length-1)+"<");
-        logSize = new long[1];
-        CL.clGetProgramBuildInfo(program, devices[0], CL.CL_PROGRAM_BUILD_OPTIONS, 0, null, logSize);
-        System.out.println("build options: "+logSize[0] +"");
-        logData = new byte[(int)logSize[0]];
-        CL.clGetProgramBuildInfo(program, devices[0], CL.CL_PROGRAM_BUILD_OPTIONS, logSize[0], Pointer.to(logData), null);
-        System.out.println("Obtained build options data:");
-        System.out.println(">"+new String(logData, 0, logData.length-1)+"<");
+		CL.clGetProgramBuildInfo(program, devices[0],
+				CL.CL_PROGRAM_BUILD_STATUS, 0, null, logSize);
+		System.out.println("build status: " + logSize[0] + "");
+		byte[] logData = new byte[(int) logSize[0]];
+		CL.clGetProgramBuildInfo(program, devices[0],
+				CL.CL_PROGRAM_BUILD_STATUS, logSize[0], Pointer.to(logData),
+				null);
+		System.out.println("Obtained status data:");
+		System.out.println(">" + new String(logData, 0, logData.length - 1)
+				+ "<");
+		logSize = new long[1];
+		CL.clGetProgramBuildInfo(program, devices[0],
+				CL.CL_PROGRAM_BUILD_OPTIONS, 0, null, logSize);
+		System.out.println("build options: " + logSize[0] + "");
+		logData = new byte[(int) logSize[0]];
+		CL.clGetProgramBuildInfo(program, devices[0],
+				CL.CL_PROGRAM_BUILD_OPTIONS, logSize[0], Pointer.to(logData),
+				null);
+		System.out.println("Obtained build options data:");
+		System.out.println(">" + new String(logData, 0, logData.length - 1)
+				+ "<");
 
-        logSize = new long[1];
-        CL.clGetProgramBuildInfo(program, devices[0], CL.CL_PROGRAM_BUILD_LOG, 0, null, logSize);
+		logSize = new long[1];
+		CL.clGetProgramBuildInfo(program, devices[0], CL.CL_PROGRAM_BUILD_LOG,
+				0, null, logSize);
 
 	}
 

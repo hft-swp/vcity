@@ -8,9 +8,16 @@ import de.hft_stuttgart.swp2.model.Vertex;
 public class VolumeTest {
 
 	public static void main(String[] args) {
-		testCity1();
+		long begin = System.currentTimeMillis();
+		for (int i = 0; i < 100; i++) {
+			testCity1();
+		}
 		testCity2();
 		VolumeCalculator.calculateVolume();
+		for (Building b : City.getInstance().getBuildings()) {
+			System.out.println(b.getVolume());
+		}
+		System.out.println("Complete run in: " + (System.currentTimeMillis() - begin) + "ms");
 	}
 	
 	private static void testCity1() {
