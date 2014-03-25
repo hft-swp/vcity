@@ -31,6 +31,7 @@ import org.jocl.cl_command_queue;
 import org.jocl.cl_context;
 import org.jocl.cl_context_properties;
 import org.jocl.cl_device_id;
+import org.jocl.cl_event;
 import org.jocl.cl_kernel;
 import org.jocl.cl_mem;
 import org.jocl.cl_platform_id;
@@ -129,17 +130,15 @@ public class VolumeCalculator {
 		// Arrays.toString(triangleCount));
 
 		// allocate memory on the gpu
-		cl_mem verticesMem = clCreateBuffer(context, CL.CL_MEM_READ_ONLY
-				| CL.CL_MEM_USE_HOST_PTR, Sizeof.cl_float * verticesSize,
-				Pointer.to(vertices), null);
+		cl_mem verticesMem = clCreateBuffer(context, CL.CL_MEM_READ_ONLY | CL.CL_MEM_USE_HOST_PTR,
+				Sizeof.cl_float * verticesSize, Pointer.to(vertices), null);
 
 		cl_mem triangleCountMem = clCreateBuffer(context, CL.CL_MEM_READ_ONLY
-				| CL.CL_MEM_USE_HOST_PTR, Sizeof.cl_int * n,
-				Pointer.to(triangleCount), null);
+				| CL.CL_MEM_USE_HOST_PTR, Sizeof.cl_int * n, Pointer.to(triangleCount), null);
 
 		Pointer volumePointer = Pointer.to(volumeArray);
-		cl_mem volumeMem = clCreateBuffer(context, CL_MEM_READ_WRITE,
-				Sizeof.cl_float * n, null, null);
+		cl_mem volumeMem = clCreateBuffer(context, CL_MEM_READ_WRITE, Sizeof.cl_float * n, null,
+				null);
 
 		// Set the arguments for the kernel
 		clSetKernelArg(kernel, 0, Sizeof.cl_mem, Pointer.to(verticesMem));
@@ -150,24 +149,23 @@ public class VolumeCalculator {
 		long global_work_size[] = new long[] { n };
 		long local_work_size[] = new long[] { 1 };
 
-		// long begin = System.nanoTime();
-
 		// Execute the kernel
-		clEnqueueNDRangeKernel(commandQueue, kernel, 1, null, global_work_size,
-				local_work_size, 0, null, null);
-
-		// System.out.println("Time calculating: " + verticesSize + " floats: "
-		// + (System.nanoTime() - begin) + "ns");
+		cl_event kernelEvent = new cl_event();
+		clEnqueueNDRangeKernel(commandQueue, kernel, 1, null, global_work_size, local_work_size, 0,
+				null, kernelEvent);
 
 		// Read the output data
-		clEnqueueReadBuffer(commandQueue, volumeMem, CL_TRUE, 0, n
-				* Sizeof.cl_float, volumePointer, 0, null, null);
+		clEnqueueReadBuffer(commandQueue, volumeMem, CL_TRUE, 0, n * Sizeof.cl_float,
+				volumePointer, 0, null, null);
+
+		// wait for the kernel to finish
+		CL.clFinish(commandQueue);
 		
+		profile(kernelEvent);
+
 		for (int i = 0; i < n; i++) {
 			City.getInstance().getBuildings().get(i).setVolume(volumeArray[i]);
 		}
-		
-		// System.out.println("Ergebnis: " + Arrays.toString(volumeArray));
 
 		// Release kernel, program, and memory objects
 		clReleaseMemObject(verticesMem);
@@ -177,6 +175,40 @@ public class VolumeCalculator {
 		clReleaseProgram(program);
 		clReleaseCommandQueue(commandQueue);
 		clReleaseContext(context);
+	}
+	
+	private static void profile(cl_event kernelEvent) {
+		long submitTime[] = new long[1];
+		long queuedTime[] = new long[1];
+		long startTime[] = new long[1];
+		long endTime[] = new long[1];
+		CL.clGetEventProfilingInfo(kernelEvent, CL.CL_PROFILING_COMMAND_QUEUED, Sizeof.cl_ulong,
+				Pointer.to(queuedTime), null);
+		CL.clGetEventProfilingInfo(kernelEvent, CL.CL_PROFILING_COMMAND_SUBMIT, Sizeof.cl_ulong,
+				Pointer.to(submitTime), null);
+		CL.clGetEventProfilingInfo(kernelEvent, CL.CL_PROFILING_COMMAND_START, Sizeof.cl_ulong,
+				Pointer.to(startTime), null);
+		CL.clGetEventProfilingInfo(kernelEvent, CL.CL_PROFILING_COMMAND_END, Sizeof.cl_ulong,
+				Pointer.to(endTime), null);
+		
+		submitTime[0] -= queuedTime[0];
+		startTime[0] -= queuedTime[0];
+		endTime[0] -= queuedTime[0];
+		
+        System.out.println("Queued : "+
+            String.format("%8.3f", 0.0)+" ms");
+        System.out.println("Submit : "+
+            String.format("%8.3f", submitTime[0]/1e6)+" ms");
+        System.out.println("Start  : "+
+            String.format("%8.3f", startTime[0]/1e6)+" ms");
+        System.out.println("End    : "+
+            String.format("%8.3f", endTime[0]/1e6)+" ms");
+
+        long duration = endTime[0]-startTime[0];
+        System.out.println("Time   : "+
+            String.format("%8.3f", duration / 1e6)+" ms");
+
+		
 	}
 
 	/**
@@ -190,13 +222,13 @@ public class VolumeCalculator {
 		contextProperties.addProperty(CL_CONTEXT_PLATFORM, platforms[0]);
 
 		// Create an OpenCL context on a GPU device
-		context = CL.clCreateContextFromType(contextProperties,
-				CL.CL_DEVICE_TYPE_GPU, null, null, null);
+		context = CL.clCreateContextFromType(contextProperties, CL.CL_DEVICE_TYPE_GPU, null, null,
+				null);
 		if (context == null) {
 			// If no context for a GPU device could be created,
 			// try to create one for a CPU device.
-			context = CL.clCreateContextFromType(contextProperties,
-					CL.CL_DEVICE_TYPE_CPU, null, null, null);
+			context = CL.clCreateContextFromType(contextProperties, CL.CL_DEVICE_TYPE_CPU, null,
+					null, null);
 
 			if (context == null) {
 				// TODO: error handling
@@ -215,15 +247,13 @@ public class VolumeCalculator {
 		// Obtain the cl_device_id for the first device
 		int numDevices = (int) numBytes[0] / Sizeof.cl_device_id;
 		cl_device_id devices[] = new cl_device_id[numDevices];
-		CL.clGetContextInfo(context, CL.CL_CONTEXT_DEVICES, numBytes[0],
-				Pointer.to(devices), null);
+		CL.clGetContextInfo(context, CL.CL_CONTEXT_DEVICES, numBytes[0], Pointer.to(devices), null);
 
 		// Create a command-queue
-		commandQueue = clCreateCommandQueue(context, devices[0], 0, null);
+		commandQueue = clCreateCommandQueue(context, devices[0], CL.CL_QUEUE_PROFILING_ENABLE, null);
 
 		// Create the program from the source code
-		program = clCreateProgramWithSource(context, 1,
-				new String[] { programSource }, null, null);
+		program = clCreateProgramWithSource(context, 1, new String[] { programSource }, null, null);
 
 		// Build the program
 		clBuildProgram(program, 0, null, null, null, null);
@@ -235,31 +265,24 @@ public class VolumeCalculator {
 	@SuppressWarnings("unused")
 	private void debugProgram(cl_device_id[] devices) {
 		long[] logSize = new long[1];
-		CL.clGetProgramBuildInfo(program, devices[0],
-				CL.CL_PROGRAM_BUILD_STATUS, 0, null, logSize);
+		CL.clGetProgramBuildInfo(program, devices[0], CL.CL_PROGRAM_BUILD_STATUS, 0, null, logSize);
 		System.out.println("build status: " + logSize[0] + "");
 		byte[] logData = new byte[(int) logSize[0]];
-		CL.clGetProgramBuildInfo(program, devices[0],
-				CL.CL_PROGRAM_BUILD_STATUS, logSize[0], Pointer.to(logData),
-				null);
+		CL.clGetProgramBuildInfo(program, devices[0], CL.CL_PROGRAM_BUILD_STATUS, logSize[0],
+				Pointer.to(logData), null);
 		System.out.println("Obtained status data:");
-		System.out.println(">" + new String(logData, 0, logData.length - 1)
-				+ "<");
+		System.out.println(">" + new String(logData, 0, logData.length - 1) + "<");
 		logSize = new long[1];
-		CL.clGetProgramBuildInfo(program, devices[0],
-				CL.CL_PROGRAM_BUILD_OPTIONS, 0, null, logSize);
+		CL.clGetProgramBuildInfo(program, devices[0], CL.CL_PROGRAM_BUILD_OPTIONS, 0, null, logSize);
 		System.out.println("build options: " + logSize[0] + "");
 		logData = new byte[(int) logSize[0]];
-		CL.clGetProgramBuildInfo(program, devices[0],
-				CL.CL_PROGRAM_BUILD_OPTIONS, logSize[0], Pointer.to(logData),
-				null);
+		CL.clGetProgramBuildInfo(program, devices[0], CL.CL_PROGRAM_BUILD_OPTIONS, logSize[0],
+				Pointer.to(logData), null);
 		System.out.println("Obtained build options data:");
-		System.out.println(">" + new String(logData, 0, logData.length - 1)
-				+ "<");
+		System.out.println(">" + new String(logData, 0, logData.length - 1) + "<");
 
 		logSize = new long[1];
-		CL.clGetProgramBuildInfo(program, devices[0], CL.CL_PROGRAM_BUILD_LOG,
-				0, null, logSize);
+		CL.clGetProgramBuildInfo(program, devices[0], CL.CL_PROGRAM_BUILD_LOG, 0, null, logSize);
 
 	}
 
