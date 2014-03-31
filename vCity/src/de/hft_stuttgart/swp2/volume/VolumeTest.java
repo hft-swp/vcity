@@ -18,7 +18,7 @@ public class VolumeTest {
 //		}
 	}
 	
-	private static void testCity1() {
+	public static void testCity1() {
 		City city = City.getInstance();
 		Building b = new Building();
 		city.addBuilding(b);
@@ -67,7 +67,7 @@ public class VolumeTest {
 		b.addTriangle(t);
 	}
 	
-	private static void testCity2() {
+	public static void testCity2() {
 		City city = City.getInstance();
 		Building b = new Building();
 		city.addBuilding(b);
