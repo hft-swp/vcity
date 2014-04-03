@@ -2,16 +2,12 @@ package de.hft_stuttgart.swp2.parser;
 
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 import org.citygml4j.CityGMLContext;
 import org.citygml4j.builder.CityGMLBuilder;
-import org.citygml4j.model.citygml.appearance.Appearance;
-import org.citygml4j.model.citygml.appearance.AppearanceProperty;
-import org.citygml4j.model.citygml.appearance.Color;
-import org.citygml4j.model.citygml.appearance.SurfaceDataProperty;
-import org.citygml4j.model.citygml.appearance.X3DMaterial;
 import org.citygml4j.model.citygml.building.AbstractBoundarySurface;
 import org.citygml4j.model.citygml.core.CityModel;
 import org.citygml4j.model.gml.geometry.aggregates.MultiSurface;
@@ -21,6 +17,9 @@ import org.citygml4j.util.gmlid.GMLIdManager;
 import org.citygml4j.util.walker.FeatureWalker;
 import org.citygml4j.xml.io.CityGMLInputFactory;
 import org.citygml4j.xml.io.reader.CityGMLReader;
+
+import de.hft_stuttgart.swp2.model.Building;
+import de.hft_stuttgart.swp2.model.Vertex;
 
 public class SimpleReader {
 
@@ -33,8 +32,6 @@ public class SimpleReader {
 
 	System.out.println(df.format(new Date()) + "reading CityGML file LOD2_Building_v100.gml");
 	CityGMLInputFactory in = builder.createCityGMLInputFactory();
-	// CityGMLReader reader = in.createCityGMLReader(new File(
-	// "P:/SS14/SWP2/Gruenbuehl_LOD2.gml"));
 
 	ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
 	InputStream input = classLoader.getResourceAsStream("Gruenbuehl_LOD2.gml");
@@ -43,60 +40,72 @@ public class SimpleReader {
 
 	final GMLIdManager gmlIdManager = DefaultGMLIdManager.getInstance();
 
-	System.out.println(df.format(new Date()) + "using FeatureWalker");
-	FeatureWalker walker = new FeatureWalker() {
+	System.out.println(df.format(new Date()) + "Luke walks...");
+	FeatureWalker luke = new FeatureWalker() {
 
 	    @Override
 	    public void visit(AbstractBoundarySurface boundarySurface) {
+
+		// DEBUG START
+		List<Building> buildingsList = new ArrayList<>();
+
 		MultiSurface multiSurface = boundarySurface.getLod2MultiSurface().getMultiSurface();
+		List<SurfaceProperty> surfaceMember = multiSurface.getSurfaceMember();
 		String id = multiSurface.getId();
 
-		System.out.println("MEMBER: " + multiSurface.getSurfaceMember());
-		List<SurfaceProperty> test = multiSurface.getSurfaceMember();
-		for (SurfaceProperty string : test) {
-		    System.out.println(string.getGeometry());
-		    System.out.println(string.getGeometry().getId());
+		for (SurfaceProperty myPolygon : surfaceMember) {
+		    System.out.println("type: " + myPolygon.getGeometry().getGMLClass() + ", " + myPolygon.getType());
+		    System.out.println("surface: " + myPolygon.getSurface());
+		    System.out.println(myPolygon.getGeometry());
+		    System.out.println(myPolygon.getObject().getId());
+		    // TODO check how to get the damn coordinates
 		}
+		
+		Building testBuilding = new Building(id, new ArrayList<Vertex>());
+		
+		// DEBUG END
 
-		if (id == null || id.length() == 0) {
-		    id = gmlIdManager.generateUUID();
-		    multiSurface.setId(id);
-		}
-
-		Double red, green, blue;
-		switch (boundarySurface.getCityGMLClass()) {
-		case BUILDING_ROOF_SURFACE:
-		    red = 1.0;
-		    green = 0.0;
-		    blue = 0.0;
-		    break;
-		case BUILDING_WALL_SURFACE:
-		    red = 0.5;
-		    green = 0.5;
-		    blue = 0.5;
-		    break;
-		default:
-		    red = 0.3;
-		    green = 0.3;
-		    blue = 0.3;
-		}
-
-		X3DMaterial material = new X3DMaterial();
-		material.setDiffuseColor(new Color(red, green, blue));
-		material.addTarget('#' + id);
-
-		Appearance appearance = new Appearance();
-		appearance.setTheme("rgbColor");
-		appearance.addSurfaceDataMember(new SurfaceDataProperty(material));
-
-		boundarySurface.addAppearance(new AppearanceProperty(appearance));
-		super.visit(boundarySurface);
+		// if (id == null || id.length() == 0) {
+		// id = gmlIdManager.generateUUID();
+		// multiSurface.setId(id);
+		// }
+		//
+		// Double red, green, blue;
+		// switch (boundarySurface.getCityGMLClass()) {
+		// case BUILDING_ROOF_SURFACE:
+		// red = 1.0;
+		// green = 0.0;
+		// blue = 0.0;
+		// break;
+		// case BUILDING_WALL_SURFACE:
+		// red = 0.5;
+		// green = 0.5;
+		// blue = 0.5;
+		// break;
+		// default:
+		// red = 0.3;
+		// green = 0.3;
+		// blue = 0.3;
+		// }
+		//
+		// X3DMaterial material = new X3DMaterial();
+		// material.setDiffuseColor(new Color(red, green, blue));
+		// material.addTarget('#' + id);
+		//
+		// Appearance appearance = new Appearance();
+		// appearance.setTheme("rgbColor");
+		// appearance.addSurfaceDataMember(new
+		// SurfaceDataProperty(material));
+		//
+		// boundarySurface.addAppearance(new
+		// AppearanceProperty(appearance));
+		// super.visit(boundarySurface);
 	    }
 
 	};
 
 	try {
-	    cityModel.accept(walker);
+	    cityModel.accept(luke);
 
 	    // // writing citygml4j object tree as CityGML 2.0.0 document
 	    // CityGMLOutputFactory out =
@@ -117,5 +126,4 @@ public class SimpleReader {
 	}
 	System.out.println(df.format(new Date()) + "sample citygml4j application successfully finished");
     }
-
 }
