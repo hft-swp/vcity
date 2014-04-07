@@ -15,6 +15,12 @@
 	<classpathentry kind="lib" path="lib/jocl/JOCL-0.1.9.jar"/>
 	<classpathentry kind="lib" path="lib/citygml/citygml4j-2.0.jar"/>
 	<classpathentry kind="lib" path="lib/citygml/jaxb-api.jar"/>
-	<classpathentry kind="lib" path="lib/citygml/jaxb-xjc-2.2.3.jar"/>
+	<classpathentry kind="lib" path="lib/citygml/jaxb-xjc-2.2.3.jar" sourcepath="C:/Users/Marcel/.m2/repository/com/sun/xml/bind/jaxb-xjc/2.2.3/jaxb-xjc-2.2.3-sources.jar"/>
+	<classpathentry kind="lib" path="lib/jogl/gluegen-rt.jar" sourcepath="C:/Users/Marcel/.m2/repository/org/jogamp/gluegen/gluegen-rt/2.1.5-01/gluegen-rt-2.1.5-01-sources.jar"/>
+	<classpathentry kind="lib" path="lib/jogl/jogl-all.jar" sourcepath="C:/Users/Marcel/.m2/repository/org/jogamp/jogl/jogl-all/2.1.5-01/jogl-all-2.1.5-01-sources.jar"/>
+	<classpathentry kind="lib" path="lib/jogl/nativewindow-core.jar"/>
+	<classpathentry kind="lib" path="lib/jogl/newt-core.jar"/>
+	<classpathentry kind="lib" path="lib/jogl/jogl-all-natives-windows-amd64.jar"/>
+	<classpathentry kind="lib" path="lib/jogl/gluegen-rt-natives-windows-amd64.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
