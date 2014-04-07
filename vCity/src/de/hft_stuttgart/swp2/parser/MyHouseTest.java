@@ -1,29 +1,8 @@
 package de.hft_stuttgart.swp2.parser;
 
-/*
- * This file is part of citygml4j.
- * Copyright (c) 2007 - 2010
- * Institute for Geodesy and Geoinformation Science
- * Technische Universitaet Berlin, Germany
- * http://www.igg.tu-berlin.de/
- *
- * The citygml4j library is free software:
- * you can redistribute it and/or modify it under the terms of the
- * GNU Lesser General Public License as published by the Free
- * Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- * 
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
- * 
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library. If not, see 
- * <http://www.gnu.org/licenses/>.
- */
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -123,7 +102,7 @@ import org.citygml4j.model.gml.geometry.primitives.LineString;
 import org.citygml4j.model.gml.geometry.primitives.LinearRing;
 import org.citygml4j.model.gml.geometry.primitives.OrientableCurve;
 import org.citygml4j.model.gml.geometry.primitives.OrientableSurface;
-import org.citygml4j.model.gml.geometry.primitives.Point;
+import org.citygml4j.geometry.Point;
 import org.citygml4j.model.gml.geometry.primitives.Polygon;
 import org.citygml4j.model.gml.geometry.primitives.Ring;
 import org.citygml4j.model.gml.geometry.primitives.Solid;
@@ -142,66 +121,91 @@ import org.w3c.dom.Element;
 
 import de.hft_stuttgart.swp2.model.Vertex;
 
+
+/**
+ * Experiments using CityGML4j parser
+ * @author 02grst1bif, 02grfr1bif
+ */
 public class MyHouseTest {
+	
+	/**
+	 * Todo:
+	 * - successfully (!) read Polygons
+	 * - transform to (0,0) coordinate
+	 * - convert Polygon to Vertices
+	 * - new Building ( ID, POLYGON, VERTICES )
+	 * - Export csv ( ID, VOLUME ) 
+	 */
+	
+	
+	/**
+	 * Will be provided by Import Dialog
+	 */
+//	public static final String fileName = "Gruenbuehl_LOD2.gml";
+	public static final String fileName = "einHaus.gml";
+	
 
     public static void main(String[] args) throws Exception {
-	SimpleDateFormat df = new SimpleDateFormat("[HH:mm:ss] ");
 
-	System.out.println(df.format(new Date()) + "setting up citygml4j context and JAXB builder");
+    System.out.println("setting up citygml4j context and JAXB builder");
 	CityGMLContext ctx = new CityGMLContext();
 	CityGMLBuilder builder = ctx.createCityGMLBuilder();
 
-	System.out.println(df.format(new Date()) + "reading CityGML file LOD3_Railway_v200.gml");
+	System.out.println("reading CityGML file " + fileName);
 	CityGMLInputFactory in = builder.createCityGMLInputFactory();
-
 	ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-	InputStream input = classLoader.getResourceAsStream("einHaus.gml");
-	CityGMLReader reader = in.createCityGMLReader("einHaus.gml", input);
+	InputStream input = classLoader.getResourceAsStream(fileName);
+	CityGMLReader reader = in.createCityGMLReader(fileName, input);
 	CityModel cityModel = (CityModel) reader.nextFeature();
 	reader.close();
 
-	final HashMap<CityGMLClass, Integer> features = new HashMap<CityGMLClass, Integer>();
-	final HashMap<GMLClass, Integer> geometries = new HashMap<GMLClass, Integer>();
+//	final HashMap<CityGMLClass, Integer> features = new HashMap<CityGMLClass, Integer>();
+//	final HashMap<GMLClass, Integer> geometries = new HashMap<GMLClass, Integer>();
 
-	System.out.println(df.format(new Date()) + "walking through document and counting features/geometries");
 	GMLWalker walker = new GMLWalker() {
 
 	    @Override
 	    public void visit(AbstractFeature abstractFeature) {
-		if (abstractFeature instanceof CityGML) {
-		    CityGMLClass key = ((CityGML) abstractFeature).getCityGMLClass();
-		    int count = features.containsKey(key) ? features.get(key) + 1 : 1;
-		    features.put(key, count);
-		}
-
-		super.visit(abstractFeature);
+//		if (abstractFeature instanceof CityGML) {
+//		    CityGMLClass key = ((CityGML) abstractFeature).getCityGMLClass();
+//		    int count = features.containsKey(key) ? features.get(key) + 1 : 1;
+//		    features.put(key, count);
+//		}
+//
+//		super.visit(abstractFeature);
 	    }
 
 	    @Override
 	    public void visit(AbstractGeometry abstractGeometry) {
-		GMLClass key = abstractGeometry.getGMLClass();
-		int count = geometries.containsKey(key) ? geometries.get(key) + 1 : 1;
-		geometries.put(key, count);
+//		GMLClass key = abstractGeometry.getGMLClass();
+//		int count = geometries.containsKey(key) ? geometries.get(key) + 1 : 1;
+//		geometries.put(key, count);
 		GMLVisitor gvisit = new GMLVisitor() {
 
 		    @Override
 		    public void visit(Polygon arg0) {
 			System.err.println("Polygon ID: " + arg0.getId());
 			AbstractRingProperty arp = arg0.getExterior();
-			AbstractRing ar = arp.getRing();
+			LinearRing lr = (LinearRing) arp.getRing();
+			List<Double> coord = lr.getPosList().getValue();
+			
+			System.err.println("Polygon: " + Arrays.toString(coord.toArray()));
+			
+			
+			
 
-			BoundingBox bb = ar.calcBoundingBox();
-			org.citygml4j.geometry.Point p1 = bb.getLowerCorner();
-			org.citygml4j.geometry.Point p2 = bb.getUpperCorner();
-			System.err.println("--Polygon Lower Corner: x:" + p1.getX() + " y:" + p1.getY() + " z:" + p1.getZ());
-			System.err.println("--Polygon Upper Corner: x:" + p2.getX() + " y:" + p2.getY() + " z:" + p2.getZ());
-
-			Vector<Vertex> points = new Vector<Vertex>();
-			Vertex v1 = new Vertex((float) p1.getX(), (float) p1.getY(), (float) p1.getZ());
-			Vertex v2 = new Vertex((float) p2.getX(), (float) p2.getY(), (float) p2.getZ());
-			points.add(v1);
-			points.add(v2);
-			TestPolygon testPolygon = new TestPolygon(arg0.getId(), points);
+//			BoundingBox bb = ar.calcBoundingBox();
+//			Point p1 = bb.getLowerCorner();
+//			Point p2 = bb.getUpperCorner();
+//			System.err.println("--Polygon Lower Corner: x:" + p1.getX() + " y:" + p1.getY() + " z:" + p1.getZ());
+//			System.err.println("--Polygon Upper Corner: x:" + p2.getX() + " y:" + p2.getY() + " z:" + p2.getZ());
+//
+//			Vector<Vertex> points = new Vector<Vertex>();
+//			Vertex v1 = new Vertex((float) p1.getX(), (float) p1.getY(), (float) p1.getZ());
+//			Vertex v2 = new Vertex((float) p2.getX(), (float) p2.getY(), (float) p2.getZ());
+//			points.add(v1);
+//			points.add(v2);
+//			TestPolygon testPolygon = new TestPolygon(arg0.getId(), points);
 
 			// TODO one value is missing
 
@@ -826,12 +830,6 @@ public class MyHouseTest {
 		    }
 
 		    @Override
-		    public void visit(Point arg0) {
-			// TODO Auto-generated method stub
-
-		    }
-
-		    @Override
 		    public void visit(RectifiedGrid arg0) {
 			// TODO Auto-generated method stub
 
@@ -908,6 +906,13 @@ public class MyHouseTest {
 			// TODO Auto-generated method stub
 
 		    }
+
+			@Override
+			public void visit(
+					org.citygml4j.model.gml.geometry.primitives.Point arg0) {
+				// TODO Auto-generated method stub
+				
+			}
 		};
 
 		abstractGeometry.accept(gvisit);
@@ -918,19 +923,18 @@ public class MyHouseTest {
 	};
 
 	cityModel.accept(walker);
-
-	System.out.println(df.format(new Date()) + "einHaus.gml contains:");
-	System.out.println("Features:");
-	for (CityGMLClass feature : features.keySet())
-	    System.out.println(feature + ": " + features.get(feature));
-
-	System.out.println("\nGeometries:");
-	for (GMLClass geometry : geometries.keySet())
-	    System.out.println(geometry + ": " + geometries.get(geometry));
+//
+//	System.out.println(df.format(new Date()) + "einHaus.gml contains:");
+//	System.out.println("Features:");
+//	for (CityGMLClass feature : features.keySet())
+//	    System.out.println(feature + ": " + features.get(feature));
+//
+//	System.out.println("\nGeometries:");
+//	for (GMLClass geometry : geometries.keySet())
+//	    System.out.println(geometry + ": " + geometries.get(geometry));
 
 	// TODO create List<Vertex> for each surfaces / polygons of the building
 //	Building testBuilding = new Building("test", List < Vertex > polygon);
 
-	System.out.println(df.format(new Date()) + "sample citygml4j application successfully finished");
     }
 }
