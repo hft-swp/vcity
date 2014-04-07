@@ -1,4 +1,4 @@
-package de.hft_stuttgart.swp2.volume;
+package de.hft_stuttgart.swp2.opencl;
 
 import de.hft_stuttgart.swp2.model.Building;
 import de.hft_stuttgart.swp2.model.City;
@@ -8,7 +8,7 @@ import de.hft_stuttgart.swp2.model.Vertex;
 public class VolumeTest {
 
 	public static void main(String[] args) {
-		for (int i = 0; i < 100; i++) {
+		for (int i = 0; i < 70000 ; i++) {
 			testCity1();
 		}
 		testCity2();

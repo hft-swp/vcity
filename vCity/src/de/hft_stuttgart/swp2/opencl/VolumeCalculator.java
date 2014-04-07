@@ -1,4 +1,4 @@
-package de.hft_stuttgart.swp2.volume;
+package de.hft_stuttgart.swp2.opencl;
 
 import static org.jocl.CL.CL_CONTEXT_PLATFORM;
 import static org.jocl.CL.CL_MEM_READ_WRITE;
