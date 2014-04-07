@@ -32,7 +32,7 @@ public class CityMap3D extends KoordinatenSystem{
 		
 		//---------------TEST-------------------------------------
 		BuildingTest bt = new BuildingTest();
-		buildings = bt.buildings;
+		buildings = bt.buildings;	
 		//--------------------------------------------------------
 		
 		GraphicalBuilding [] graphicalBuildings = new GraphicalBuilding [buildings.size()];
