@@ -121,6 +121,11 @@ import org.w3c.dom.Element;
 
 import de.hft_stuttgart.swp2.model.Vertex;
 
+/**
+ * 
+ * NOT USED. FOR EXPREMINENTAL USE ONLY!
+ *
+ */
 
 /**
  * Experiments using CityGML4j parser

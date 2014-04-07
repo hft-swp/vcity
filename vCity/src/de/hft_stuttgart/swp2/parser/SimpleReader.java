@@ -21,6 +21,11 @@ import org.citygml4j.xml.io.reader.CityGMLReader;
 import de.hft_stuttgart.swp2.model.Building;
 import de.hft_stuttgart.swp2.model.Vertex;
 
+/**
+ * 
+ * NOT USED. FOR EXPREMINENTAL USE ONLY!
+ *
+ */
 public class SimpleReader {
 
     public static void main(String[] args) throws Exception {

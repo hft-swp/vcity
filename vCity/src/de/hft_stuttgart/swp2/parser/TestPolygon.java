@@ -4,6 +4,7 @@ import java.util.Vector;
 
 import de.hft_stuttgart.swp2.model.Vertex;
 
+
 public class TestPolygon {
     
     private String id;
