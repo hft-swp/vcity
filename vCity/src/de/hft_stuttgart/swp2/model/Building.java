@@ -4,7 +4,7 @@ import java.util.List;
 
 public class Building extends MeshInterface {
 	
-    	private String id;
+    private String id;
 	private double volume;
 	private List<Vertex> polygon;
 	

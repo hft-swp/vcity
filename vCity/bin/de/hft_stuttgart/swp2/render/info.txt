@@ -1,5 +1,0 @@
-Mit dem Cursor "Links" und "Rechts" kann man 
-die x-Achse entlang laufen, mit 
-"oben" und "unten" die z-Achse und
-mit y und a die y-Achse.
-Mit der Maus gedrückt kann man die Achsen rotieren lassen.
