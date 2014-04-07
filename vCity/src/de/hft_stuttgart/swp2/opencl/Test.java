@@ -1,4 +1,4 @@
-package de.hft_stuttgart.swp2.volume;
+package de.hft_stuttgart.swp2.opencl;
 
 import java.util.Arrays;
 

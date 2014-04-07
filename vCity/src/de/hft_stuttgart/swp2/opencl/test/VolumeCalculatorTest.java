@@ -1,11 +1,11 @@
-package de.hft_stuttgart.swp2.volume.test;
+package de.hft_stuttgart.swp2.opencl.test;
 
 import org.junit.Assert;
 import org.junit.Test;
 
 import de.hft_stuttgart.swp2.model.City;
-import de.hft_stuttgart.swp2.volume.VolumeCalculator;
-import de.hft_stuttgart.swp2.volume.VolumeTest;
+import de.hft_stuttgart.swp2.opencl.VolumeCalculator;
+import de.hft_stuttgart.swp2.opencl.VolumeTest;
 
 public class VolumeCalculatorTest {
 
