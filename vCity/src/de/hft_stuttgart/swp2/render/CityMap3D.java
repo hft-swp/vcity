@@ -7,7 +7,7 @@ import de.hft_stuttgart.swp2.model.Building;
 import de.hft_stuttgart.swp2.model.City;
 
 
-public class CityMap3D extends KoordinatenSystem{
+public class CityMap3D extends CoordinateSystem{
 
 	/**
 	 * 

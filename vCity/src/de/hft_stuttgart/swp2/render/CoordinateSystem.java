@@ -27,7 +27,7 @@ import com.jogamp.opengl.util.FPSAnimator;
  * @author Joerg Amelunxen - japr0.wordpress.com
  * @modified Marcel Ruckaberle
  */
-public class KoordinatenSystem extends JFrame implements GLEventListener, KeyListener,
+public class CoordinateSystem extends JFrame implements GLEventListener, KeyListener,
 MouseListener, MouseMotionListener{
 
 	/**
@@ -52,7 +52,7 @@ MouseListener, MouseMotionListener{
     protected float transy;
     protected float transz;
 
-    KoordinatenSystem(String Name_value, int x, int y){
+    CoordinateSystem(String Name_value, int x, int y){
     	// Setze interne Variablen
     	glu = new GLU();
     	//glut = new GLUT();
@@ -157,38 +157,45 @@ MouseListener, MouseMotionListener{
      * 
      * @param GL2 gl, float min, float max 
      */
-	public void print_koordinates(GL2 gl, float min, float max){
+	public void print_koordinates(GL2 gl, float minX, float maxX, 
+			float minY, float maxY, float minZ, float maxZ){
 		gl.glBegin(GL.GL_LINES);
 		
 		// x Achse 
-		gl.glVertex3f(min,0f,0f);
-		gl.glVertex3f(max,0f,0f);
+		gl.glVertex3f(minX,0f,0f);
+		gl.glVertex3f(maxX,0f,0f);
 		
 		// y Achse
-		gl.glVertex3f(0f,min,0f);
-		gl.glVertex3f(0f,max,0f);
+		gl.glVertex3f(0f,minY,0f);
+		gl.glVertex3f(0f,maxY,0f);
 		
 		// z Achse
-		gl.glVertex3f(0f,0f,min);
-		gl.glVertex3f(0f,0f,max);
+		gl.glVertex3f(0f,0f,minZ);
+		gl.glVertex3f(0f,0f,maxZ);
 		
 		gl.glEnd();
 		
 		// 1er Teilstriche
-		for( float i = min; i < max; i++ ){
+		for( float i = minX; i < maxX; i++ ){
 			gl.glBegin(GL.GL_LINES);		
 			// Striche auf der X - Achse
 			gl.glVertex3f(i,	0f,		0.2f);
 			gl.glVertex3f(i,	0f,		-0.2f);	
 			gl.glVertex3f(i,	0.2f,	0f);
 			gl.glVertex3f(i,	-0.2f,	0f);
-			
+			gl.glEnd();
+		}
+		for( float i = minY; i < maxY; i++ ){
+			gl.glBegin(GL.GL_LINES);
 			// Striche auf der Y - Achse
 			gl.glVertex3f(0.2f	,i	,	0f);
 			gl.glVertex3f(-0.2f	,i	,	0f);	
 			gl.glVertex3f(0f	,i	,	0.2f);
 			gl.glVertex3f(0f	,i	,	-0.2f);
-
+			gl.glEnd();
+		}
+		for( float i = minZ; i < maxZ; i++ ){
+			gl.glBegin(GL.GL_LINES);
 			// Striche auf der Z - Achse
 			gl.glVertex3f(0.2f	,0	,	i);
 			gl.glVertex3f(-0.2f	,0	,	i);	
@@ -199,20 +206,26 @@ MouseListener, MouseMotionListener{
 		}
 		
 		// 0.1er Teilstriche
-		for( float i = min; i < max; i+=0.1f ){
+		for( float i = minX; i < maxX; i+=0.1f ){
 			gl.glBegin(GL.GL_LINES);		
 			// Striche auf der X - Achse
 			gl.glVertex3f(i,	0f,		0.02f);
 			gl.glVertex3f(i,	0f,		-0.02f);	
 			gl.glVertex3f(i,	0.02f,	0f);
 			gl.glVertex3f(i,	-0.02f,	0f);
-			
+			gl.glEnd();
+		}
+		for( float i = minY; i < maxY; i+=0.1f ){
+			gl.glBegin(GL.GL_LINES);	
 			// Striche auf der Y - Achse
 			gl.glVertex3f(0.02f	,i	,	0f);
 			gl.glVertex3f(-0.02f,i	,	0f);	
 			gl.glVertex3f(0f	,i	,	0.02f);
 			gl.glVertex3f(0f	,i	,	-0.02f);
-			
+			gl.glEnd();
+		}
+		for( float i = minZ; i < maxZ; i+=0.1f ){
+			gl.glBegin(GL.GL_LINES);	
 			// Striche auf der Z - Achse
 			gl.glVertex3f(0.02f	,0	,	i);
 			gl.glVertex3f(-0.02f,0	,	i);	
@@ -228,7 +241,7 @@ MouseListener, MouseMotionListener{
         gl.glClear(GL.GL_COLOR_BUFFER_BIT);
 
         // Zeichne ein Koordinatensystem
-        print_koordinates(gl, -10 , 10);
+        print_koordinates(gl, -10 , 10, -10, 10, -10, 10);
     }
 
     /**
