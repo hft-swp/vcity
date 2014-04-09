@@ -1,9 +1,8 @@
 package de.hft_stuttgart.swp2.parser;
 
-import java.util.List;
+import java.util.ArrayList;
 
-import org.citygml4j.model.gml.geometry.primitives.Polygon;
-
+import de.hft_stuttgart.swp2.model.Triangle;
 import de.hft_stuttgart.swp2.model.Vertex;
 
 /**
@@ -13,16 +12,18 @@ import de.hft_stuttgart.swp2.model.Vertex;
  */
 public class PolygonTriangulator {
 
+	
 	/**
 	 * 
-	 * @param p The Polygon to be triangulated
+	 * @param poly The Polygon to be triangulated
 	 * @return List of triangulated Vertex
 	 */
-	protected static List<Vertex> triangulate(Polygon p) {
+	protected static ArrayList<Triangle> triangulate(ArrayList<Vertex> poly) {
 		
-		// ...
+		// TODO <Parser>
+		ArrayList<Triangle> triangles = new ArrayList<Triangle>();
 		
-		return null;
+		return triangles;
 	}
 	
 }

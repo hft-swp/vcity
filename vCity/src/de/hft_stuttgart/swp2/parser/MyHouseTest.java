@@ -1,18 +1,11 @@
 package de.hft_stuttgart.swp2.parser;
 
 import java.io.InputStream;
-import java.text.SimpleDateFormat;
 import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Vector;
 
 import org.citygml4j.CityGMLContext;
 import org.citygml4j.builder.CityGMLBuilder;
-import org.citygml4j.geometry.BoundingBox;
-import org.citygml4j.model.citygml.CityGML;
-import org.citygml4j.model.citygml.CityGMLClass;
 import org.citygml4j.model.citygml.ade.ADEComponent;
 import org.citygml4j.model.citygml.appearance.Appearance;
 import org.citygml4j.model.citygml.appearance.GeoreferencedTexture;
@@ -80,7 +73,6 @@ import org.citygml4j.model.citygml.waterbody.WaterClosureSurface;
 import org.citygml4j.model.citygml.waterbody.WaterGroundSurface;
 import org.citygml4j.model.citygml.waterbody.WaterSurface;
 import org.citygml4j.model.common.visitor.GMLVisitor;
-import org.citygml4j.model.gml.GMLClass;
 import org.citygml4j.model.gml.coverage.RectifiedGridCoverage;
 import org.citygml4j.model.gml.feature.AbstractFeature;
 import org.citygml4j.model.gml.geometry.AbstractGeometry;
@@ -95,14 +87,12 @@ import org.citygml4j.model.gml.geometry.complexes.CompositeCurve;
 import org.citygml4j.model.gml.geometry.complexes.CompositeSolid;
 import org.citygml4j.model.gml.geometry.complexes.CompositeSurface;
 import org.citygml4j.model.gml.geometry.complexes.GeometricComplex;
-import org.citygml4j.model.gml.geometry.primitives.AbstractRing;
 import org.citygml4j.model.gml.geometry.primitives.AbstractRingProperty;
 import org.citygml4j.model.gml.geometry.primitives.Curve;
 import org.citygml4j.model.gml.geometry.primitives.LineString;
 import org.citygml4j.model.gml.geometry.primitives.LinearRing;
 import org.citygml4j.model.gml.geometry.primitives.OrientableCurve;
 import org.citygml4j.model.gml.geometry.primitives.OrientableSurface;
-import org.citygml4j.geometry.Point;
 import org.citygml4j.model.gml.geometry.primitives.Polygon;
 import org.citygml4j.model.gml.geometry.primitives.Ring;
 import org.citygml4j.model.gml.geometry.primitives.Solid;
@@ -118,8 +108,6 @@ import org.citygml4j.xml.io.CityGMLInputFactory;
 import org.citygml4j.xml.io.reader.CityGMLReader;
 import org.citygml4j.xml.schema.ElementDecl;
 import org.w3c.dom.Element;
-
-import de.hft_stuttgart.swp2.model.Vertex;
 
 /**
  * 
@@ -212,7 +200,7 @@ public class MyHouseTest {
 //			points.add(v2);
 //			TestPolygon testPolygon = new TestPolygon(arg0.getId(), points);
 
-			// TODO one value is missing
+			// one value is missing
 
 			/**
 			 * <gml:posList srsDimension="3"> 3515991.16 5415784.17
@@ -224,698 +212,698 @@ public class MyHouseTest {
 
 		    @Override
 		    public void visit(Appearance arg0) {
-			// TODO Auto-generated method stub
+			
 
 		    }
 
 		    @Override
 		    public void visit(GeoreferencedTexture arg0) {
-			// TODO Auto-generated method stub
+			
 
 		    }
 
 		    @Override
 		    public void visit(ParameterizedTexture arg0) {
-			// TODO Auto-generated method stub
+			
 
 		    }
 
 		    @Override
 		    public void visit(X3DMaterial arg0) {
-			// TODO Auto-generated method stub
+			
 
 		    }
 
 		    @Override
 		    public void visit(Bridge arg0) {
-			// TODO Auto-generated method stub
+			
 
 		    }
 
 		    @Override
 		    public void visit(BridgeConstructionElement arg0) {
-			// TODO Auto-generated method stub
+			
 
 		    }
 
 		    @Override
 		    public void visit(BridgeFurniture arg0) {
-			// TODO Auto-generated method stub
+			
 
 		    }
 
 		    @Override
 		    public void visit(BridgeInstallation arg0) {
-			// TODO Auto-generated method stub
+			
 
 		    }
 
 		    @Override
 		    public void visit(BridgePart arg0) {
-			// TODO Auto-generated method stub
+			
 
 		    }
 
 		    @Override
 		    public void visit(BridgeRoom arg0) {
-			// TODO Auto-generated method stub
+			
 
 		    }
 
 		    @Override
 		    public void visit(IntBridgeInstallation arg0) {
-			// TODO Auto-generated method stub
+			
 
 		    }
 
 		    @Override
 		    public void visit(CeilingSurface arg0) {
-			// TODO Auto-generated method stub
+			
 
 		    }
 
 		    @Override
 		    public void visit(OuterCeilingSurface arg0) {
-			// TODO Auto-generated method stub
+			
 
 		    }
 
 		    @Override
 		    public void visit(ClosureSurface arg0) {
-			// TODO Auto-generated method stub
+			
 
 		    }
 
 		    @Override
 		    public void visit(FloorSurface arg0) {
-			// TODO Auto-generated method stub
+			
 
 		    }
 
 		    @Override
 		    public void visit(OuterFloorSurface arg0) {
-			// TODO Auto-generated method stub
+			
 
 		    }
 
 		    @Override
 		    public void visit(GroundSurface arg0) {
-			// TODO Auto-generated method stub
+			
 
 		    }
 
 		    @Override
 		    public void visit(InteriorWallSurface arg0) {
-			// TODO Auto-generated method stub
+			
 
 		    }
 
 		    @Override
 		    public void visit(RoofSurface arg0) {
-			// TODO Auto-generated method stub
+			
 
 		    }
 
 		    @Override
 		    public void visit(WallSurface arg0) {
-			// TODO Auto-generated method stub
+			
 
 		    }
 
 		    @Override
 		    public void visit(Door arg0) {
-			// TODO Auto-generated method stub
+			
 
 		    }
 
 		    @Override
 		    public void visit(Window arg0) {
-			// TODO Auto-generated method stub
+			
 
 		    }
 
 		    @Override
 		    public void visit(Building arg0) {
-			// TODO Auto-generated method stub
+			
 
 		    }
 
 		    @Override
 		    public void visit(BuildingFurniture arg0) {
-			// TODO Auto-generated method stub
+			
 
 		    }
 
 		    @Override
 		    public void visit(BuildingInstallation arg0) {
-			// TODO Auto-generated method stub
+			
 
 		    }
 
 		    @Override
 		    public void visit(BuildingPart arg0) {
-			// TODO Auto-generated method stub
+			
 
 		    }
 
 		    @Override
 		    public void visit(IntBuildingInstallation arg0) {
-			// TODO Auto-generated method stub
+			
 
 		    }
 
 		    @Override
 		    public void visit(Room arg0) {
-			// TODO Auto-generated method stub
+			
 
 		    }
 
 		    @Override
 		    public void visit(org.citygml4j.model.citygml.building.CeilingSurface arg0) {
-			// TODO Auto-generated method stub
+			
 
 		    }
 
 		    @Override
 		    public void visit(org.citygml4j.model.citygml.building.OuterCeilingSurface arg0) {
-			// TODO Auto-generated method stub
+			
 
 		    }
 
 		    @Override
 		    public void visit(org.citygml4j.model.citygml.building.ClosureSurface arg0) {
-			// TODO Auto-generated method stub
+			
 
 		    }
 
 		    @Override
 		    public void visit(org.citygml4j.model.citygml.building.FloorSurface arg0) {
-			// TODO Auto-generated method stub
+			
 
 		    }
 
 		    @Override
 		    public void visit(org.citygml4j.model.citygml.building.OuterFloorSurface arg0) {
-			// TODO Auto-generated method stub
+			
 
 		    }
 
 		    @Override
 		    public void visit(org.citygml4j.model.citygml.building.GroundSurface arg0) {
-			// TODO Auto-generated method stub
+			
 
 		    }
 
 		    @Override
 		    public void visit(org.citygml4j.model.citygml.building.InteriorWallSurface arg0) {
-			// TODO Auto-generated method stub
+			
 
 		    }
 
 		    @Override
 		    public void visit(org.citygml4j.model.citygml.building.RoofSurface arg0) {
-			// TODO Auto-generated method stub
+			
 
 		    }
 
 		    @Override
 		    public void visit(org.citygml4j.model.citygml.building.WallSurface arg0) {
-			// TODO Auto-generated method stub
+			
 
 		    }
 
 		    @Override
 		    public void visit(org.citygml4j.model.citygml.building.Door arg0) {
-			// TODO Auto-generated method stub
+			
 
 		    }
 
 		    @Override
 		    public void visit(org.citygml4j.model.citygml.building.Window arg0) {
-			// TODO Auto-generated method stub
+			
 
 		    }
 
 		    @Override
 		    public void visit(HollowSpace arg0) {
-			// TODO Auto-generated method stub
+			
 
 		    }
 
 		    @Override
 		    public void visit(IntTunnelInstallation arg0) {
-			// TODO Auto-generated method stub
+			
 
 		    }
 
 		    @Override
 		    public void visit(Tunnel arg0) {
-			// TODO Auto-generated method stub
+			
 
 		    }
 
 		    @Override
 		    public void visit(TunnelFurniture arg0) {
-			// TODO Auto-generated method stub
+			
 
 		    }
 
 		    @Override
 		    public void visit(TunnelInstallation arg0) {
-			// TODO Auto-generated method stub
+			
 
 		    }
 
 		    @Override
 		    public void visit(TunnelPart arg0) {
-			// TODO Auto-generated method stub
+			
 
 		    }
 
 		    @Override
 		    public void visit(org.citygml4j.model.citygml.tunnel.CeilingSurface arg0) {
-			// TODO Auto-generated method stub
+			
 
 		    }
 
 		    @Override
 		    public void visit(org.citygml4j.model.citygml.tunnel.OuterCeilingSurface arg0) {
-			// TODO Auto-generated method stub
+			
 
 		    }
 
 		    @Override
 		    public void visit(org.citygml4j.model.citygml.tunnel.ClosureSurface arg0) {
-			// TODO Auto-generated method stub
+			
 
 		    }
 
 		    @Override
 		    public void visit(org.citygml4j.model.citygml.tunnel.FloorSurface arg0) {
-			// TODO Auto-generated method stub
+			
 
 		    }
 
 		    @Override
 		    public void visit(org.citygml4j.model.citygml.tunnel.OuterFloorSurface arg0) {
-			// TODO Auto-generated method stub
+			
 
 		    }
 
 		    @Override
 		    public void visit(org.citygml4j.model.citygml.tunnel.GroundSurface arg0) {
-			// TODO Auto-generated method stub
+			
 
 		    }
 
 		    @Override
 		    public void visit(org.citygml4j.model.citygml.tunnel.InteriorWallSurface arg0) {
-			// TODO Auto-generated method stub
+			
 
 		    }
 
 		    @Override
 		    public void visit(org.citygml4j.model.citygml.tunnel.RoofSurface arg0) {
-			// TODO Auto-generated method stub
+			
 
 		    }
 
 		    @Override
 		    public void visit(org.citygml4j.model.citygml.tunnel.WallSurface arg0) {
-			// TODO Auto-generated method stub
+			
 
 		    }
 
 		    @Override
 		    public void visit(org.citygml4j.model.citygml.tunnel.Door arg0) {
-			// TODO Auto-generated method stub
+			
 
 		    }
 
 		    @Override
 		    public void visit(org.citygml4j.model.citygml.tunnel.Window arg0) {
-			// TODO Auto-generated method stub
+			
 
 		    }
 
 		    @Override
 		    public void visit(CityFurniture arg0) {
-			// TODO Auto-generated method stub
+			
 
 		    }
 
 		    @Override
 		    public void visit(CityObjectGroup arg0) {
-			// TODO Auto-generated method stub
+			
 
 		    }
 
 		    @Override
 		    public void visit(Address arg0) {
-			// TODO Auto-generated method stub
+			
 
 		    }
 
 		    @Override
 		    public void visit(CityModel arg0) {
-			// TODO Auto-generated method stub
+			
 
 		    }
 
 		    @Override
 		    public void visit(GenericCityObject arg0) {
-			// TODO Auto-generated method stub
+			
 
 		    }
 
 		    @Override
 		    public void visit(LandUse arg0) {
-			// TODO Auto-generated method stub
+			
 
 		    }
 
 		    @Override
 		    public void visit(BreaklineRelief arg0) {
-			// TODO Auto-generated method stub
+			
 
 		    }
 
 		    @Override
 		    public void visit(MassPointRelief arg0) {
-			// TODO Auto-generated method stub
+			
 
 		    }
 
 		    @Override
 		    public void visit(RasterRelief arg0) {
-			// TODO Auto-generated method stub
+			
 
 		    }
 
 		    @Override
 		    public void visit(ReliefFeature arg0) {
-			// TODO Auto-generated method stub
+			
 
 		    }
 
 		    @Override
 		    public void visit(TINRelief arg0) {
-			// TODO Auto-generated method stub
+			
 
 		    }
 
 		    @Override
 		    public void visit(AuxiliaryTrafficArea arg0) {
-			// TODO Auto-generated method stub
+			
 
 		    }
 
 		    @Override
 		    public void visit(Railway arg0) {
-			// TODO Auto-generated method stub
+			
 
 		    }
 
 		    @Override
 		    public void visit(RectifiedGridCoverage arg0) {
-			// TODO Auto-generated method stub
+			
 
 		    }
 
 		    @Override
 		    public void visit(Road arg0) {
-			// TODO Auto-generated method stub
+			
 
 		    }
 
 		    @Override
 		    public void visit(Square arg0) {
-			// TODO Auto-generated method stub
+			
 
 		    }
 
 		    @Override
 		    public void visit(Track arg0) {
-			// TODO Auto-generated method stub
+			
 
 		    }
 
 		    @Override
 		    public void visit(TrafficArea arg0) {
-			// TODO Auto-generated method stub
+			
 
 		    }
 
 		    @Override
 		    public void visit(TransportationComplex arg0) {
-			// TODO Auto-generated method stub
+			
 
 		    }
 
 		    @Override
 		    public void visit(PlantCover arg0) {
-			// TODO Auto-generated method stub
+			
 
 		    }
 
 		    @Override
 		    public void visit(SolitaryVegetationObject arg0) {
-			// TODO Auto-generated method stub
+			
 
 		    }
 
 		    @Override
 		    public void visit(WaterBody arg0) {
-			// TODO Auto-generated method stub
+			
 
 		    }
 
 		    @Override
 		    public void visit(WaterClosureSurface arg0) {
-			// TODO Auto-generated method stub
+			
 
 		    }
 
 		    @Override
 		    public void visit(WaterGroundSurface arg0) {
-			// TODO Auto-generated method stub
+			
 
 		    }
 
 		    @Override
 		    public void visit(WaterSurface arg0) {
-			// TODO Auto-generated method stub
+			
 
 		    }
 
 		    @Override
 		    public void visit(ADEComponent arg0) {
-			// TODO Auto-generated method stub
+			
 
 		    }
 
 		    @Override
 		    public void visit(Element arg0, ElementDecl arg1) {
-			// TODO Auto-generated method stub
+			
 
 		    }
 
 		    @Override
 		    public void visit(LodRepresentation arg0) {
-			// TODO Auto-generated method stub
+			
 
 		    }
 
 		    @Override
 		    public void visit(CompositeCurve arg0) {
-			// TODO Auto-generated method stub
+			
 
 		    }
 
 		    @Override
 		    public void visit(CompositeSolid arg0) {
-			// TODO Auto-generated method stub
+			
 
 		    }
 
 		    @Override
 		    public void visit(CompositeSurface arg0) {
-			// TODO Auto-generated method stub
+			
 
 		    }
 
 		    @Override
 		    public void visit(Curve arg0) {
-			// TODO Auto-generated method stub
+			
 
 		    }
 
 		    @Override
 		    public void visit(GeometricComplex arg0) {
-			// TODO Auto-generated method stub
+			
 
 		    }
 
 		    @Override
 		    public void visit(Grid arg0) {
-			// TODO Auto-generated method stub
+			
 
 		    }
 
 		    @Override
 		    public void visit(LinearRing arg0) {
-			// TODO Auto-generated method stub
+			
 
 		    }
 
 		    @Override
 		    public void visit(LineString arg0) {
-			// TODO Auto-generated method stub
+			
 
 		    }
 
 		    @Override
 		    public void visit(MultiCurve arg0) {
-			// TODO Auto-generated method stub
+			
 
 		    }
 
 		    @Override
 		    public void visit(MultiLineString arg0) {
-			// TODO Auto-generated method stub
+			
 
 		    }
 
 		    @Override
 		    public void visit(MultiGeometry arg0) {
-			// TODO Auto-generated method stub
+			
 
 		    }
 
 		    @Override
 		    public void visit(MultiPoint arg0) {
-			// TODO Auto-generated method stub
+			
 
 		    }
 
 		    @Override
 		    public void visit(MultiPolygon arg0) {
-			// TODO Auto-generated method stub
+			
 
 		    }
 
 		    @Override
 		    public void visit(MultiSolid arg0) {
-			// TODO Auto-generated method stub
+			
 
 		    }
 
 		    @Override
 		    public void visit(MultiSurface arg0) {
-			// TODO Auto-generated method stub
+			
 
 		    }
 
 		    @Override
 		    public void visit(OrientableCurve arg0) {
-			// TODO Auto-generated method stub
+			
 
 		    }
 
 		    @Override
 		    public void visit(OrientableSurface arg0) {
-			// TODO Auto-generated method stub
+			
 
 		    }
 
 		    @Override
 		    public void visit(_TexturedSurface arg0) {
-			// TODO Auto-generated method stub
+			
 
 		    }
 
 		    @Override
 		    public void visit(RectifiedGrid arg0) {
-			// TODO Auto-generated method stub
+			
 
 		    }
 
 		    @Override
 		    public void visit(Ring arg0) {
-			// TODO Auto-generated method stub
+			
 
 		    }
 
 		    @Override
 		    public void visit(Solid arg0) {
-			// TODO Auto-generated method stub
+			
 
 		    }
 
 		    @Override
 		    public void visit(Surface arg0) {
-			// TODO Auto-generated method stub
+			
 
 		    }
 
 		    @Override
 		    public void visit(Tin arg0) {
-			// TODO Auto-generated method stub
+			
 
 		    }
 
 		    @Override
 		    public void visit(TriangulatedSurface arg0) {
-			// TODO Auto-generated method stub
+			
 
 		    }
 
 		    @Override
 		    public void visit(CompositeValue arg0) {
-			// TODO Auto-generated method stub
+			
 
 		    }
 
 		    @Override
 		    public void visit(ValueArray arg0) {
-			// TODO Auto-generated method stub
+			
 
 		    }
 
 		    @Override
 		    public void visit(TexCoordGen arg0) {
-			// TODO Auto-generated method stub
+			
 
 		    }
 
 		    @Override
 		    public void visit(TexCoordList arg0) {
-			// TODO Auto-generated method stub
+			
 
 		    }
 
 		    @Override
 		    public void visit(ImplicitGeometry arg0) {
-			// TODO Auto-generated method stub
+			
 
 		    }
 
 		    @Override
 		    public void visit(_Material arg0) {
-			// TODO Auto-generated method stub
+			
 
 		    }
 
 		    @Override
 		    public void visit(_SimpleTexture arg0) {
-			// TODO Auto-generated method stub
+			
 
 		    }
 
 			@Override
 			public void visit(
 					org.citygml4j.model.gml.geometry.primitives.Point arg0) {
-				// TODO Auto-generated method stub
+				
 				
 			}
 		};
@@ -938,7 +926,7 @@ public class MyHouseTest {
 //	for (GMLClass geometry : geometries.keySet())
 //	    System.out.println(geometry + ": " + geometries.get(geometry));
 
-	// TODO create List<Vertex> for each surfaces / polygons of the building
+	// create List<Vertex> for each surfaces / polygons of the building
 //	Building testBuilding = new Building("test", List < Vertex > polygon);
 
     }

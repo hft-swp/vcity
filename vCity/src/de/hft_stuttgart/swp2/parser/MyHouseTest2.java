@@ -75,37 +75,37 @@ public class MyHouseTest2 {
 			
 			@Override
 			public void visit(TriangulatedSurface arg0) {
-				// TODO Auto-generated method stub
+				
 				
 			}
 			
 			@Override
 			public void visit(Tin arg0) {
-				// TODO Auto-generated method stub
+				
 				
 			}
 			
 			@Override
 			public void visit(Surface arg0) {
-				// TODO Auto-generated method stub
+				
 				
 			}
 			
 			@Override
 			public void visit(Solid arg0) {
-				// TODO Auto-generated method stub
+				
 				
 			}
 			
 			@Override
 			public void visit(Ring arg0) {
-				// TODO Auto-generated method stub
+				
 				
 			}
 			
 			@Override
 			public void visit(RectifiedGrid arg0) {
-				// TODO Auto-generated method stub
+				
 				
 			}
 			
@@ -123,121 +123,121 @@ public class MyHouseTest2 {
 			
 			@Override
 			public void visit(org.citygml4j.model.gml.geometry.primitives.Point arg0) {
-				// TODO Auto-generated method stub
+				
 				
 			}
 			
 			@Override
 			public void visit(_TexturedSurface arg0) {
-				// TODO Auto-generated method stub
+				
 				
 			}
 			
 			@Override
 			public void visit(OrientableSurface arg0) {
-				// TODO Auto-generated method stub
+				
 				
 			}
 			
 			@Override
 			public void visit(OrientableCurve arg0) {
-				// TODO Auto-generated method stub
+				
 				
 			}
 			
 			@Override
 			public void visit(MultiSurface arg0) {
-				// TODO Auto-generated method stub
+				
 				
 			}
 			
 			@Override
 			public void visit(MultiSolid arg0) {
-				// TODO Auto-generated method stub
+				
 				
 			}
 			
 			@Override
 			public void visit(MultiPolygon arg0) {
-				// TODO Auto-generated method stub
+				
 				
 			}
 			
 			@Override
 			public void visit(MultiPoint arg0) {
-				// TODO Auto-generated method stub
+				
 				
 			}
 			
 			@Override
 			public void visit(MultiGeometry arg0) {
-				// TODO Auto-generated method stub
+				
 				
 			}
 			
 			@Override
 			public void visit(MultiLineString arg0) {
-				// TODO Auto-generated method stub
+				
 				
 			}
 			
 			@Override
 			public void visit(MultiCurve arg0) {
-				// TODO Auto-generated method stub
+				
 				
 			}
 			
 			@Override
 			public void visit(LineString arg0) {
-				// TODO Auto-generated method stub
+				
 				
 			}
 			
 			@Override
 			public void visit(LinearRing arg0) {
-				// TODO Auto-generated method stub
+				
 				
 			}
 			
 			@Override
 			public void visit(Grid arg0) {
-				// TODO Auto-generated method stub
+				
 				
 			}
 			
 			@Override
 			public void visit(GeometricComplex arg0) {
-				// TODO Auto-generated method stub
+				
 				
 			}
 			
 			@Override
 			public void visit(Curve arg0) {
-				// TODO Auto-generated method stub
+				
 				
 			}
 			
 			@Override
 			public void visit(CompositeSurface arg0) {
-				// TODO Auto-generated method stub
+				
 				
 			}
 			
 			@Override
 			public void visit(CompositeSolid arg0) {
-				// TODO Auto-generated method stub
+				
 				
 			}
 			
 			@Override
 			public void visit(CompositeCurve arg0) {
-				// TODO Auto-generated method stub
+				
 				
 			}
 			
 			@Override
 			public void visit(LodRepresentation arg0) {
-				// TODO Auto-generated method stub
+				
 				
 			}
 		};

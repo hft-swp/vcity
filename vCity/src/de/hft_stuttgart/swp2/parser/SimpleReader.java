@@ -63,7 +63,7 @@ public class SimpleReader {
 		    System.out.println("surface: " + myPolygon.getSurface());
 		    System.out.println(myPolygon.getGeometry());
 		    System.out.println(myPolygon.getObject().getId());
-		    // TODO check how to get the damn coordinates
+		    // check how to get the damn coordinates
 		}
 		
 		Building testBuilding = new Building(id, new ArrayList<Vertex>());
@@ -116,7 +116,7 @@ public class SimpleReader {
 	    // CityGMLOutputFactory out =
 	    // builder.createCityGMLOutputFactory(CityGMLVersion.v2_0_0);
 	    //
-	    // TODO check why / for which polygon the writing fails
+	    // check why / for which polygon the writing fails
 	    // CityGMLWriter writer = out.createCityGMLWriter(new
 	    // File("LOD2_Building_colorized_v200.gml"));
 	    // writer.setPrefixes(CityGMLVersion.v2_0_0);

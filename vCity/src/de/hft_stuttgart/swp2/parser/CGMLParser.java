@@ -1,8 +1,14 @@
 package de.hft_stuttgart.swp2.parser;
 
+import java.io.FileWriter;
+import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
+import java.util.ListIterator;
 
 import javax.xml.bind.JAXBException;
 
@@ -45,6 +51,10 @@ import org.citygml4j.xml.io.reader.CityGMLReadException;
 import org.citygml4j.xml.io.reader.CityGMLReader;
 
 import de.hft_stuttgart.swp2.model.Building;
+import de.hft_stuttgart.swp2.model.City;
+import de.hft_stuttgart.swp2.model.MeshInterface;
+import de.hft_stuttgart.swp2.model.Triangle;
+import de.hft_stuttgart.swp2.model.Vertex;
 
 /**
  * Main class of the CityGML Parser
@@ -52,6 +62,9 @@ import de.hft_stuttgart.swp2.model.Building;
  */
 public class CGMLParser {
 
+	public final static boolean DEBUG = false;
+	
+	
 	/**
 	 * Read the file,
 	 * transform Coordinates to an useful format,
@@ -60,7 +73,7 @@ public class CGMLParser {
 	 * @param fileName Input file name
 	 * @return List of Buildings
 	 */
-	public static List<Building> parse(String InputFileName) {
+	public static City parse(String InputFileName) {
 		
 		CityModel cityModel = null;
 		
@@ -81,26 +94,64 @@ public class CGMLParser {
 			System.err.println("Failed to parse GML.");
 		}
 		
+		// Create a city object which we will fill with Buildings
+		final City city = City.getInstance();
 		
 		// Walk over Buildings
 		GMLWalker walker = new GMLWalker() {
 			
+			Building building;
+			
+			
 			public void visit(AbstractGeometry abstractGeometry) {
+				
+				// TODO <Parser> Add ID to building
+				
+				
+//				if (abstractGeometry.getId().contains("UUID")) {
+//					building = new Building();
+//					String buildingID = abstractGeometry.getId();
+//					System.err.println("Building ID:" + buildingID);
+//					building.addID(buildingID);
+					// FIXME <Model> There is no building.addID(String ID);
+//				}
+				
 				
 				// Visit Polygon
 				GeometryVisitor gvisit = new GeometryVisitor() {
 
 				    public void visit(Polygon arg0) {
-						System.out.println("Polygon ID: " + arg0.getId());
+				    	if (DEBUG) System.out.println("Polygon ID: " + arg0.getId());
 						AbstractRingProperty arp = arg0.getExterior();
 						LinearRing lr = (LinearRing) arp.getRing();
 						List<Double> coord = lr.getPosList().getValue();
 						
 						
-						System.out.println("Polygon: " + Arrays.toString(coord.toArray()));
+						if (DEBUG) System.out.println("Polygon: " + Arrays.toString(coord.toArray()));
+						
+						// Create List<Vertex>
+						ArrayList<Vertex> poly = new ArrayList<Vertex>();
+						for (int i = 0; i < coord.size(); i++) {
+							poly.add(new Vertex(coord.get(i).floatValue(), coord.get(++i).floatValue(), coord.get(++i).floatValue()));
+						}
+						if (DEBUG) System.out.println("Number of Vertices: " + poly.size());
+						
+						// TODO <Parser> Transform to 2D
+						poly = PolygonTransformer.transformTo2D(poly);
+						// TODO <Parser> Transform to (0,0)
+						poly = PolygonTransformer.transformToNullCoordinate(poly);
+
+						
+						// TODO <Parser> Triangulate
+						ArrayList<Triangle> polyTriangles = PolygonTriangulator.triangulate(poly);
+						
+						// TODO <Parser> Add triangles to Building
+//						building.addPolygon(polyTriangles);
+						// FIXME <Model> There is no building.addPolygon(List<Triangle>);
+						
 				    }
 				    
-				    // FIXME A bunch of ugly unused Methods.
+				    // FIXME <Parser> A bunch of ugly unused Methods.
 					public void visit(LodRepresentation arg0) {	}
 					public void visit(CompositeCurve arg0) {}
 					public void visit(CompositeSolid arg0) {}
@@ -130,34 +181,84 @@ public class CGMLParser {
 					
 				};
 				
-//				Building testBuilding = new Building( id , polygon list, polygon vertex list );
-				
 				abstractGeometry.accept(gvisit);
+				
+				// Add building to our city
+				city.addBuilding(building);
+				
 				super.visit(abstractGeometry);
 			}
 		};
 		
+		
+		/**
+		 * The following is just sample data.
+		 */
 		cityModel.accept(walker);
 		
-		List<Building> city = null;
+		Vertex vx = new Vertex(1, 2, 3);
+		Vertex vy = new Vertex(4, 5, 6);
+		Vertex vz = new Vertex(7, 8, 9);
+		
+		Triangle tri = new Triangle(vx, vy, vz);
+
+		ArrayList<Vertex> poly = new ArrayList<Vertex>();
+		poly.add(vx);
+		poly.add(vy);
+		poly.add(vz);
+		
+		Building bui = new Building("BUILD0000", poly);
+		
+		city.addBuilding(bui);
+		/**
+		 * End of sample data.
+		 */
+		
 		return city;
 	}
 	
 	/**
 	 * Exports the Building Objects to a CSV file, which will contain <b>ID</b> and <b>Volume</b> of each Building
 	 * @param city List of Buildings
-	 * @param fileName Output file name
+	 * @param OutputFileName Output file name
 	 * @return true if the export was successful
 	 */
-	public static boolean export(List<Building> city, String OutputFileName) {
+	public static boolean export(City city, String OutputFileName) {
 		
+		List<Building> b = city.getBuildings();
+		if (b.isEmpty()) {
+			return false;
+		}
 		
-		for (Building building : city) {
-			
+		try {
+		    FileWriter writer = new FileWriter(OutputFileName);
+	 
+		    // Header
+		    writer.append("Building");
+			writer.append(',');
+			writer.append("Volume");
+			writer.append('\n');
+		    
+			// Add each building
+		    for (Building building : b) {
+		    	if (DEBUG) System.out.println("Building: " + building.getId() + " -- Volume: " + building.getVolume());
+				
+				writer.append(building.getId());
+			    writer.append(',');
+			    writer.append(Double.toString(building.getVolume()));
+			    writer.append('\n');
+				
+			}
+		    
+		    writer.flush();
+		    writer.close();
+		}
+		catch (IOException e) {
+			System.err.println("Error writing CSV File.");
+		     return false;
 		}
 		
 		return true;
 	}
-	
 	
 }
