@@ -1,7 +1,8 @@
 package de.hft_stuttgart.swp2.parser;
 
 import java.io.InputStream;
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import org.citygml4j.CityGMLContext;
@@ -46,7 +47,7 @@ public class MyHouseTest2 {
 	
 	
 
-	public static final String fileName = "einHaus.gml";
+	public static final String fileName = "vCity/einHaus.gml";
 	
 
     public static void main(String[] args) throws Exception {
@@ -63,7 +64,11 @@ public class MyHouseTest2 {
 	CityModel cityModel = (CityModel) reader.nextFeature();
 	reader.close();
 
-
+	final HashMap<String, List<Double>> hmPolygone = new HashMap<String, List<Double>>();
+	
+	final ArrayList<Double> coords= new ArrayList<Double>(); 
+	double[] maxValues = {0, 0, 0, 0};
+	 double[] minValues = {0, 0, 0, 0};
 
 	GMLWalker walker = new GMLWalker() {
 	   
@@ -75,169 +80,169 @@ public class MyHouseTest2 {
 			
 			@Override
 			public void visit(TriangulatedSurface arg0) {
-				
+				// TODO Auto-generated method stub
 				
 			}
 			
 			@Override
 			public void visit(Tin arg0) {
-				
+				// TODO Auto-generated method stub
 				
 			}
 			
 			@Override
 			public void visit(Surface arg0) {
-				
+				// TODO Auto-generated method stub
 				
 			}
 			
 			@Override
 			public void visit(Solid arg0) {
-				
+				// TODO Auto-generated method stub
 				
 			}
 			
 			@Override
 			public void visit(Ring arg0) {
-				
+				// TODO Auto-generated method stub
 				
 			}
 			
 			@Override
 			public void visit(RectifiedGrid arg0) {
-				
+				// TODO Auto-generated method stub
 				
 			}
 			
 			
 				    public void visit(Polygon arg0) {
-					System.err.println("Polygon ID: " + arg0.getId());
+					//System.err.println("Polygon ID: " + arg0.getId());
 					AbstractRingProperty arp = arg0.getExterior();
 					LinearRing lr = (LinearRing) arp.getRing();
-					List<Double> coord = lr.getPosList().getValue();
+					coords.addAll(lr.getPosList().getValue());
+					hmPolygone.put(arg0.getId(),lr.getPosList().getValue());
 					
-					System.err.println("Polygon: " + Arrays.toString(coord.toArray()));
 
 				
 			}
 			
 			@Override
 			public void visit(org.citygml4j.model.gml.geometry.primitives.Point arg0) {
-				
+				// TODO Auto-generated method stub
 				
 			}
 			
 			@Override
 			public void visit(_TexturedSurface arg0) {
-				
+				// TODO Auto-generated method stub
 				
 			}
 			
 			@Override
 			public void visit(OrientableSurface arg0) {
-				
+				// TODO Auto-generated method stub
 				
 			}
 			
 			@Override
 			public void visit(OrientableCurve arg0) {
-				
+				// TODO Auto-generated method stub
 				
 			}
 			
 			@Override
 			public void visit(MultiSurface arg0) {
-				
+				// TODO Auto-generated method stub
 				
 			}
 			
 			@Override
 			public void visit(MultiSolid arg0) {
-				
+				// TODO Auto-generated method stub
 				
 			}
 			
 			@Override
 			public void visit(MultiPolygon arg0) {
-				
+				// TODO Auto-generated method stub
 				
 			}
 			
 			@Override
 			public void visit(MultiPoint arg0) {
-				
+				// TODO Auto-generated method stub
 				
 			}
 			
 			@Override
 			public void visit(MultiGeometry arg0) {
-				
+				// TODO Auto-generated method stub
 				
 			}
 			
 			@Override
 			public void visit(MultiLineString arg0) {
-				
+				// TODO Auto-generated method stub
 				
 			}
 			
 			@Override
 			public void visit(MultiCurve arg0) {
-				
+				// TODO Auto-generated method stub
 				
 			}
 			
 			@Override
 			public void visit(LineString arg0) {
-				
+				// TODO Auto-generated method stub
 				
 			}
 			
 			@Override
 			public void visit(LinearRing arg0) {
-				
+				// TODO Auto-generated method stub
 				
 			}
 			
 			@Override
 			public void visit(Grid arg0) {
-				
+				// TODO Auto-generated method stub
 				
 			}
 			
 			@Override
 			public void visit(GeometricComplex arg0) {
-				
+				// TODO Auto-generated method stub
 				
 			}
 			
 			@Override
 			public void visit(Curve arg0) {
-				
+				// TODO Auto-generated method stub
 				
 			}
 			
 			@Override
 			public void visit(CompositeSurface arg0) {
-				
+				// TODO Auto-generated method stub
 				
 			}
 			
 			@Override
 			public void visit(CompositeSolid arg0) {
-				
+				// TODO Auto-generated method stub
 				
 			}
 			
 			@Override
 			public void visit(CompositeCurve arg0) {
-				
+				// TODO Auto-generated method stub
 				
 			}
 			
 			@Override
 			public void visit(LodRepresentation arg0) {
-				
+				// TODO Auto-generated method stub
 				
 			}
 		};
@@ -250,9 +255,18 @@ public class MyHouseTest2 {
 	    }
 
 	};
+	 
 
 	cityModel.accept(walker);
-
-
-    }
+	//System.err.println("Polygon: " + coords1.toString());
+	
+	
+	for(String key : hmPolygone.keySet()){
+     
+      System.err.print("Key: " + key + " - ");
+      System.err.print("Value: " +hmPolygone.get(key) + "\n");      
+	
+	
+	}	
+    }   
 }
