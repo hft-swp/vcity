@@ -8,74 +8,10 @@ import javax.xml.bind.JAXBException;
 
 import org.citygml4j.CityGMLContext;
 import org.citygml4j.builder.CityGMLBuilder;
-import org.citygml4j.model.citygml.ade.ADEComponent;
-import org.citygml4j.model.citygml.appearance.Appearance;
-import org.citygml4j.model.citygml.appearance.GeoreferencedTexture;
-import org.citygml4j.model.citygml.appearance.ParameterizedTexture;
-import org.citygml4j.model.citygml.appearance.TexCoordGen;
-import org.citygml4j.model.citygml.appearance.TexCoordList;
-import org.citygml4j.model.citygml.appearance.X3DMaterial;
-import org.citygml4j.model.citygml.bridge.Bridge;
-import org.citygml4j.model.citygml.bridge.BridgeConstructionElement;
-import org.citygml4j.model.citygml.bridge.BridgeFurniture;
-import org.citygml4j.model.citygml.bridge.BridgeInstallation;
-import org.citygml4j.model.citygml.bridge.BridgePart;
-import org.citygml4j.model.citygml.bridge.BridgeRoom;
-import org.citygml4j.model.citygml.bridge.CeilingSurface;
-import org.citygml4j.model.citygml.bridge.ClosureSurface;
-import org.citygml4j.model.citygml.bridge.Door;
-import org.citygml4j.model.citygml.bridge.FloorSurface;
-import org.citygml4j.model.citygml.bridge.GroundSurface;
-import org.citygml4j.model.citygml.bridge.IntBridgeInstallation;
-import org.citygml4j.model.citygml.bridge.InteriorWallSurface;
-import org.citygml4j.model.citygml.bridge.OuterCeilingSurface;
-import org.citygml4j.model.citygml.bridge.OuterFloorSurface;
-import org.citygml4j.model.citygml.bridge.RoofSurface;
-import org.citygml4j.model.citygml.bridge.WallSurface;
-import org.citygml4j.model.citygml.bridge.Window;
-import org.citygml4j.model.citygml.building.BuildingFurniture;
-import org.citygml4j.model.citygml.building.BuildingInstallation;
-import org.citygml4j.model.citygml.building.BuildingPart;
-import org.citygml4j.model.citygml.building.IntBuildingInstallation;
-import org.citygml4j.model.citygml.building.Room;
-import org.citygml4j.model.citygml.cityfurniture.CityFurniture;
-import org.citygml4j.model.citygml.cityobjectgroup.CityObjectGroup;
-import org.citygml4j.model.citygml.core.Address;
 import org.citygml4j.model.citygml.core.CityModel;
-import org.citygml4j.model.citygml.core.ImplicitGeometry;
 import org.citygml4j.model.citygml.core.LodRepresentation;
-import org.citygml4j.model.citygml.generics.GenericCityObject;
-import org.citygml4j.model.citygml.landuse.LandUse;
-import org.citygml4j.model.citygml.relief.BreaklineRelief;
-import org.citygml4j.model.citygml.relief.MassPointRelief;
-import org.citygml4j.model.citygml.relief.RasterRelief;
-import org.citygml4j.model.citygml.relief.ReliefFeature;
-import org.citygml4j.model.citygml.relief.TINRelief;
-import org.citygml4j.model.citygml.texturedsurface._Material;
-import org.citygml4j.model.citygml.texturedsurface._SimpleTexture;
 import org.citygml4j.model.citygml.texturedsurface._TexturedSurface;
-import org.citygml4j.model.citygml.transportation.AuxiliaryTrafficArea;
-import org.citygml4j.model.citygml.transportation.Railway;
-import org.citygml4j.model.citygml.transportation.Road;
-import org.citygml4j.model.citygml.transportation.Square;
-import org.citygml4j.model.citygml.transportation.Track;
-import org.citygml4j.model.citygml.transportation.TrafficArea;
-import org.citygml4j.model.citygml.transportation.TransportationComplex;
-import org.citygml4j.model.citygml.tunnel.HollowSpace;
-import org.citygml4j.model.citygml.tunnel.IntTunnelInstallation;
-import org.citygml4j.model.citygml.tunnel.Tunnel;
-import org.citygml4j.model.citygml.tunnel.TunnelFurniture;
-import org.citygml4j.model.citygml.tunnel.TunnelInstallation;
-import org.citygml4j.model.citygml.tunnel.TunnelPart;
-import org.citygml4j.model.citygml.vegetation.PlantCover;
-import org.citygml4j.model.citygml.vegetation.SolitaryVegetationObject;
-import org.citygml4j.model.citygml.waterbody.WaterBody;
-import org.citygml4j.model.citygml.waterbody.WaterClosureSurface;
-import org.citygml4j.model.citygml.waterbody.WaterGroundSurface;
-import org.citygml4j.model.citygml.waterbody.WaterSurface;
-import org.citygml4j.model.common.visitor.GMLVisitor;
-import org.citygml4j.model.gml.coverage.RectifiedGridCoverage;
-import org.citygml4j.model.gml.feature.AbstractFeature;
+import org.citygml4j.model.common.visitor.GeometryVisitor;
 import org.citygml4j.model.gml.geometry.AbstractGeometry;
 import org.citygml4j.model.gml.geometry.aggregates.MultiCurve;
 import org.citygml4j.model.gml.geometry.aggregates.MultiGeometry;
@@ -103,17 +39,12 @@ import org.citygml4j.model.gml.geometry.primitives.Tin;
 import org.citygml4j.model.gml.geometry.primitives.TriangulatedSurface;
 import org.citygml4j.model.gml.grids.Grid;
 import org.citygml4j.model.gml.grids.RectifiedGrid;
-import org.citygml4j.model.gml.valueObjects.CompositeValue;
-import org.citygml4j.model.gml.valueObjects.ValueArray;
 import org.citygml4j.util.walker.GMLWalker;
 import org.citygml4j.xml.io.CityGMLInputFactory;
 import org.citygml4j.xml.io.reader.CityGMLReadException;
 import org.citygml4j.xml.io.reader.CityGMLReader;
-import org.citygml4j.xml.schema.ElementDecl;
-import org.w3c.dom.Element;
 
 import de.hft_stuttgart.swp2.model.Building;
-import de.hft_stuttgart.swp2.model.Vertex;
 
 /**
  * Main class of the CityGML Parser
@@ -131,6 +62,8 @@ public class CGMLParser {
 	 */
 	public static List<Building> parse(String InputFileName) {
 		
+		CityModel cityModel = null;
+		
 		// Read file
 		try {
 			CityGMLContext ctx = new CityGMLContext();
@@ -139,7 +72,7 @@ public class CGMLParser {
 			ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
 			InputStream input = classLoader.getResourceAsStream(InputFileName);
 			CityGMLReader reader = in.createCityGMLReader(InputFileName, input);
-			CityModel cityModel = (CityModel) reader.nextFeature();
+			cityModel = (CityModel) reader.nextFeature();
 			reader.close();
 			
 		} catch (CityGMLReadException e) {
@@ -152,427 +85,23 @@ public class CGMLParser {
 		// Walk over Buildings
 		GMLWalker walker = new GMLWalker() {
 			
-			@Override
-		    public void visit(AbstractFeature abstractFeature) {
-				// Do nothing
-			}
-			
-			@Override
 			public void visit(AbstractGeometry abstractGeometry) {
 				
 				// Visit Polygon
-				GMLVisitor gvisit = new GMLVisitor() {
+				GeometryVisitor gvisit = new GeometryVisitor() {
 
-				    @Override
 				    public void visit(Polygon arg0) {
 						System.out.println("Polygon ID: " + arg0.getId());
 						AbstractRingProperty arp = arg0.getExterior();
 						LinearRing lr = (LinearRing) arp.getRing();
 						List<Double> coord = lr.getPosList().getValue();
 						
+						
 						System.out.println("Polygon: " + Arrays.toString(coord.toArray()));
 				    }
-
-
-				    // FIXME A bunch of ugly unused Methods. Is there a way to -NOT- implement them?
-					public void visit(Appearance arg0) {}
-					public void visit(GeoreferencedTexture arg0) {}
-					public void visit(ParameterizedTexture arg0) {}
-					public void visit(X3DMaterial arg0) {}
-					public void visit(Bridge arg0) {}
-					public void visit(BridgeConstructionElement arg0) {}
-					public void visit(BridgeFurniture arg0) {}
-					public void visit(BridgeInstallation arg0) {}
-					public void visit(BridgePart arg0) {}
-					public void visit(BridgeRoom arg0) {}
-					public void visit(IntBridgeInstallation arg0) {}
-					public void visit(CeilingSurface arg0) {}
-					public void visit(OuterCeilingSurface arg0) {}
-					public void visit(ClosureSurface arg0) {}
-					public void visit(FloorSurface arg0) {}
-					public void visit(OuterFloorSurface arg0) {}
-					public void visit(GroundSurface arg0) {}
-
-					@Override
-					public void visit(InteriorWallSurface arg0) {
-						// TODO Auto-generated method stub
-						
-					}
-
-					@Override
-					public void visit(RoofSurface arg0) {
-						// TODO Auto-generated method stub
-						
-					}
-
-					@Override
-					public void visit(WallSurface arg0) {
-						// TODO Auto-generated method stub
-						
-					}
-
-					@Override
-					public void visit(Door arg0) {
-						// TODO Auto-generated method stub
-						
-					}
-
-					@Override
-					public void visit(Window arg0) {
-						// TODO Auto-generated method stub
-						
-					}
-
-					@Override
-					public void visit(
-							org.citygml4j.model.citygml.building.Building arg0) {
-						// TODO Auto-generated method stub
-						
-					}
-
-					@Override
-					public void visit(BuildingFurniture arg0) {
-						// TODO Auto-generated method stub
-						
-					}
-
-					@Override
-					public void visit(BuildingInstallation arg0) {
-						// TODO Auto-generated method stub
-						
-					}
-
-					@Override
-					public void visit(BuildingPart arg0) {
-						// TODO Auto-generated method stub
-						
-					}
-
-					@Override
-					public void visit(IntBuildingInstallation arg0) {
-						// TODO Auto-generated method stub
-						
-					}
-
-					@Override
-					public void visit(Room arg0) {
-						// TODO Auto-generated method stub
-						
-					}
-
-					@Override
-					public void visit(
-							org.citygml4j.model.citygml.building.CeilingSurface arg0) {
-						// TODO Auto-generated method stub
-						
-					}
-
-					@Override
-					public void visit(
-							org.citygml4j.model.citygml.building.OuterCeilingSurface arg0) {
-						// TODO Auto-generated method stub
-						
-					}
-
-					@Override
-					public void visit(
-							org.citygml4j.model.citygml.building.ClosureSurface arg0) {
-						// TODO Auto-generated method stub
-						
-					}
-
-					@Override
-					public void visit(
-							org.citygml4j.model.citygml.building.FloorSurface arg0) {
-						// TODO Auto-generated method stub
-						
-					}
-
-					@Override
-					public void visit(
-							org.citygml4j.model.citygml.building.OuterFloorSurface arg0) {
-						// TODO Auto-generated method stub
-						
-					}
-
-					@Override
-					public void visit(
-							org.citygml4j.model.citygml.building.GroundSurface arg0) {
-						// TODO Auto-generated method stub
-						
-					}
-
-					@Override
-					public void visit(
-							org.citygml4j.model.citygml.building.InteriorWallSurface arg0) {
-						// TODO Auto-generated method stub
-						
-					}
-
-					@Override
-					public void visit(
-							org.citygml4j.model.citygml.building.RoofSurface arg0) {
-						// TODO Auto-generated method stub
-						
-					}
-
-					@Override
-					public void visit(
-							org.citygml4j.model.citygml.building.WallSurface arg0) {
-						// TODO Auto-generated method stub
-						
-					}
-
-					@Override
-					public void visit(
-							org.citygml4j.model.citygml.building.Door arg0) {
-						// TODO Auto-generated method stub
-						
-					}
-
-					@Override
-					public void visit(
-							org.citygml4j.model.citygml.building.Window arg0) {
-						// TODO Auto-generated method stub
-						
-					}
-
-					@Override
-					public void visit(HollowSpace arg0) {
-						// TODO Auto-generated method stub
-						
-					}
-
-					@Override
-					public void visit(IntTunnelInstallation arg0) {
-						// TODO Auto-generated method stub
-						
-					}
-
-					@Override
-					public void visit(Tunnel arg0) {
-						// TODO Auto-generated method stub
-						
-					}
-
-					@Override
-					public void visit(TunnelFurniture arg0) {
-						// TODO Auto-generated method stub
-						
-					}
-
-					@Override
-					public void visit(TunnelInstallation arg0) {
-						// TODO Auto-generated method stub
-						
-					}
-
-					@Override
-					public void visit(TunnelPart arg0) {
-						// TODO Auto-generated method stub
-						
-					}
-
-					@Override
-					public void visit(
-							org.citygml4j.model.citygml.tunnel.CeilingSurface arg0) {
-						// TODO Auto-generated method stub
-						
-					}
-
-					@Override
-					public void visit(
-							org.citygml4j.model.citygml.tunnel.OuterCeilingSurface arg0) {
-						// TODO Auto-generated method stub
-						
-					}
-
-					@Override
-					public void visit(
-							org.citygml4j.model.citygml.tunnel.ClosureSurface arg0) {
-						// TODO Auto-generated method stub
-						
-					}
-
-					@Override
-					public void visit(
-							org.citygml4j.model.citygml.tunnel.FloorSurface arg0) {
-						// TODO Auto-generated method stub
-						
-					}
-
-					@Override
-					public void visit(
-							org.citygml4j.model.citygml.tunnel.OuterFloorSurface arg0) {
-						// TODO Auto-generated method stub
-						
-					}
-
-					@Override
-					public void visit(
-							org.citygml4j.model.citygml.tunnel.GroundSurface arg0) {
-						// TODO Auto-generated method stub
-						
-					}
-
-					@Override
-					public void visit(
-							org.citygml4j.model.citygml.tunnel.InteriorWallSurface arg0) {
-						// TODO Auto-generated method stub
-						
-					}
-
-					@Override
-					public void visit(
-							org.citygml4j.model.citygml.tunnel.RoofSurface arg0) {
-						// TODO Auto-generated method stub
-						
-					}
-
-					@Override
-					public void visit(
-							org.citygml4j.model.citygml.tunnel.WallSurface arg0) {
-						// TODO Auto-generated method stub
-						
-					}
-
-					@Override
-					public void visit(
-							org.citygml4j.model.citygml.tunnel.Door arg0) {
-						// TODO Auto-generated method stub
-						
-					}
-
-					@Override
-					public void visit(
-							org.citygml4j.model.citygml.tunnel.Window arg0) {
-						// TODO Auto-generated method stub
-						
-					}
-
-					@Override
-					public void visit(CityFurniture arg0) {
-						// TODO Auto-generated method stub
-						
-					}
-
-					@Override
-					public void visit(CityObjectGroup arg0) {
-						// TODO Auto-generated method stub
-						
-					}
-
-					@Override
-					public void visit(Address arg0) {
-						// TODO Auto-generated method stub
-						
-					}
-
-					@Override
-					public void visit(CityModel arg0) {
-						// TODO Auto-generated method stub
-						
-					}
-
-					@Override
-					public void visit(GenericCityObject arg0) {
-						// TODO Auto-generated method stub
-						
-					}
-
-					@Override
-					public void visit(LandUse arg0) {
-						// TODO Auto-generated method stub
-						
-					}
-
-					@Override
-					public void visit(BreaklineRelief arg0) {
-						// TODO Auto-generated method stub
-						
-					}
-
-					@Override
-					public void visit(MassPointRelief arg0) {
-						// TODO Auto-generated method stub
-						
-					}
-
-					@Override
-					public void visit(RasterRelief arg0) {
-						// TODO Auto-generated method stub
-						
-					}
-
-					@Override
-					public void visit(ReliefFeature arg0) {
-						// TODO Auto-generated method stub
-						
-					}
-
-					@Override
-					public void visit(TINRelief arg0) {
-						// TODO Auto-generated method stub
-						
-					}
-
-					@Override
-					public void visit(AuxiliaryTrafficArea arg0) {
-						// TODO Auto-generated method stub
-						
-					}
-
-					@Override
-					public void visit(Railway arg0) {
-						// TODO Auto-generated method stub
-						
-					}
-
-					@Override
-					public void visit(RectifiedGridCoverage arg0) {
-						// TODO Auto-generated method stub
-						
-					}
-
-					@Override
-					public void visit(Road arg0) {
-						// TODO Auto-generated method stub
-						
-					}
-
-					@Override
-					public void visit(Square arg0) {
-						// TODO Auto-generated method stub
-						
-					}
-
-					@Override
-					public void visit(Track arg0) {
-						// TODO Auto-generated method stub
-						
-					}
-
-					@Override
-					public void visit(TrafficArea arg0) {
-						// TODO Auto-generated method stub
-						
-					}
-
-					@Override
-					public void visit(TransportationComplex arg0) {
-						// TODO Auto-generated method stub
-						
-					}
-
-					public void visit(PlantCover arg0) {}
-					public void visit(SolitaryVegetationObject arg0) {}
-					public void visit(WaterBody arg0) {}
-					public void visit(WaterClosureSurface arg0) {}
-					public void visit(WaterGroundSurface arg0) {}
-					public void visit(WaterSurface arg0) {}
-					public void visit(ADEComponent arg0) {}
-					public void visit(Element arg0, ElementDecl arg1) {}
-					public void visit(LodRepresentation arg0) {}
+				    
+				    // FIXME A bunch of ugly unused Methods.
+					public void visit(LodRepresentation arg0) {	}
 					public void visit(CompositeCurve arg0) {}
 					public void visit(CompositeSolid arg0) {}
 					public void visit(CompositeSurface arg0) {}
@@ -598,13 +127,7 @@ public class CGMLParser {
 					public void visit(Surface arg0) {}
 					public void visit(Tin arg0) {}
 					public void visit(TriangulatedSurface arg0) {}
-					public void visit(CompositeValue arg0) {}
-					public void visit(ValueArray arg0) {}
-					public void visit(TexCoordGen arg0) {}
-					public void visit(TexCoordList arg0) {}
-					public void visit(ImplicitGeometry arg0) {}
-					public void visit(_Material arg0) {}
-					public void visit(_SimpleTexture arg0) {}
+					
 				};
 				
 //				Building testBuilding = new Building( id , polygon list, polygon vertex list );
@@ -614,7 +137,7 @@ public class CGMLParser {
 			}
 		};
 		
-		
+		cityModel.accept(walker);
 		
 		List<Building> city = null;
 		return city;

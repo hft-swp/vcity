@@ -46,7 +46,7 @@ public class MyHouseTest2 {
 	
 	
 
-	public static final String fileName = "vCity/einHaus.gml";
+	public static final String fileName = "einHaus.gml";
 	
 
     public static void main(String[] args) throws Exception {
