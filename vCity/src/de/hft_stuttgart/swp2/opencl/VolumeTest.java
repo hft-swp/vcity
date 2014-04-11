@@ -100,6 +100,9 @@ public class VolumeTest {
 		b.addTriangle(t);
 		t = new Triangle(new Vertex[] {p4, p7, p6});
 		b.addTriangle(t);
+		t = new Triangle(new Vertex[] {p0, p7, p4});
+		b.addTriangle(t);
+		t = new Triangle(new Vertex[] {p0, p4, p3});
 	}
 
 }
