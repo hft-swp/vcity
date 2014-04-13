@@ -21,6 +21,7 @@ import javax.swing.SwingUtilities;
 
 import com.jogamp.opengl.util.FPSAnimator;
 
+import de.hft_stuttgart.swp2.model.Building;
 import de.hft_stuttgart.swp2.model.City;
 import de.hft_stuttgart.swp2.model.ShadowTriangle;
 import de.hft_stuttgart.swp2.model.Vertex;
@@ -36,8 +37,8 @@ public class ShadowViewer extends JFrame implements GLEventListener,
 	private GLU glu;
 	private Camera camera;
 	private Robot robot;
-	private int screenHeight;
-	private int screenWidth;
+	private int halfScreenHeight;
+	private int halfScreenWidth;
 	private float r = 10000;
 	private boolean enableDrawCenters = false;
 
@@ -55,24 +56,31 @@ public class ShadowViewer extends JFrame implements GLEventListener,
 
 	public ShadowViewer() {
 		super("Shadow view");
+		
+		// test values
 		VolumeTest.testCity2();
+		VolumeTest.testCity2();
+		VolumeTest.testCity2();
+		City.getInstance().getBuildings().get(1).translate(0, 0, 5);
+		City.getInstance().getBuildings().get(2).translate(5, 0, 5);
+		City.getInstance().getBuildings().get(2).scale(1, 5, 1);
+	
 		ShadowCalculator.calculateShadow();
+		
+		
+		halfScreenHeight = Toolkit.getDefaultToolkit().getScreenSize().height / 2;
+		halfScreenWidth = Toolkit.getDefaultToolkit().getScreenSize().width / 2;
+
 		try {
 			robot = new Robot();
-			robot.mouseMove(screenWidth / 2, screenHeight / 2);
 		} catch (AWTException e) {
 		}
-		
-		
-		screenHeight = Toolkit.getDefaultToolkit().getScreenSize().height;
-		screenWidth = Toolkit.getDefaultToolkit().getScreenSize().width;
-
 
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
 		// set up the drawing canvas
 		GLCanvas canvas = new GLCanvas();
-		canvas.setPreferredSize(new Dimension(640, 480));
+		canvas.setPreferredSize(new Dimension(1024, 768));
 		getContentPane().add(canvas);
 		
 		// draw the scene at FPS fps
@@ -86,6 +94,7 @@ public class ShadowViewer extends JFrame implements GLEventListener,
 		canvas.addMouseMotionListener(this);
 		pack();
 		this.setLocationRelativeTo(null);
+		robot.mouseMove(halfScreenWidth, halfScreenHeight);
 	}
 
 	@Override
@@ -97,18 +106,20 @@ public class ShadowViewer extends JFrame implements GLEventListener,
 		camera.lookAt();
 		// drawing building 0
 		gl.glColor3f(1f, 1f, 1f);
-		for (ShadowTriangle t : City.getInstance().getBuildings().get(0).getShadowTriangles()) {
-			gl.glBegin(GL2.GL_LINE_LOOP);
-//			gl.glBegin(GL2.GL_TRIANGLES);
-			for (Vertex v : t.getVertices()) {
-				gl.glVertex3fv(v.getCoordinates(), 0);
+		for (Building b : City.getInstance().getBuildings()) {
+			for (ShadowTriangle t : b.getShadowTriangles()) {
+				gl.glBegin(GL2.GL_LINE_LOOP);
+//				gl.glBegin(GL2.GL_TRIANGLES);
+				for (Vertex v : t.getVertices()) {
+					gl.glVertex3fv(v.getCoordinates(), 0);
+				}
+				gl.glEnd();
+				
+//				gl.glBegin(GL2.GL_POINTS); {
+//					gl.glVertex3fv(t.getCenter().getCoordinates(), 0);
+//				}
+//				gl.glEnd();
 			}
-			gl.glEnd();
-			
-//			gl.glBegin(GL2.GL_POINTS); {
-//				gl.glVertex3fv(t.getCenter().getCoordinates(), 0);
-//			}
-//			gl.glEnd();
 		}
 		
 		drawHemisphere(gl);
@@ -191,13 +202,13 @@ public class ShadowViewer extends JFrame implements GLEventListener,
 	
 	private void drawAxis(GL2 gl) {
 		gl.glColor3f(0f, 0f, 1f);
-		// x Axis
+		// x Axis in blue
 		gl.glBegin(GL2.GL_LINES); {
 			gl.glVertex3f(0f, 0f, 0f);
 			gl.glVertex3f(10000f, 0f, 0f);
 		}
 		gl.glEnd();
-		// y Axis
+		// y Axis in green
 		gl.glColor3f(0f, 1f, 0f);
 		gl.glBegin(GL2.GL_LINES); {
 			gl.glVertex3f(0f, 0f, 0f);
@@ -205,7 +216,7 @@ public class ShadowViewer extends JFrame implements GLEventListener,
 		}
 		gl.glEnd();
 		
-		// z Axis
+		// z Axis in red
 		gl.glColor3f(1f, 0f, 0f);
 		gl.glBegin(GL2.GL_LINES); {
 			gl.glVertex3f(0f, 0f, 0f);
@@ -322,9 +333,9 @@ public class ShadowViewer extends JFrame implements GLEventListener,
 		if (camera == null) {
 			return;
 		}
-		int dx = e.getXOnScreen() - screenWidth / 2;
-		int dy = e.getYOnScreen() - screenHeight / 2;
-		robot.mouseMove(screenWidth / 2, screenHeight / 2);
+		int dx = e.getXOnScreen() - halfScreenWidth;
+		int dy = e.getYOnScreen() - halfScreenHeight;
+		robot.mouseMove(halfScreenWidth, halfScreenHeight);
 		camera.turnLeft(dx * 2 * Math.PI / 360 / 8);
 		camera.turnDown(dy * 2 * Math.PI / 360 / 8);
 	}

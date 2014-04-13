@@ -13,6 +13,7 @@ public class ShadowCalculator {
 	 */
 	public static void calculateShadow() {
 		for (Building b : City.getInstance().getBuildings()) {
+			b.getShadowTriangles().clear();
 			for (Triangle t : b.getTriangles()) {
 				addTriangles(b, t);
 			}
