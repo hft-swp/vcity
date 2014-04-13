@@ -1,8 +1,5 @@
 package de.hft_stuttgart.swp2.opencl;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-
 import de.hft_stuttgart.swp2.model.Building;
 import de.hft_stuttgart.swp2.model.City;
 import de.hft_stuttgart.swp2.model.ShadowTriangle;
@@ -25,25 +22,11 @@ public class ShadowCalculator {
 	public static void main(String[] args) {
 		VolumeTest.testCity1();
 		Building b = City.getInstance().getBuildings().get(0);
-		System.out
-				.println(Arrays.toString(City.getInstance().getBuildings()
-						.get(0).getTriangles().get(0).getVertices()[0]
-						.getCoordinates()));
-		System.out
-				.println(Arrays.toString(City.getInstance().getBuildings()
-						.get(0).getTriangles().get(0).getVertices()[1]
-						.getCoordinates()));
-		System.out
-				.println(Arrays.toString(City.getInstance().getBuildings()
-						.get(0).getTriangles().get(0).getVertices()[2]
-						.getCoordinates()));
 		addTriangles(b, b.getTriangles().get(0));
-		System.out.println();
 	}
 
 	private static void addTriangles(Building b, Triangle t) {
 		float area = getArea(t);
-		System.out.println(area);
 		if (area > 1.5f) {
 			float dis1 = getDistance(t.getVertices()[0], t.getVertices()[1]);
 			float dis2 = getDistance(t.getVertices()[1], t.getVertices()[2]);
