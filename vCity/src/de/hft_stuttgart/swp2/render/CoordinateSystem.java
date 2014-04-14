@@ -27,7 +27,7 @@ import com.jogamp.opengl.util.FPSAnimator;
  * @author Joerg Amelunxen - japr0.wordpress.com
  * @modified Marcel Ruckaberle
  */
-public class CoordinateSystem extends JFrame implements GLEventListener, KeyListener,
+public class CoordinateSystem extends JFrame implements GLEventListener,
 MouseListener, MouseMotionListener{
 
 	/**
@@ -64,8 +64,8 @@ MouseListener, MouseMotionListener{
     	roty = 0;
     	rotz = 0;
     	transx = 0;
-    	transy = 0;
-    	transz = -5;
+    	transy = -10;
+    	transz = -20;
     	
     	// Starte App
     	// Suche passendens Profil und setze es
@@ -126,11 +126,59 @@ MouseListener, MouseMotionListener{
 			listenersInitialized = true;
 			canvas.addMouseListener(this);
 			canvas.addMouseMotionListener(this);
-			canvas.addKeyListener(this);
+			canvas.addKeyListener(new KeyEventListener(this));
 		}
     }
 
-    public void reshape(GLAutoDrawable drawable, int x, int y, int w, int h) {
+    public float getRotx() {
+		return rotx;
+	}
+
+	public void setRotx(float rotx) {
+		this.rotx = rotx;
+	}
+
+	public float getRoty() {
+		return roty;
+	}
+
+	public void setRoty(float roty) {
+		this.roty = roty;
+	}
+
+	public float getRotz() {
+		return rotz;
+	}
+
+	public void setRotz(float rotz) {
+		this.rotz = rotz;
+	}
+
+	public float getTransx() {
+		return transx;
+	}
+
+	public void setTransx(float transx) {
+		this.transx = transx;
+	}
+
+	public float getTransy() {
+		return transy;
+	}
+
+	public void setTransy(float transy) {
+		this.transy = transy;
+	}
+
+	public float getTransz() {
+		return transz;
+	}
+
+	public void setTransz(float transz) {
+		this.transz = transz;
+	}
+
+	public void reshape(GLAutoDrawable drawable, int x, int y, int w, int h) {
 		GL2 gl = drawable.getGL().getGL2();
 		// Setze einen passenden Viewport
 		gl.glViewport(0, 0, window_x, window_y);
@@ -317,44 +365,6 @@ MouseListener, MouseMotionListener{
 	}
 
 
-	@Override
-	public void keyPressed(KeyEvent e) {
-		//in Richtung Z Achse mit oben und unten Taste gehen
-		if (e.getKeyCode() == KeyEvent.VK_UP){
-			transz -= 0.2f;
-		}
-		else if (e.getKeyCode() == KeyEvent.VK_DOWN){
-			transz += 0.2f;
-		}
-		
-		//in Richtung Z Achse mit oben und unten Taste gehen
-		if (e.getKeyCode() == KeyEvent.VK_RIGHT){
-			transx -= 0.2f;
-		}
-		else if (e.getKeyCode() == KeyEvent.VK_LEFT){
-			transx += 0.2f;
-		}
-		if (e.getKeyCode() == KeyEvent.VK_Y){
-			transy -= 0.2f;
-		}
-		else if (e.getKeyCode() == KeyEvent.VK_A){
-			transy += 0.2f;
-		}
-	}
-
-
-	@Override
-	public void keyReleased(KeyEvent e) {
-		// TODO Auto-generated method stub
-		
-	}
-
-
-	@Override
-	public void keyTyped(KeyEvent e) {
-		// TODO Auto-generated method stub
-		
-	}
 	
 	protected void applyMovement(GL2 gl){
 		IntBuffer buffer = com.jogamp.common.nio.Buffers.newDirectIntBuffer(1);
