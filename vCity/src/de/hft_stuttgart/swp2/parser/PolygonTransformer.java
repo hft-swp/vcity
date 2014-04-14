@@ -48,9 +48,20 @@ public class PolygonTransformer {
 	 */
 	protected static ArrayList<Vertex> transformTo2D(ArrayList<Vertex> poly) {
 		
-		// TODO <Parser>
+		/**
+		 * Idea:
+		 * x2 = cos(30)*x - cos(30)*y
+		 * y2 = sin(30)*x + sin(30)*y + z
+		 * @see http://stackoverflow.com/questions/5883979/translate-java-3d-coordinates-to-2d-screen-coordinates
+		 */
+		ArrayList<Vertex> polyNew = new ArrayList<Vertex>();
+		for (Vertex v : poly) {
+			float x = Float.valueOf(Math.round(Math.cos(30) * v.getX() * Math.cos(30) * v.getY()));
+			float y = Float.valueOf(Math.round(Math.sin(30) * v.getX() * Math.sin(30) * v.getY() + v.getZ()));
+			polyNew.add(new Vertex(x,y,0.0f));
+		}
 		
-		return new ArrayList<Vertex>();
+		return polyNew;
 	} 
 
 }
