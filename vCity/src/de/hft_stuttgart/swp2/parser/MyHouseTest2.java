@@ -68,7 +68,7 @@ public class MyHouseTest2 {
 	
 	final ArrayList<Double> coords= new ArrayList<Double>(); 
 	double[] maxValues = {0, 0, 0, 0};
-	 double[] minValues = {0, 0, 0, 0};
+	double[] minValues = {0, 0, 0, 0};
 
 	GMLWalker walker = new GMLWalker() {
 	   

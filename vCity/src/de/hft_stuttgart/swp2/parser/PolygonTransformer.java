@@ -1,7 +1,11 @@
 package de.hft_stuttgart.swp2.parser;
 
 import java.util.ArrayList;
+import java.util.List;
 
+import de.hft_stuttgart.swp2.model.Building;
+import de.hft_stuttgart.swp2.model.City;
+import de.hft_stuttgart.swp2.model.Triangle;
 import de.hft_stuttgart.swp2.model.Vertex;
 
 /**
@@ -16,12 +20,20 @@ public class PolygonTransformer {
 	 * Transform a Polygon to smaller data values
 	 * Note that the Polygon has to be transformed to 2D first
 	 * @param poly The 2D Polygon to be transformed
-	 * @param reference A reference value
-	 * @return transformed Polygon
+	 * @return transformed 2D Polygon
 	 */
-	protected static ArrayList<Vertex> transformToNullCoordinate(ArrayList<Vertex> poly) {
+	protected static ArrayList<Vertex> transformToNullCoordinate(City city, double reference) {
 		
-		// TODO <Parser> We need something like a reference to (0,0)
+		Building buildNew; 
+		for (Building building : city.getBuildings()) {
+			for (Triangle t : building.getTriangles()) {
+				for (Vertex v : t.getVertices()) {
+					for (float p : v.getCoordinates()) {
+						System.out.println("p: " + p + " p New: " + (float) (p - reference));
+					}
+				}
+			}
+		}
 		
 		// ...
 		
@@ -30,10 +42,9 @@ public class PolygonTransformer {
 	
 	
 	/**
-	 * Transform a Polygon to smaller data values
-	 * @param poly The Polygon to be transformed
-	 * @param reference A reference value
-	 * @return transformed Polygon
+	 * Transform a 3D Polygon to a 2D (x,y) Polygon
+	 * @param poly The 3D Polygon to be transformed
+	 * @return transformed 2D Polygon
 	 */
 	protected static ArrayList<Vertex> transformTo2D(ArrayList<Vertex> poly) {
 		

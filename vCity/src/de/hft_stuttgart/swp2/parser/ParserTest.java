@@ -15,24 +15,34 @@ public class ParserTest {
 
 	public static void main(String[] args) throws NullPointerException {
 		
-//		String inputFileName = "Gruenbuehl_LOD2.gml";
-		String inputFileName = "einHaus.gml";
+		long id = System.currentTimeMillis();
 		
-		String outputFileName = "testCSV_" + System.currentTimeMillis();
+		String inputFileName = "Gruenbuehl_LOD2.gml";
+//		String inputFileName = "einHaus.gml";
+		
+		String outputFileNameCsv = "testCSV_" + Long.toString(id) + ".csv";
+		String outputFileNameCgml = "testCGML_" + Long.toString(id) + ".gml";
 		
 		// Tests
 		testParse(inputFileName);
 		
-		//testExport(outputFileName);
+//		testExportToCsv(outputFileName);
 
 	}
 	
 	private static void testParse(String fileName) {
-		System.out.println("Parsing file (This may take a few seconds)...");
-		City city = CGMLParser.parse(fileName);
-		System.out.println("Let's see if we were successful...");
-		
 		try {
+			System.out.println("Creating parser Instance");
+			CGMLParser parser = CGMLParser.getInstance();
+			if (parser != null)
+				System.out.println("CGMLParser OK.");
+			else
+				System.err.println("CGMLParser FAILED.");
+		
+			System.out.println("Parsing file (This may take a few seconds)...");
+			City city = parser.parse(fileName);
+			System.out.println("Let's see if we were successful...");
+		
 			if (city != null)
 				System.out.println("City OK.");
 			else
@@ -71,11 +81,12 @@ public class ParserTest {
 			System.out.println("--- Test SUCCEDED. ---");
 		} catch (Exception e) {
 			System.err.println("--- Test FAILED. ---");
+			e.printStackTrace();
 		}
 		
 	}
 
-	private static void testExport(String outputFileName) {
+	private static void testExportToCsv(String outputFileName) {
 		
 	}
 }
