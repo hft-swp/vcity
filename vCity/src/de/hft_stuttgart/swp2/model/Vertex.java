@@ -10,6 +10,8 @@ package de.hft_stuttgart.swp2.model;
 public class Vertex {
 
 	private final float[] coords = new float[3];
+	
+	private boolean visited = false;
 
 	/**
 	 * creates a new vertex from a float array.
@@ -74,6 +76,36 @@ public class Vertex {
 	 */
 	public float getZ() {
 		return coords[2];
+	}
+
+	/**
+	 * moves the point according to the given values
+	 * @param x
+	 * @param y
+	 * @param z
+	 */
+	public void translate(float x, float y, float z) {
+		coords[0] += x;
+		coords[1] += y;
+		coords[2] += z;
+	}
+	
+	public void scale(float x, float y, float z) {
+		coords[0] *= x;
+		coords[1] *= y;
+		coords[2] *= z;
+	}
+	
+	public boolean wasVisited() {
+		return visited;
+	}
+	
+	public void visit() {
+		visited = true;
+	}
+	
+	public void resetVisit() {
+		visited = false;
 	}
 
 }

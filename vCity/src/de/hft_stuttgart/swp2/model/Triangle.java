@@ -40,5 +40,4 @@ public class Triangle {
 	public Vertex[] getVertices() {
 		return vertices;
 	}
-
 }
