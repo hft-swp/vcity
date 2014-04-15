@@ -24,6 +24,7 @@ import com.jogamp.opengl.util.FPSAnimator;
 import de.hft_stuttgart.swp2.model.Building;
 import de.hft_stuttgart.swp2.model.City;
 import de.hft_stuttgart.swp2.model.ShadowTriangle;
+import de.hft_stuttgart.swp2.model.Triangle;
 import de.hft_stuttgart.swp2.model.Vertex;
 import de.hft_stuttgart.swp2.opencl.ShadowCalculator;
 import de.hft_stuttgart.swp2.opencl.VolumeTest;
@@ -108,8 +109,13 @@ public class ShadowViewer extends JFrame implements GLEventListener,
 		gl.glColor3f(1f, 1f, 1f);
 		for (Building b : City.getInstance().getBuildings()) {
 			for (ShadowTriangle t : b.getShadowTriangles()) {
-				gl.glBegin(GL2.GL_LINE_LOOP);
-//				gl.glBegin(GL2.GL_TRIANGLES);
+//				gl.glBegin(GL2.GL_LINE_LOOP);
+				gl.glBegin(GL2.GL_TRIANGLES);
+				if (t.getShadowSet().get(0)) {
+					gl.glColor3f(1, 0, 0);
+				} else {
+					gl.glColor3f(0, 1, 0);
+				}
 				for (Vertex v : t.getVertices()) {
 					gl.glVertex3fv(v.getCoordinates(), 0);
 				}
@@ -135,8 +141,8 @@ public class ShadowViewer extends JFrame implements GLEventListener,
 		gl.glColor3f(1f, 1f, 0);
 		float dv = (float) (Math.PI / 12);
 		float dh = (float) (2 * Math.PI / 12);
-		for (int i = 0; i < 12; i++) {
-			for (int j = 0; j < 12; j++) {
+		for (int i = 0; i < 1; i++) {
+			for (int j = 0; j < 1; j++) {
 				float v = dv * i + dv / 2;
 				float h = dh * (j - 6) + dh / 2;
 				double sinH = Math.sin(h);
