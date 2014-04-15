@@ -228,7 +228,7 @@ public class GUI extends JFrame{
 		JTextField txtR2 = new JTextField("255");
 		JTextField txtG2= new JTextField("0");
 		JTextField txtB2 = new JTextField("0");
-		JButton btnColorChooserBuilding2 = new JButton("Schatten");
+		JButton btnColorChooserBuilding2 = new JButton("Farbe auswählen");
 		panelContent.add(btnColorChooserBuilding2, constraints);
 		panelRGB2.add(lblR2);
 		panelRGB2.add(lblG2);
