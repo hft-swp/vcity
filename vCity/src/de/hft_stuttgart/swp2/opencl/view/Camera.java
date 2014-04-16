@@ -14,9 +14,9 @@ public class Camera {
 	private double directionY;
 	private double directionZ;
 
-	private double positionX;
-	private double positionY;
-	private double positionZ = 5;
+	private double positionX = -10;
+	private double positionY = 8;
+	private double positionZ = 10;
 
 	private double rightX;
 	private double rightY;

@@ -241,6 +241,8 @@ public class ShadowViewer extends JFrame implements GLEventListener,
 		GL2 gl = drawable.getGL().getGL2();
 		glu = new GLU();
 		camera = new Camera(glu);
+		camera.turnRight(-1.2);
+		camera.turnDown(0.3);
 		gl.glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 		gl.glClearDepth(1.0f);
 		
