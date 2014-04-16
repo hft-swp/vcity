@@ -185,7 +185,7 @@ public class ShadowCalculator {
 
 		float a = dot(e1, h);
 
-		// Übersetzt: Wenn a = 0 (also Gerade parallel zur Fläche), der PC
+		// ï¿½bersetzt: Wenn a = 0 (also Gerade parallel zur Flï¿½che), der PC
 		// rundet aber nicht/falsch, deshalb verschafft man ihm etwas
 		// "Spielraum"
 		if ((a > -0.00001) && (a < 0.00001)) {
@@ -198,7 +198,7 @@ public class ShadowCalculator {
 
 		float u = f * dot(s2, h);
 
-		// Übersetzt: Wenn u < 0 oder u > 1
+		// ï¿½bersetzt: Wenn u < 0 oder u > 1
 		if ((u < 0.0) || (u > 1.0)) {
 			return false;
 		}
@@ -207,14 +207,14 @@ public class ShadowCalculator {
 
 		float v = f * dot(d, q);
 
-		// Übersetzt: Wenn v < 0 oder (u+v) > 1
+		// ï¿½bersetzt: Wenn v < 0 oder (u+v) > 1
 		if (!((v < 0.0) || ((u + v) > 1.0))) {
 			float x = v0.getX()+e1.getX()*u + e2.getX()*v;
 			float y = v0.getY()+e1.getY()*u + e2.getY()*v;
 			float z = v0.getZ()+e1.getZ()*u + e2.getZ()*v;
 			Vertex s = vertexDiff(new Vertex(x, y, z), p);
 			
-			if (dot(s, d) > 0) {
+			if (dot(s, d) > 0.1) {
 				return true;
 			}
 		}
