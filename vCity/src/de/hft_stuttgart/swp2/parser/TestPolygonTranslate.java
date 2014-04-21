@@ -54,8 +54,8 @@ public class TestPolygonTranslate {
 
     public static void main(String[] args) throws Exception {
    
-    	//Smallest VAlue Hard Codiert
-    	float[] smallestValues={(float) 3515991.16, (float) 5415784.17, (float) 288.4};
+    
+    	
     System.out.println("setting up citygml4j context and JAXB builder");
 	CityGMLContext ctx = new CityGMLContext();
 	CityGMLBuilder builder = ctx.createCityGMLBuilder();
@@ -67,7 +67,7 @@ public class TestPolygonTranslate {
 	CityModel cityModel = (CityModel) reader.nextFeature();
 	
 	final ArrayList<Vertex> poly = new ArrayList<Vertex>();
-	ArrayList<Vertex> poly2 = new ArrayList<Vertex>();
+	ArrayList<Vertex> polynew = new ArrayList<Vertex>();
 	
 
    	
@@ -135,9 +135,9 @@ public class TestPolygonTranslate {
 					
 					
 					for (int i = 0; i < extCoord.size(); i++) {
-						float x = Float.valueOf(Math.round(extCoord.get(i)));
-						float y = Float.valueOf(Math.round(extCoord.get(++i) ));
-						float z = Float.valueOf(Math.round(extCoord.get(++i) ));
+						float x = extCoord.get(i).floatValue();
+						float y = extCoord.get(++i).floatValue();
+						float z = extCoord.get(++i).floatValue() ;
 						
 						poly.add(new Vertex(x,y,z));
 						
@@ -284,9 +284,10 @@ public class TestPolygonTranslate {
 	cityModel.accept(walker);
 	
 	
-	poly2 = PolygonTranslate.translateToOrigin(poly, smallestValues);
-   for (int i = 0; i < poly2.size(); i++) {
-	System.out.println("X:" +  poly2.get(i).getX() + " Y: " + poly2.get(i).getY() + " Z: " + poly2.get(i).getZ());
+	polynew = PolygonTranslate.translateToOrigin(poly);
+	
+   for (int i = 0; i < polynew.size(); i++) {
+	System.out.println("X:" +  polynew.get(i).getX() + " Y: " + polynew.get(i).getY() + " Z: " + polynew.get(i).getZ());
 }
    
    
