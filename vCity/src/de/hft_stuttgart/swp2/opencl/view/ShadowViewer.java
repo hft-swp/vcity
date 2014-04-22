@@ -42,6 +42,8 @@ public class ShadowViewer extends JFrame implements GLEventListener,
 	private int halfScreenWidth;
 	private float r = 10000;
 	private boolean enableDrawCenters = false;
+	
+	private int ray = 0;
 
 
 	public static void main(String[] args) {
@@ -65,6 +67,21 @@ public class ShadowViewer extends JFrame implements GLEventListener,
 		City.getInstance().getBuildings().get(1).translate(0, 0, 5);
 		City.getInstance().getBuildings().get(2).translate(5, 0, 5);
 		City.getInstance().getBuildings().get(2).scale(1, 5, 1);
+		
+		int size = 20;
+		Vertex v0 = new Vertex(-size, 0, -size);
+		Vertex v1 = new Vertex(-size, 0, size);
+		Vertex v2 = new Vertex(size, 0, size);
+		Vertex v3 = new Vertex(size, 0, -size);
+		
+		Triangle t1 = new Triangle(v0, v1, v2);
+		Triangle t2 = new Triangle(v0, v2, v3);
+		
+		Building b = new Building();
+		b.addTriangle(t1);
+		b.addTriangle(t2);
+		
+		City.getInstance().addBuilding(b);
 	
 		ShadowCalculator.calculateShadow();
 		
@@ -111,11 +128,19 @@ public class ShadowViewer extends JFrame implements GLEventListener,
 			for (ShadowTriangle t : b.getShadowTriangles()) {
 //				gl.glBegin(GL2.GL_LINE_LOOP);
 				gl.glBegin(GL2.GL_TRIANGLES);
-				if (t.getShadowSet().get(0)) {
+				if (t.getShadowSet().get(ray)) {
 					gl.glColor3f(1, 0, 0);
 				} else {
 					gl.glColor3f(0, 1, 0);
 				}
+				for (Vertex v : t.getVertices()) {
+					gl.glVertex3fv(v.getCoordinates(), 0);
+				}
+				gl.glEnd();
+				
+				gl.glColor3f(0, 0, 0);
+				gl.glBegin(GL2.GL_LINE_LOOP);
+//				gl.glBegin(GL2.GL_TRIANGLES);
 				for (Vertex v : t.getVertices()) {
 					gl.glVertex3fv(v.getCoordinates(), 0);
 				}
@@ -141,10 +166,10 @@ public class ShadowViewer extends JFrame implements GLEventListener,
 		gl.glColor3f(1f, 1f, 0);
 		float dv = (float) (Math.PI / 12);
 		float dh = (float) (2 * Math.PI / 12);
-		for (int i = 0; i < 1; i++) {
-			for (int j = 0; j < 1; j++) {
-				float v = dv * i + dv / 2;
-				float h = dh * (j - 6) + dh / 2;
+//		for (int i = 0; i < 1; i++) {
+//			for (int j = 0; j < 1; j++) {
+				float v = dv * (ray / 12) + dv / 2;
+				float h = dh * ((ray % 12) - 6) + dh / 2;
 				double sinH = Math.sin(h);
 				double sinV = Math.sin(v);
 				double cosH = Math.cos(h);
@@ -157,11 +182,12 @@ public class ShadowViewer extends JFrame implements GLEventListener,
 				gl.glVertex3d(0d, 0d, 0d);
 				gl.glVertex3d(posX, posY, posZ);
 				gl.glEnd();
-			}
-		}
+//			}
+//		}
 	}
 
 	private void drawHemisphere(GL2 gl) {
+		gl.glColor3f(1, 1, 1);
 		float dv = (float) (Math.PI / 12);
 		float dh = (float) (2 * Math.PI / 12);
 		for (int i = 0; i < 12; i++) {
@@ -296,10 +322,14 @@ public class ShadowViewer extends JFrame implements GLEventListener,
 			System.exit(0);
 		}
 		if (e.getKeyCode() == KeyEvent.VK_O) {
-			r++;
+			ray++;
+			ray = ray % 144;
 		}
 		if (e.getKeyCode() == KeyEvent.VK_L) {
-			r--;
+			ray--;
+			if (ray < 0) {
+				ray = 143;
+			}
 		}
 		if (e.getKeyCode() == KeyEvent.VK_E) {
 			enableDrawCenters = !enableDrawCenters;
