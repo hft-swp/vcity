@@ -34,8 +34,15 @@ import org.jocl.cl_program;
 public class OpenClContext {
 	private cl_context context;
 	private cl_command_queue commandQueue;
+	private static OpenClContext instance;
 
-	public OpenClContext() throws OpenClException {
+	public static OpenClContext getInstance() throws OpenClException {
+		if(instance == null)
+			instance = new OpenClContext();
+		return instance;
+	}
+	
+	private OpenClContext() throws OpenClException {
 		// Obtain the platform IDs and initialize the context properties
 		cl_platform_id platforms[] = new cl_platform_id[1];
 		clGetPlatformIDs(platforms.length, platforms, null);
@@ -100,7 +107,6 @@ public class OpenClContext {
 
 		// Create the kernel
 		cl_kernel kernel = clCreateKernel(program, "calc", null);
-		clReleaseProgram(program);
 
 		return kernel;
 	}

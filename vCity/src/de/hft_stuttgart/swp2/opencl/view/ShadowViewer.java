@@ -26,7 +26,10 @@ import de.hft_stuttgart.swp2.model.City;
 import de.hft_stuttgart.swp2.model.ShadowTriangle;
 import de.hft_stuttgart.swp2.model.Triangle;
 import de.hft_stuttgart.swp2.model.Vertex;
-import de.hft_stuttgart.swp2.opencl.ShadowCalculator;
+import de.hft_stuttgart.swp2.opencl.OpenClException;
+import de.hft_stuttgart.swp2.opencl.ShadowCalculatorInterface;
+import de.hft_stuttgart.swp2.opencl.ShadowCalculatorJavaBackend;
+import de.hft_stuttgart.swp2.opencl.ShadowCalculatorOpenClBackend;
 import de.hft_stuttgart.swp2.opencl.ShadowPrecision;
 import de.hft_stuttgart.swp2.opencl.VolumeTest;
 
@@ -45,9 +48,11 @@ public class ShadowViewer extends JFrame implements GLEventListener,
 	private boolean enableDrawCenters = false;
 	
 	private int ray = 0;
+	
+	private static final boolean showGrid = true;
 
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws OpenClException {
 		final ShadowViewer view = new ShadowViewer();
 		SwingUtilities.invokeLater(new Runnable() {
 
@@ -58,7 +63,7 @@ public class ShadowViewer extends JFrame implements GLEventListener,
 		});
 	}
 
-	public ShadowViewer() {
+	public ShadowViewer() throws OpenClException {
 		super("Shadow view");
 		
 		// test values
@@ -84,7 +89,13 @@ public class ShadowViewer extends JFrame implements GLEventListener,
 		
 		City.getInstance().addBuilding(b);
 	
-		ShadowCalculator.calculateShadow(ShadowPrecision.ULTRA);
+//		ShadowCalculatorInterface backend = new ShadowCalculatorOpenClBackend();
+		ShadowCalculatorInterface backend = new ShadowCalculatorJavaBackend();
+		System.out.println("Starting shadow calculation...");
+		long start = System.currentTimeMillis(); 
+		backend.calculateShadow(ShadowPrecision.HIGH);
+		long end = System.currentTimeMillis();
+		System.out.printf("calculate shadow took %d milliseconds\n", (end - start));
 		
 		
 		halfScreenHeight = Toolkit.getDefaultToolkit().getScreenSize().height / 2;
@@ -138,19 +149,20 @@ public class ShadowViewer extends JFrame implements GLEventListener,
 					gl.glVertex3fv(v.getCoordinates(), 0);
 				}
 				gl.glEnd();
-				
-				gl.glColor3f(0, 0, 0);
-				gl.glBegin(GL2.GL_LINE_LOOP);
-//				gl.glBegin(GL2.GL_TRIANGLES);
-				for (Vertex v : t.getVertices()) {
-					gl.glVertex3fv(v.getCoordinates(), 0);
+				if(showGrid) {
+					gl.glColor3f(0, 0, 0);
+					gl.glBegin(GL2.GL_LINE_LOOP);
+	//				gl.glBegin(GL2.GL_TRIANGLES);
+					for (Vertex v : t.getVertices()) {
+						gl.glVertex3fv(v.getCoordinates(), 0);
+					}
+					gl.glEnd();
+					
+	//				gl.glBegin(GL2.GL_POINTS); {
+	//					gl.glVertex3fv(t.getCenter().getCoordinates(), 0);
+	//				}
+	//				gl.glEnd();
 				}
-				gl.glEnd();
-				
-//				gl.glBegin(GL2.GL_POINTS); {
-//					gl.glVertex3fv(t.getCenter().getCoordinates(), 0);
-//				}
-//				gl.glEnd();
 			}
 		}
 		

@@ -9,8 +9,9 @@ public class CalculatorImpl implements CalculatorInterface {
 	}
 
 	@Override
-	public void calculateShadow(ShadowPrecision precision) {
-		ShadowCalculator.calculateShadow(precision);
+	public void calculateShadow(ShadowPrecision precision) throws OpenClException {
+		ShadowCalculatorInterface backend = new ShadowCalculatorJavaBackend();
+		backend.calculateShadow(precision);
 	}
 
 }
