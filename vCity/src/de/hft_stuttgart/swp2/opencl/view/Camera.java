@@ -82,12 +82,22 @@ public class Camera {
 
 	public void turnUp(double rad) {
 		verticalAngle += speed * rad;
+		if (verticalAngle > Math.PI) {
+			verticalAngle = Math.PI;
+		} else if (verticalAngle < -Math.PI) {
+			verticalAngle = -Math.PI;
+		}
 		calcDirectionVector();
 		calcUpVector();
 	}
 
 	public void turnDown(double rad) {
 		verticalAngle -= speed * rad;
+		if (verticalAngle > Math.PI / 2) {
+			verticalAngle = Math.PI / 2;
+		} else if (verticalAngle < -Math.PI / 2) {
+			verticalAngle = -Math.PI / 2;
+		}
 		calcDirectionVector();
 		calcUpVector();
 	}

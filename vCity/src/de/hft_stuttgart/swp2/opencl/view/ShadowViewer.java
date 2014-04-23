@@ -27,6 +27,7 @@ import de.hft_stuttgart.swp2.model.ShadowTriangle;
 import de.hft_stuttgart.swp2.model.Triangle;
 import de.hft_stuttgart.swp2.model.Vertex;
 import de.hft_stuttgart.swp2.opencl.ShadowCalculator;
+import de.hft_stuttgart.swp2.opencl.ShadowPrecision;
 import de.hft_stuttgart.swp2.opencl.VolumeTest;
 
 public class ShadowViewer extends JFrame implements GLEventListener,
@@ -83,7 +84,7 @@ public class ShadowViewer extends JFrame implements GLEventListener,
 		
 		City.getInstance().addBuilding(b);
 	
-		ShadowCalculator.calculateShadow();
+		ShadowCalculator.calculateShadow(ShadowPrecision.ULTRA);
 		
 		
 		halfScreenHeight = Toolkit.getDefaultToolkit().getScreenSize().height / 2;
@@ -348,6 +349,8 @@ public class ShadowViewer extends JFrame implements GLEventListener,
 
 	@Override
 	public void mousePressed(MouseEvent e) {
+		halfScreenWidth = e.getXOnScreen();
+		halfScreenHeight = e.getYOnScreen();
 	}
 
 	@Override
@@ -364,10 +367,6 @@ public class ShadowViewer extends JFrame implements GLEventListener,
 
 	@Override
 	public void mouseDragged(MouseEvent e) {
-	}
-
-	@Override
-	public void mouseMoved(MouseEvent e) {
 		if (camera == null) {
 			return;
 		}
@@ -376,6 +375,13 @@ public class ShadowViewer extends JFrame implements GLEventListener,
 		robot.mouseMove(halfScreenWidth, halfScreenHeight);
 		camera.turnLeft(dx * 2 * Math.PI / 360 / 8);
 		camera.turnDown(dy * 2 * Math.PI / 360 / 8);
+	}
+
+	@Override
+	public void mouseMoved(MouseEvent e) {
+//		if (e.getButton() == 2) {
+//			System.out.println("scroll");
+//		}
 	}
 
 }

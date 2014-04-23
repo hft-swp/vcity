@@ -8,17 +8,19 @@ import de.hft_stuttgart.swp2.model.Vertex;
 
 public class ShadowCalculator {
 	
+	
+	
 	/**
 	 * Angenommen koordianten in meter
 	 */
-	public static void calculateShadow() {
+	public static void calculateShadow(ShadowPrecision precision) {
 		Vertex[] directions = calcDirections();
 		int tru = 0;
 		int fals = 0;
 		for (Building b : City.getInstance().getBuildings()) {
 			b.getShadowTriangles().clear();
 			for (Triangle t : b.getTriangles()) {
-				addTriangles(b, t);
+				addTriangles(b, t, precision);
 			}
 			for (ShadowTriangle t : b.getShadowTriangles()) {
 				for (int i = 0; i < 144; i++) {
@@ -94,28 +96,28 @@ public class ShadowCalculator {
 		City.getInstance().getBuildings().get(2).translate(5, 0, 5);
 		City.getInstance().getBuildings().get(2).scale(1, 5, 1);
 
-		calculateShadow();
+		calculateShadow(ShadowPrecision.HIGH);
 	}
 
-	private static void addTriangles(Building b, Triangle t) {
+	private static void addTriangles(Building b, Triangle t, ShadowPrecision precision) {
 		float area = getArea(t);
-		if (area > 1.5f) {
+		if (area > precision.getArea()) {
 			float dis1 = getDistance(t.getVertices()[0], t.getVertices()[1]);
 			float dis2 = getDistance(t.getVertices()[1], t.getVertices()[2]);
 			float dis3 = getDistance(t.getVertices()[0], t.getVertices()[2]);
 			if (dis1 >= dis2 && dis1 >= dis3) {
 				splitTriangles(t.getVertices()[0], t.getVertices()[1],
-						t.getVertices()[2], b);
+						t.getVertices()[2], b, precision);
 				return;
 			}
 			if (dis2 >= dis1 && dis2 >= dis3) {
 				splitTriangles(t.getVertices()[1], t.getVertices()[2],
-						t.getVertices()[0], b);
+						t.getVertices()[0], b, precision);
 				return;
 			}
 			if (dis3 >= dis2 && dis3 >= dis1) {
 				splitTriangles(t.getVertices()[0], t.getVertices()[2],
-						t.getVertices()[1], b);
+						t.getVertices()[1], b, precision);
 				return;
 			}
 		} else {
@@ -125,15 +127,15 @@ public class ShadowCalculator {
 	}
 
 	private static void splitTriangles(Vertex v0, Vertex v1, Vertex v2,
-			Building b) {
+			Building b, ShadowPrecision precision) {
 		float x = 0.5f * (v0.getX() + v1.getX());
 		float y = 0.5f * (v0.getY() + v1.getY());
 		float z = 0.5f * (v0.getZ() + v1.getZ());
 		Vertex vNeu = new Vertex(x, y, z);
 		Triangle tNeu1 = new Triangle(v0, vNeu, v2);
 		Triangle tNeu2 = new Triangle(v2, v1, vNeu);
-		addTriangles(b, tNeu1);
-		addTriangles(b, tNeu2);
+		addTriangles(b, tNeu1, precision);
+		addTriangles(b, tNeu2, precision);
 	}
 
 	private static float getArea(Triangle t) {
@@ -214,7 +216,7 @@ public class ShadowCalculator {
 			float z = v0.getZ()+e1.getZ()*u + e2.getZ()*v;
 			Vertex s = vertexDiff(new Vertex(x, y, z), p);
 			
-			if (dot(s, d) > 0.1) {
+			if (dot(s, d) > 0.01) {
 				return true;
 			}
 		}
