@@ -3,8 +3,9 @@ package de.hft_stuttgart.swp2.opencl;
 public class CalculatorImpl implements CalculatorInterface {
 
 	@Override
-	public void calculateVolume() {
-		VolumeCalculator.calculateVolume();
+	public void calculateVolume() throws OpenClException {
+		VolumeCalculator vc = new VolumeCalculator();
+		vc.calculateVolume();
 	}
 
 	@Override

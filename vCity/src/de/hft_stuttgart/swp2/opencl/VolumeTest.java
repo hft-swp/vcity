@@ -7,12 +7,13 @@ import de.hft_stuttgart.swp2.model.Vertex;
 
 public class VolumeTest {
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws OpenClException {
 		for (int i = 0; i < 70000 ; i++) {
 			testCity1();
 		}
 		testCity2();
-		VolumeCalculator.calculateVolume();
+		VolumeCalculator vc = new VolumeCalculator();
+		vc.calculateVolume();
 //		for (Building b : City.getInstance().getBuildings()) {
 //			System.out.println(b.getVolume());
 //		}
