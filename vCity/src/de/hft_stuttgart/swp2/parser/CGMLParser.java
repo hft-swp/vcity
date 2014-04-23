@@ -62,7 +62,7 @@ import de.hft_stuttgart.swp2.model.Vertex;
  * Main class of the CityGML Parser
  * @author 02grst1bif, 02grfr1bif
  */
-public class CGMLParser {
+public class CGMLParser implements ParserInterface {
 
 	// Enable Console debug messages
 	private final static boolean DEBUG = false;
