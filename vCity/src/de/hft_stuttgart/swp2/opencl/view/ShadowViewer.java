@@ -28,7 +28,6 @@ import de.hft_stuttgart.swp2.model.Triangle;
 import de.hft_stuttgart.swp2.model.Vertex;
 import de.hft_stuttgart.swp2.opencl.OpenClException;
 import de.hft_stuttgart.swp2.opencl.ShadowCalculatorInterface;
-import de.hft_stuttgart.swp2.opencl.ShadowCalculatorJavaBackend;
 import de.hft_stuttgart.swp2.opencl.ShadowCalculatorOpenClBackend;
 import de.hft_stuttgart.swp2.opencl.ShadowPrecision;
 import de.hft_stuttgart.swp2.opencl.VolumeTest;
@@ -89,11 +88,11 @@ public class ShadowViewer extends JFrame implements GLEventListener,
 		
 		City.getInstance().addBuilding(b);
 	
-//		ShadowCalculatorInterface backend = new ShadowCalculatorOpenClBackend();
-		ShadowCalculatorInterface backend = new ShadowCalculatorJavaBackend();
+		ShadowCalculatorInterface backend = new ShadowCalculatorOpenClBackend();
+//		ShadowCalculatorInterface backend = new ShadowCalculatorJavaBackend();
 		System.out.println("Starting shadow calculation...");
 		long start = System.currentTimeMillis(); 
-		backend.calculateShadow(ShadowPrecision.HIGH);
+		backend.calculateShadow(ShadowPrecision.LOW);
 		long end = System.currentTimeMillis();
 		System.out.printf("calculate shadow took %d milliseconds\n", (end - start));
 		

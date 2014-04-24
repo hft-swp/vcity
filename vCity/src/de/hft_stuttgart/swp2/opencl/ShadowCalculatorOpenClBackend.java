@@ -63,7 +63,12 @@ public class ShadowCalculatorOpenClBackend extends ShadowCalculatorInterface {
 
 		int[] cityVerticesCount = {cityVertices.length};
 		
-		ArrayList<ShadowTriangle> sts = City.getInstance().getBuildings().get(0).getShadowTriangles();
+		ArrayList<ShadowTriangle> sts = new ArrayList<ShadowTriangle>();
+		for (Building b : City.getInstance().getBuildings()) {
+			sts.addAll(b.getShadowTriangles());
+		}
+//		System.out.println(sts.size() * 3);
+//		System.exit(0);
 		float[] shadowVerticeCenters = new float[sts.size() * 3];
 		int count = 0;
 		for(ShadowTriangle st : sts) {
@@ -145,9 +150,17 @@ public class ShadowCalculatorOpenClBackend extends ShadowCalculatorInterface {
 		occ.profile(kernelEvent);
 
 		count = 0;
-		BitSet bs = BitSet.valueOf(hasShadow);
+//		BitSet bs = BitSet.valueOf(hasShadow);
 		for (ShadowTriangle st : sts) {
-			BitSet new_bs = bs.get(count*144, (count+1)*144);
+//			BitSet new_bs = bs.get(count*144, (count+1)*144);
+			BitSet new_bs = new BitSet(144);
+			for (int i = 0; i < 144; i++) {
+				if ((hasShadow[count * 18 + i / 8] & (1 << 7-i%8)) > 0) {
+					new_bs.set(i, true);
+				} else {
+					new_bs.set(i, false);
+				}
+			}
 			st.setShadowSet(new_bs);
 			count++;
 		}
