@@ -5,57 +5,34 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import javax.xml.bind.JAXBException;
 
 import org.citygml4j.CityGMLContext;
 import org.citygml4j.builder.CityGMLBuilder;
+import org.citygml4j.model.citygml.CityGML;
+import org.citygml4j.model.citygml.CityGMLClass;
+import org.citygml4j.model.citygml.building.AbstractBoundarySurface;
+import org.citygml4j.model.citygml.building.BoundarySurfaceProperty;
+import org.citygml4j.model.citygml.core.AbstractCityObject;
 import org.citygml4j.model.citygml.core.CityModel;
-import org.citygml4j.model.citygml.core.LodRepresentation;
-import org.citygml4j.model.citygml.texturedsurface._TexturedSurface;
-import org.citygml4j.model.common.visitor.GeometryVisitor;
-import org.citygml4j.model.gml.geometry.AbstractGeometry;
-import org.citygml4j.model.gml.geometry.aggregates.MultiCurve;
-import org.citygml4j.model.gml.geometry.aggregates.MultiGeometry;
-import org.citygml4j.model.gml.geometry.aggregates.MultiLineString;
-import org.citygml4j.model.gml.geometry.aggregates.MultiPoint;
-import org.citygml4j.model.gml.geometry.aggregates.MultiPolygon;
-import org.citygml4j.model.gml.geometry.aggregates.MultiSolid;
-import org.citygml4j.model.gml.geometry.aggregates.MultiSurface;
-import org.citygml4j.model.gml.geometry.complexes.CompositeCurve;
-import org.citygml4j.model.gml.geometry.complexes.CompositeSolid;
-import org.citygml4j.model.gml.geometry.complexes.CompositeSurface;
-import org.citygml4j.model.gml.geometry.complexes.GeometricComplex;
+import org.citygml4j.model.citygml.core.CityObjectMember;
 import org.citygml4j.model.gml.geometry.primitives.AbstractRingProperty;
-import org.citygml4j.model.gml.geometry.primitives.Curve;
-import org.citygml4j.model.gml.geometry.primitives.LineString;
+import org.citygml4j.model.gml.geometry.primitives.DirectPositionList;
 import org.citygml4j.model.gml.geometry.primitives.LinearRing;
-import org.citygml4j.model.gml.geometry.primitives.OrientableCurve;
-import org.citygml4j.model.gml.geometry.primitives.OrientableSurface;
-import org.citygml4j.model.gml.geometry.primitives.Point;
 import org.citygml4j.model.gml.geometry.primitives.Polygon;
-import org.citygml4j.model.gml.geometry.primitives.Ring;
-import org.citygml4j.model.gml.geometry.primitives.Solid;
-import org.citygml4j.model.gml.geometry.primitives.Surface;
-import org.citygml4j.model.gml.geometry.primitives.Tin;
-import org.citygml4j.model.gml.geometry.primitives.TriangulatedSurface;
-import org.citygml4j.model.gml.grids.Grid;
-import org.citygml4j.model.gml.grids.RectifiedGrid;
+import org.citygml4j.model.gml.geometry.primitives.SurfaceProperty;
 import org.citygml4j.model.module.citygml.CityGMLVersion;
 import org.citygml4j.model.module.citygml.CoreModule;
-import org.citygml4j.util.walker.GMLWalker;
 import org.citygml4j.xml.io.CityGMLInputFactory;
 import org.citygml4j.xml.io.CityGMLOutputFactory;
-import org.citygml4j.xml.io.reader.CityGMLReadException;
 import org.citygml4j.xml.io.reader.CityGMLReader;
 import org.citygml4j.xml.io.writer.CityGMLWriteException;
 import org.citygml4j.xml.io.writer.CityGMLWriter;
 
 import de.hft_stuttgart.swp2.model.Building;
 import de.hft_stuttgart.swp2.model.City;
-import de.hft_stuttgart.swp2.model.Triangle;
 import de.hft_stuttgart.swp2.model.Vertex;
 
 /**
@@ -89,194 +66,139 @@ public class CGMLParser implements ParserInterface {
 	 * @param fileName Input file name
 	 * @return List of Buildings
 	 */
-	public City parse(String InputFileName) {
+	public City parse(String InputFileName) throws Exception {
 				
 		// Read file
-		try {
-			CityGMLContext ctx = new CityGMLContext();
-			CityGMLBuilder builder = ctx.createCityGMLBuilder();
-			CityGMLInputFactory in = builder.createCityGMLInputFactory();
-			ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-			InputStream input = classLoader.getResourceAsStream(InputFileName);
-			CityGMLReader reader = in.createCityGMLReader(InputFileName, input);
-			cityModel = (CityModel) reader.nextFeature();
-			reader.close();
+		CityGMLContext ctx = new CityGMLContext();
+		CityGMLBuilder builder = ctx.createCityGMLBuilder();
+//			JAXBBuilder builder = ctx.createJAXBBuilder();
+		CityGMLInputFactory in = builder.createCityGMLInputFactory();
+		ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+		InputStream input = classLoader.getResourceAsStream(InputFileName);
+		CityGMLReader reader = in.createCityGMLReader(InputFileName, input);
+//			cityModel = (CityModel) reader.nextFeature();
 			
-		} catch (CityGMLReadException e) {
-			System.err.println("Failed to parse GML.");
-		} catch (JAXBException e) {
-			System.err.println("Failed to parse GML.");
-		}
 		
 		// Create a city object which we will fill with Buildings
 		final City city = City.getInstance(); 
 		
-		// Walk over Buildings
-		GMLWalker walker = new GMLWalker() {
+		ArrayList<Vertex> polyTriangles = new ArrayList<Vertex>();
+		
+		while (reader.hasNext()) {
+			CityGML citygml = reader.nextFeature();
 			
-			Building building;
-			
-			public void visit(AbstractGeometry abstractGeometry) {
+			if (citygml.getCityGMLClass() == CityGMLClass.CITY_MODEL) {
+				CityModel cityModel = (CityModel)citygml;
 				
-				// TODO <Parser> Add ID to building
-				
-				if (abstractGeometry.getId().contains("UUID")) {
-					// Add previous building to our city
-					city.addBuilding(building);
+				// Step 1: Find reference coordinate
+				for (CityObjectMember cityObjectMember : cityModel.getCityObjectMember()) {
+					AbstractCityObject cityObject = cityObjectMember.getCityObject();
 					
-					// Then create new one
-					building = new Building();
-//					String buildingID = abstractGeometry.getId();
-//					System.err.println("Building ID:" + buildingID);
-//					building.addID(buildingID);
-//					// FIXME <Model> There is no building.addID(String ID);
-				}
-				
-				// Visitor will find a reference value to transform to (0,0)
-				GeometryVisitor refvisit = new GeometryVisitor() {
-					
-					public void visit(Polygon arg0) {
-						AbstractRingProperty extArp = arg0.getExterior();
-						LinearRing extLr = (LinearRing) extArp.getRing();
-						List<Double> extCoord = extLr.getPosList().getValue();
-						for (int i = 0; i < extCoord.size(); i++) {
-							if (extCoord.get(i) < reference[1]) 
-							{
-								reference[0] = extCoord.get(i);
-								reference[1] = extCoord.get(++i);
-								reference[2] = extCoord.get(++i);
+					if (cityObject.getCityGMLClass() == CityGMLClass.BUILDING) {
+						org.citygml4j.model.citygml.building.Building building = (org.citygml4j.model.citygml.building.Building) cityObject;
+						
+						if (building.isSetBoundedBySurface()) {
+							
+							for (BoundarySurfaceProperty property : building.getBoundedBySurface()) {
+								
+								if (property.isSetObject()) {
+									AbstractBoundarySurface boundarySurface = property.getObject();
+
+									if (boundarySurface.isSetLod2MultiSurface() && boundarySurface.getLod2MultiSurface().isSetMultiSurface() && boundarySurface.getLod2MultiSurface().getMultiSurface().isSetSurfaceMember()) {
+										
+										List<SurfaceProperty> surfaces = boundarySurface.getLod2MultiSurface().getMultiSurface().getSurfaceMember();
+										for (int i = 0; i < surfaces.size(); i++) {
+											
+											Polygon poly = (Polygon) surfaces.get(i).getSurface();
+											AbstractRingProperty ringp = poly.getExterior();
+											LinearRing ring = (LinearRing) ringp.getRing();
+											DirectPositionList poslist = ring.getPosList();
+											List<Double> polypoints = poslist.getValue();
+											
+											for (int j = 0; j < polypoints.size(); j += 3) {
+												
+												if(polypoints.get(j) < reference[0]){
+												     reference[0] = polypoints.get(j);
+												     reference[1] = polypoints.get(j+1);
+												     reference[2] = polypoints.get(j+2);
+												}
+											}
+										}
+									}
+								}
 							}
 						}
 					}
-					public void visit(LodRepresentation arg0) {	}
-					public void visit(CompositeCurve arg0) {}
-					public void visit(CompositeSolid arg0) {}
-					public void visit(CompositeSurface arg0) {}
-					public void visit(Curve arg0) {}
-					public void visit(GeometricComplex arg0) {}
-					public void visit(Grid arg0) {}
-					public void visit(LinearRing arg0) {}
-					public void visit(LineString arg0) {}
-					public void visit(MultiCurve arg0) {}
-					public void visit(MultiLineString arg0) {}
-					public void visit(MultiGeometry arg0) {}
-					public void visit(MultiPoint arg0) {}
-					public void visit(MultiPolygon arg0) {}
-					public void visit(MultiSolid arg0) {}
-					public void visit(MultiSurface arg0) {}
-					public void visit(OrientableCurve arg0) {}
-					public void visit(OrientableSurface arg0) {}
-					public void visit(_TexturedSurface arg0) {}
-					public void visit(Point arg0) {}
-					public void visit(RectifiedGrid arg0) {}
-					public void visit(Ring arg0) {}
-					public void visit(Solid arg0) {}
-					public void visit(Surface arg0) {}
-					public void visit(Tin arg0) {}
-					public void visit(TriangulatedSurface arg0) {}
+				}
+				
+				// Step 2
+				for (CityObjectMember cityObjectMember : cityModel.getCityObjectMember()) {
+					AbstractCityObject cityObject = cityObjectMember.getCityObject();
 					
-				};
-				
-				
-				// Visit Polygon
-				GeometryVisitor gvisit = new GeometryVisitor() {
-
-				    public void visit(Polygon arg0) {
-				    	if (DEBUG) System.out.println("Polygon ID: " + arg0.getId());
-						AbstractRingProperty extArp = arg0.getExterior();
-						LinearRing extLr = (LinearRing) extArp.getRing();
-						List<Double> extCoord = extLr.getPosList().getValue();
-												
-						if (DEBUG) System.out.println("Polygon exterior: " + Arrays.toString(extCoord.toArray()));
+					if (cityObject.getCityGMLClass() == CityGMLClass.BUILDING) {
+						org.citygml4j.model.citygml.building.Building building = (org.citygml4j.model.citygml.building.Building) cityObject;
+						polyTriangles.clear();
 						
-						// Create List<Vertex>
-						ArrayList<Vertex> poly = new ArrayList<Vertex>();
-						for (int i = 0; i < extCoord.size(); i++) {
-							float x = Float.valueOf(Math.round(extCoord.get(i)   - reference[0]));
-							float y = Float.valueOf(Math.round(extCoord.get(++i) - reference[1]));
-							float z = Float.valueOf(Math.round(extCoord.get(++i) - reference[2]));
+						if (building.isSetBoundedBySurface()) {
 							
-							poly.add(new Vertex(x,y,z));
-							System.out.println("x: " + x + " | y: " + y + " | z: " + z);
+							for (BoundarySurfaceProperty property : building.getBoundedBySurface()) {
+								
+								if (property.isSetObject()) {
+									AbstractBoundarySurface boundarySurface = property.getObject();
+
+									if (boundarySurface.isSetLod2MultiSurface() && boundarySurface.getLod2MultiSurface().isSetMultiSurface() && boundarySurface.getLod2MultiSurface().getMultiSurface().isSetSurfaceMember()) {
+										List<SurfaceProperty> surfaces = boundarySurface.getLod2MultiSurface().getMultiSurface().getSurfaceMember();
+										for (int i = 0; i < surfaces.size(); i++) {
+
+											Polygon poly = (Polygon) surfaces.get(i).getSurface();
+
+											AbstractRingProperty ringp = poly.getExterior();
+											LinearRing ring = (LinearRing) ringp.getRing();
+											DirectPositionList poslist = ring.getPosList();
+
+											List<Double> polypoints = poslist.getValue();
+											
+											ArrayList<Vertex> p = new ArrayList<Vertex>();
+											
+											for (int j = 0; j < polypoints.size(); j++) {
+												p.add(new Vertex(polypoints.get(j).floatValue(),polypoints.get(++j).floatValue(),polypoints.get(++j).floatValue()));
+											}
+											
+											// TODO Null coordinate
+											ArrayList<Vertex> pp = PolygonTranslate.translateToOrigin(p, reference);
+											
+											ArrayList<Vertex> dreiecke = PolygonTriangulator.triangulate(pp);
+											ArrayList<Vertex> schoenedreiecke = new ArrayList<Vertex>();
+											
+											for (Vertex ve : pp) {
+												float newx = (float) ((Math.round(ve.getX() * 1000.0)) / 1000.0);
+												float newy = (float) ((Math.round(ve.getY() * 1000.0)) / 1000.0);
+												float newz = (float) ((Math.round(ve.getZ() * 1000.0)) / 1000.0);
+												schoenedreiecke.add(new Vertex(newx, newy, newz));
+											}
+
+											polyTriangles.addAll(schoenedreiecke);
+											
+
+										}
+									}
+								}
+							}
 						}
-						if (DEBUG) System.out.println("Number of Vertices: " + poly.size());
 						
-						// TODO <Parser> Transform to 2D
-						poly = PolygonTransformer.transformTo2D(poly);
-
-						// TODO <Parser> Triangulate
-						ArrayList<Triangle> polyTriangles = PolygonTriangulator.triangulate(poly);
-						
-						// TODO <Parser> Add triangles to Building
-//						building.addPolygon(polyTriangles);
-						// FIXME <Model> There is no building.addPolygon(List<Triangle>);
-						
-				    }
-				    
-				    // FIXME <Parser> A bunch of ugly unused Methods.
-					public void visit(LodRepresentation arg0) {	}
-					public void visit(CompositeCurve arg0) {}
-					public void visit(CompositeSolid arg0) {}
-					public void visit(CompositeSurface arg0) {}
-					public void visit(Curve arg0) {}
-					public void visit(GeometricComplex arg0) {}
-					public void visit(Grid arg0) {}
-					public void visit(LinearRing arg0) {}
-					public void visit(LineString arg0) {}
-					public void visit(MultiCurve arg0) {}
-					public void visit(MultiLineString arg0) {}
-					public void visit(MultiGeometry arg0) {}
-					public void visit(MultiPoint arg0) {}
-					public void visit(MultiPolygon arg0) {}
-					public void visit(MultiSolid arg0) {}
-					public void visit(MultiSurface arg0) {}
-					public void visit(OrientableCurve arg0) {}
-					public void visit(OrientableSurface arg0) {}
-					public void visit(_TexturedSurface arg0) {}
-					public void visit(Point arg0) {}
-					public void visit(RectifiedGrid arg0) {}
-					public void visit(Ring arg0) {}
-					public void visit(Solid arg0) {}
-					public void visit(Surface arg0) {}
-					public void visit(Tin arg0) {}
-					public void visit(TriangulatedSurface arg0) {}
+						// Add the building to our city
+						String bid = building.getId();
 					
-				};
-				
-				abstractGeometry.accept(refvisit);
-				
-				abstractGeometry.accept(gvisit);
-				
-				super.visit(abstractGeometry);
+						city.addBuilding(new Building(bid, polyTriangles));
+						System.out.println("City: " + city.getBuildings().size());
+						
+					}
+				}
 			}
-		};
+		}
 		
-		cityModel.accept(walker);
-		
-		System.out.println("Smallest double value: " + Arrays.toString(reference));
-		
-//		PolygonTransformer.transformToNullCoordinate(city, reference[]);
-		
-		/**
-		 * The following is just sample data.
-		 */
-		Vertex vx = new Vertex(1, 2, 3);
-		Vertex vy = new Vertex(4, 5, 6);
-		Vertex vz = new Vertex(7, 8, 9);
-		
-		Triangle tri = new Triangle(vx, vy, vz);
-
-		ArrayList<Vertex> poly = new ArrayList<Vertex>();
-		poly.add(vx);
-		poly.add(vy);
-		poly.add(vz);
-		
-		Building bui = new Building("BUILD0000", poly);
-		
-		city.addBuilding(bui);
-		/**
-		 * End of sample data.
-		 */
+		reader.close();
+		System.out.println("Reference: " + reference[0] + " " + reference[1] + " " + reference[2]);
 		
 		return city;
 	}

@@ -1,14 +1,9 @@
 package de.hft_stuttgart.swp2.parser;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-
-import javax.media.opengl.GL2;
-import javax.media.opengl.GLAutoDrawable;
 import javax.media.opengl.glu.GLU;
 import javax.media.opengl.glu.GLUtessellator;
 
-import de.hft_stuttgart.swp2.model.Triangle;
 import de.hft_stuttgart.swp2.model.Vertex;
 
 /**
@@ -24,9 +19,8 @@ public class PolygonTriangulator {
 	 * @param poly The Polygon, as list of vertices, to be triangulated
 	 * @return List of Triangles
 	 */
-	protected static ArrayList<Triangle> triangulate(ArrayList<Vertex> poly) {
+	protected static ArrayList<Vertex> triangulate(ArrayList<Vertex> poly) {
 			
-		//GL2 gl = GLAutoDrawable().getGL().getGL2();
 		GLU glu = new GLU();
 		PolygonTriangulatorCallback callback = new PolygonTriangulatorCallback(glu);
 		GLUtessellator tessellator = GLU.gluNewTess();
@@ -45,15 +39,13 @@ public class PolygonTriangulator {
 	    
 	    GLU.gluTessEndContour(tessellator);
 	    GLU.gluTessEndPolygon(tessellator);
-	    
-	    // ?
-	    GLU.gluDeleteTess(tessellator);
-		
+	    		
 		
 		// TODO <Parser>
-		ArrayList<Triangle> triangles = new ArrayList<Triangle>();
+		ArrayList<Vertex> triangles = new ArrayList<Vertex>();
 		
 		return triangles;
 	}
+	
 	
 }
