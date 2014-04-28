@@ -58,7 +58,7 @@ public class MouseEventListener implements MouseListener,
 	@Override
 	public void mouseWheelMoved(MouseWheelEvent e) {
 		int notches =e.getWheelRotation();
-				if (notches <0 ) {
+				if (notches >= 0 ) {
 					cityMap3D.camera.moveBackwards(0.5d);
 				} else {
 					cityMap3D.camera.moveForward(0.5d);
