@@ -61,7 +61,12 @@ public class Main {
 	
 
 	public static void startParser(String path) {
-		city = CGMLParser.getInstance().parse(path);
+		try {
+			city = CGMLParser.getInstance().parse(path);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 

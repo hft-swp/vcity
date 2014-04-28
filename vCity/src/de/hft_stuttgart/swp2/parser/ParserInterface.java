@@ -17,7 +17,7 @@ public interface ParserInterface {
 	 * @param fileName Input file name
 	 * @return List of Buildings
 	 */
-	public City parse(String InputFileName);
+	public City parse(String InputFileName) throws Exception;
 	
 	/**
 	 * Exports the Building Objects to a CSV file, which will contain <b>ID</b> and <b>Volume</b> of each Building
