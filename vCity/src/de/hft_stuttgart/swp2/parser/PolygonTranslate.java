@@ -14,7 +14,7 @@ public class PolygonTranslate {
 	 * @return translated Polygonlist
 	 */
 	// Translate the Coordinates to point of Origin
-	static ArrayList<Vertex> translateToOrigin(ArrayList<Vertex> poly,double[] reference) {
+	public static ArrayList<Vertex> translateToOrigin(ArrayList<Vertex> poly,double[] reference) {
 
 		Matrix translate;
 		ArrayList<Vertex> polynew = new ArrayList<>();
