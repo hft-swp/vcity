@@ -1,13 +1,23 @@
 package de.hft_stuttgart.swp2.render;
 
+import java.awt.HeadlessException;
+import java.awt.Toolkit;
+
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
+import de.hft_stuttgart.swp2.model.City;
+import de.hft_stuttgart.swp2.opencl.OpenClException;
+import de.hft_stuttgart.swp2.parser.CGMLParser;
+import de.hft_stuttgart.swp2.render.city3d.CityMap3D;
+import de.hft_stuttgart.swp2.render.options.OptionGUI;
+
 public class Main {
 	
-	private static GUI gui;
+	private static OptionGUI optionGUI;
 	private static CityMap3D cityMap3D;
+	private static City city;
 
 	/**
 	 * @param args
@@ -30,32 +40,36 @@ public class Main {
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
 			public void run() {
-				gui = new GUI();
-				gui.setVisible(true);
+				try {
+					int width = (int)Toolkit.getDefaultToolkit().getScreenSize().getWidth();
+					int height = (int)Toolkit.getDefaultToolkit().getScreenSize().getHeight();
+					cityMap3D = new CityMap3D(width,height);
+					cityMap3D.setVisible(true);
+				} catch (HeadlessException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (OpenClException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}  
+				optionGUI = new OptionGUI();
+				optionGUI.setVisible(true);
 			}
 		});
 	}
 	
-	
-	/**
-	 * Ruft das Hauptfenster auf.
-	 */
-	public static void execute3DRendering(final int resWidth, final int resHeigth) {
-		if(gui != null) {
-			gui.dispose();
-		}
-		SwingUtilities.invokeLater(new Runnable() {
-			@Override
-			public void run() {
-				cityMap3D = new CityMap3D("3D City Map",resWidth,resHeigth);  
-				cityMap3D.setVisible(true);
-			}
-		});
-	}
 	
 
 	public static void startParser(String path) {
-		// TODO Auto-generated method stub
+		city = CGMLParser.getInstance().parse(path);
 	}
+
+
+	public static City getCity() {
+		return city;
+	}
+
+
+
 
 }

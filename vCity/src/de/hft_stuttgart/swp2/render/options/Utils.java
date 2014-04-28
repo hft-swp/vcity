@@ -1,4 +1,4 @@
-package de.hft_stuttgart.swp2.render;
+package de.hft_stuttgart.swp2.render.options;
 
 import java.io.File;
 import javax.swing.ImageIcon;

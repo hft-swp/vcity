@@ -29,7 +29,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */ 
 
-package de.hft_stuttgart.swp2.render;
+package de.hft_stuttgart.swp2.render.options;
 
 import javax.swing.*;
 import java.beans.*;

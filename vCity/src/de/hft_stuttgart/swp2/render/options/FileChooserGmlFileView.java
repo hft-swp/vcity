@@ -29,7 +29,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */ 
 
-package de.hft_stuttgart.swp2.render;
+package de.hft_stuttgart.swp2.render.options;
 
 import java.io.File;
 import javax.swing.*;
@@ -37,7 +37,7 @@ import javax.swing.filechooser.*;
 
 /* ImageFileView.java is used by FileChooserDemo2.java. */
 public class FileChooserGmlFileView extends FileView {
-    ImageIcon gmlIcon = Utils.createImageIcon("images/CityGML1.png");
+    ImageIcon gmlIcon = Utils.createImageIcon("../images/CityGML1.png");
 
 
     public String getName(File f) {
