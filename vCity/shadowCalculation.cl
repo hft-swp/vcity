@@ -1,3 +1,4 @@
+#define LOCAL_GROUP_XDIM 1024
 /* typedef struct tag_vertex {
 	float x;
 	float y;
@@ -60,14 +61,19 @@ char rayIntersectsTriangle(float3 p, float3 sunDirection, float3 v0, float3 v1, 
 	return 0;
 }
 
-__kernel void calc(__global float* cityVertices,
+__kernel  __attribute__((reqd_work_group_size(LOCAL_GROUP_XDIM, 1, 1)))
+void calc(__global float* cityVertices,
 				   __global int* cityVerticesCount,
 				   __global float* shadowVerticeCenters,
 				   __global int* shadowVerticeCentersCount,
 				   __global float* sunDirections,
-				   __global char* hasShadow) // (144/8)*shadowTrianglesCount char
+				   __global char* hasShadow, // (144/8)*shadowTrianglesCount char
+				   __const int workSize) 
 {
 	int gid = get_global_id(0);
+	if (gid >= workSize) {
+		gid = 0;
+	}
 	
 	float3 v0, v1, v2, sunDirection, p;
 	

@@ -117,6 +117,7 @@ public class ShadowCalculatorOpenClBackend extends ShadowCalculatorInterface {
 		cl_mem sunDirectionsMem = clCreateBuffer(context, CL.CL_MEM_READ_ONLY
 				| CL.CL_MEM_USE_HOST_PTR, Sizeof.cl_float * sunDirections.length,
 				Pointer.to(sunDirections), null);
+		
 
 		Pointer hasShadowPointer = Pointer.to(hasShadow);
 		cl_mem hasShadowMem = clCreateBuffer(context, CL_MEM_READ_WRITE,
@@ -129,14 +130,15 @@ public class ShadowCalculatorOpenClBackend extends ShadowCalculatorInterface {
 		clSetKernelArg(kernel, 3, Sizeof.cl_mem, Pointer.to(shadowTriangleCountMem));
 		clSetKernelArg(kernel, 4, Sizeof.cl_mem, Pointer.to(sunDirectionsMem));
 		clSetKernelArg(kernel, 5, Sizeof.cl_mem, Pointer.to(hasShadowMem));
+		clSetKernelArg(kernel, 6, Sizeof.cl_int, Pointer.to(new int[]{shadowVerticeCenters.length / 3}));
 
 		// Set the work-item dimensions
 		System.out.println(shadowVerticeCenters.length / 3);
-		int localWorkSize = 1;
+		int localWorkSize = 1024;
 		int workSize = ((shadowVerticeCenters.length / 3) / localWorkSize  + 1) * localWorkSize;
 		System.out.println(workSize);
-		long global_work_size[] = new long[] { shadowVerticeCenters.length / 3 };
-		long local_work_size[] = new long[] { localWorkSize };
+		long global_work_size[] = new long[] { shadowVerticeCenters.length / 3};
+		long local_work_size[] = new long[] { localWorkSize};
 		
 		cl_device_id device = occ.getDevice();
 		long[] kernelWorkSize = new long[1];
@@ -146,6 +148,7 @@ public class ShadowCalculatorOpenClBackend extends ShadowCalculatorInterface {
 		System.out.println(kernelWorkSize[0]);
 		// Execute the kernel
 		cl_event kernelEvent = new cl_event();
+		
 		clEnqueueNDRangeKernel(commandQueue, kernel, 1, null, global_work_size,
 				local_work_size, 0, null, kernelEvent);
 

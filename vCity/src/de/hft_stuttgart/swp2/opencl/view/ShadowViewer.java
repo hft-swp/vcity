@@ -19,6 +19,9 @@ import javax.media.opengl.glu.GLU;
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 
+import org.jocl.CL;
+import org.jocl.CLException;
+
 import com.jogamp.opengl.util.FPSAnimator;
 
 import de.hft_stuttgart.swp2.model.Building;
@@ -52,14 +55,20 @@ public class ShadowViewer extends JFrame implements GLEventListener,
 
 
 	public static void main(String[] args) throws OpenClException {
-		final ShadowViewer view = new ShadowViewer();
-		SwingUtilities.invokeLater(new Runnable() {
+//		CL.setLogLevel(CL.LogLevel.LOG_DEBUGTRACE);
+		try {
+			final ShadowViewer view = new ShadowViewer();
+			SwingUtilities.invokeLater(new Runnable() {
 
-			@Override
-			public void run() {
-				view.setVisible(true);
-			}
-		});
+				@Override
+				public void run() {
+					view.setVisible(true);
+				}
+			});
+		} catch (CLException e){
+			e.printStackTrace();
+			System.out.println(e.getStatus());
+		}
 	}
 
 	public ShadowViewer() throws OpenClException {
@@ -92,7 +101,7 @@ public class ShadowViewer extends JFrame implements GLEventListener,
 //		ShadowCalculatorInterface backend = new ShadowCalculatorJavaBackend();
 		System.out.println("Starting shadow calculation...");
 		long start = System.currentTimeMillis(); 
-		backend.calculateShadow(ShadowPrecision.ULTRA); //VERY_LOW(5f), LOW(2.5f), MID(1.25f), HIGH(0.75f), ULTRA(0.375f), HYPER(0.1f), AWESOME(0.01f)
+		backend.calculateShadow(ShadowPrecision.AWESOME); //VERY_LOW(5f), LOW(2.5f), MID(1.25f), HIGH(0.75f), ULTRA(0.375f), HYPER(0.1f), AWESOME(0.01f)
 		long end = System.currentTimeMillis();
 		System.out.printf("calculate shadow took %d milliseconds\n", (end - start));
 		
