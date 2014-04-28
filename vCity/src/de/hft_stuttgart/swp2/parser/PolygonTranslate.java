@@ -9,11 +9,12 @@ import de.hft_stuttgart.swp2.model.Vertex;
 public class PolygonTranslate {
 
 	/**
-	 * @param poly
-	 * @param smallestValue
+	 * Translate the Coordinates to point of Origin
+	 * @param poly List of Vertices
+	 * @param reference Smallest Vertex
 	 * @return translated Polygonlist
+	 * @author 02sial1bif, 02grst1bif
 	 */
-	// Translate the Coordinates to point of Origin
 	public static ArrayList<Vertex> translateToOrigin(ArrayList<Vertex> poly,double[] reference) {
 
 		Matrix translate;
@@ -35,8 +36,7 @@ public class PolygonTranslate {
 			Matrix trans = translate;
 			double[] newVals = trans.times(v.transpose()).toColumnPackedArray();
 
-			polynew.add(new Vertex((float) newVals[0], (float) newVals[1],
-					(float) newVals[2]));
+			polynew.add(new Vertex((float) newVals[0], (float) newVals[1], (float) newVals[2]));
 
 		}
 

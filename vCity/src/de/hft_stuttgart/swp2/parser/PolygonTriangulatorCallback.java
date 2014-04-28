@@ -11,47 +11,38 @@ import javax.media.opengl.glu.GLUtessellatorCallbackAdapter;
 public class PolygonTriangulatorCallback extends GLUtessellatorCallbackAdapter {
 
 	private GLU glu = null;
-	private int type = 0;
 	private PolygonTriangulatorCollector collector = null;
 	
-	public PolygonTriangulatorCallback(GLU glu) {
+	public PolygonTriangulatorCallback(GLU glu, PolygonTriangulatorCollector collector) {
 		super();
 		this.glu = glu;
-		collector = new PolygonTriangulatorCollector();
+		this.collector = collector;
 	}
 	
 	
 	public void begin(int type) {
-		this.type = type;
-		String[] typename = new String[] { "invalid type 0", "invalid type 1", "GL_LINE_LOOP", "invalid type 3", "GL_TRIANGLES", "GL_TRIANGLE_STRIP", "GL_TRIANGLE_FAN" };
+//		String[] typename = new String[] { "invalid type 0", "invalid type 1", "GL_LINE_LOOP", "invalid type 3", "GL_TRIANGLES", "GL_TRIANGLE_STRIP", "GL_TRIANGLE_FAN" };
 
-		System.out.println("begin type " + typename[type]);
 		collector.begin(type);
 	}
 	
 	
 	public void end() {
-		System.out.println("end");
 		collector.end();
 	}
 	
 	
 	public void error(int errnum) throws RuntimeException {
 		String estring = glu.gluErrorString(errnum);
-		throw new RuntimeException("Tessellation Error: " + estring); //$NON-NLS-1$
+		throw new RuntimeException("Tessellation Error: " + estring);
 	}
 	
 	
 	public void vertex(Object vertexData) {
 		double[] coords = (double[]) vertexData;
-		
-		// TODO we need to perform various operations to each type
-		
 		collector.collect(coords);
 		
-		System.out.println("Dreieck Punkt (" + coords[0] + ", " + coords[1] + ", " + coords[2] + ")");
-		
-		// TODO place the triangles somewhere
+//		System.out.println("Dreieck Punkt (" + coords[0] + ", " + coords[1] + ", " + coords[2] + ")");
 	}
 	
 }

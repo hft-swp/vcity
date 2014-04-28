@@ -15,13 +15,13 @@ public class ParserTest {
 
 	public static void main(String[] args) throws NullPointerException {
 		
-		long id = System.currentTimeMillis();
+//		long id = System.currentTimeMillis();
 		
 //		String inputFileName = "Gruenbuehl_LOD2.gml";
 		String inputFileName = "einHaus.gml";
 		
-		String outputFileNameCsv = "testCSV_" + Long.toString(id) + ".csv";
-		String outputFileNameCgml = "testCGML_" + Long.toString(id) + ".gml";
+//		String outputFileNameCsv = "testCSV_" + Long.toString(id) + ".csv";
+//		String outputFileNameCgml = "testCGML_" + Long.toString(id) + ".gml";
 		
 		// Tests
 		testParse(inputFileName);
@@ -86,7 +86,7 @@ public class ParserTest {
 		
 	}
 
-	private static void testExportToCsv(String outputFileName) {
-		
-	}
+//	private static void testExportToCsv(String outputFileName) {
+//		
+//	}
 }
