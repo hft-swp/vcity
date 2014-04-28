@@ -60,8 +60,8 @@ char rayIntersectsTriangle(float3 p, float3 sunDirection, float3 v0, float3 v1, 
 	}
 	return 0;
 }
-
-__kernel  __attribute__((reqd_work_group_size(LOCAL_GROUP_XDIM, 1, 1)))
+// __attribute__((reqd_work_group_size(LOCAL_GROUP_XDIM, 1, 1)))
+__kernel  
 void calc(__global float* cityVertices,
 				   __global int* cityVerticesCount,
 				   __global float* shadowVerticeCenters,
