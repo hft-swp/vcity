@@ -135,12 +135,12 @@ public class ShadowCalculatorOpenClBackend extends ShadowCalculatorInterface {
 		int localWorkSize = 1;
 		int workSize = ((shadowVerticeCenters.length / 3) / localWorkSize  + 1) * localWorkSize;
 		System.out.println(workSize);
-//		System.exit(0);
 		long global_work_size[] = new long[] { shadowVerticeCenters.length / 3 };
 		long local_work_size[] = new long[] { localWorkSize };
 		
 		cl_device_id device = occ.getDevice();
 		long[] kernelWorkSize = new long[1];
+		
  		CL.clGetKernelWorkGroupInfo(kernel, device, CL.CL_KERNEL_WORK_GROUP_SIZE, Sizeof.size_t,
 				Pointer.to(kernelWorkSize), null);
 		System.out.println(kernelWorkSize[0]);
