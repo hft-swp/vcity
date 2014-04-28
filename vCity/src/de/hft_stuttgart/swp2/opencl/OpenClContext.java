@@ -9,7 +9,6 @@ import static org.jocl.CL.clGetPlatformIDs;
 import static org.jocl.CL.clReleaseCommandQueue;
 import static org.jocl.CL.clReleaseContext;
 import static org.jocl.CL.clReleaseKernel;
-import static org.jocl.CL.clReleaseProgram;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -34,6 +33,7 @@ import org.jocl.cl_program;
 public class OpenClContext {
 	private cl_context context;
 	private cl_command_queue commandQueue;
+	private cl_device_id device;
 	private static OpenClContext instance;
 
 	public static OpenClContext getInstance() throws OpenClException {
@@ -72,15 +72,17 @@ public class OpenClContext {
 
 		// Obtain the cl_device_id for the first device
 		int numDevices = (int) numBytes[0] / Sizeof.cl_device_id;
-		cl_device_id devices[] = new cl_device_id[numDevices];
+		cl_device_id[] devices = new cl_device_id[numDevices];
 		CL.clGetContextInfo(context, CL.CL_CONTEXT_DEVICES, numBytes[0],
 				Pointer.to(devices), null);
+		device = devices[0];
 
 		// Create a command-queue
 		commandQueue = clCreateCommandQueue(context, devices[0],
 				CL.CL_QUEUE_PROFILING_ENABLE, null);
-
+		
 	}
+	
 
 	@Override
 	protected void finalize() throws Throwable {
@@ -115,6 +117,10 @@ public class OpenClContext {
 		clReleaseKernel(kernel);
 	}
 
+	public cl_device_id getDevice() {
+		return device;
+	}
+	
 	public cl_context getClContext() {
 		return context;
 	}

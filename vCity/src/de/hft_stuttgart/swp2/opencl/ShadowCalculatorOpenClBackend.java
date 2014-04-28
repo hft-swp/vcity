@@ -16,6 +16,7 @@ import org.jocl.Pointer;
 import org.jocl.Sizeof;
 import org.jocl.cl_command_queue;
 import org.jocl.cl_context;
+import org.jocl.cl_device_id;
 import org.jocl.cl_event;
 import org.jocl.cl_kernel;
 import org.jocl.cl_mem;
@@ -67,8 +68,6 @@ public class ShadowCalculatorOpenClBackend extends ShadowCalculatorInterface {
 		for (Building b : City.getInstance().getBuildings()) {
 			sts.addAll(b.getShadowTriangles());
 		}
-//		System.out.println(sts.size() * 3);
-//		System.exit(0);
 		float[] shadowVerticeCenters = new float[sts.size() * 3];
 		int count = 0;
 		for(ShadowTriangle st : sts) {
@@ -78,7 +77,7 @@ public class ShadowCalculatorOpenClBackend extends ShadowCalculatorInterface {
 			}
 		}
 		
-		int[] shadowVerticeCentersCount = {shadowVerticeCenters.length};
+		int[] shadowVerticeCentersCount = {shadowVerticeCenters.length / 3};
 		
 		count = 0;
 		float[] sunDirections = new float[144*3];
@@ -132,9 +131,19 @@ public class ShadowCalculatorOpenClBackend extends ShadowCalculatorInterface {
 		clSetKernelArg(kernel, 5, Sizeof.cl_mem, Pointer.to(hasShadowMem));
 
 		// Set the work-item dimensions
-		long global_work_size[] = new long[] { shadowVerticeCenters.length };
-		long local_work_size[] = new long[] { 1 };
-
+		System.out.println(shadowVerticeCenters.length / 3);
+		int localWorkSize = 1;
+		int workSize = ((shadowVerticeCenters.length / 3) / localWorkSize  + 1) * localWorkSize;
+		System.out.println(workSize);
+//		System.exit(0);
+		long global_work_size[] = new long[] { shadowVerticeCenters.length / 3 };
+		long local_work_size[] = new long[] { localWorkSize };
+		
+		cl_device_id device = occ.getDevice();
+		long[] kernelWorkSize = new long[1];
+ 		CL.clGetKernelWorkGroupInfo(kernel, device, CL.CL_KERNEL_WORK_GROUP_SIZE, Sizeof.size_t,
+				Pointer.to(kernelWorkSize), null);
+		System.out.println(kernelWorkSize[0]);
 		// Execute the kernel
 		cl_event kernelEvent = new cl_event();
 		clEnqueueNDRangeKernel(commandQueue, kernel, 1, null, global_work_size,
