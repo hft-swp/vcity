@@ -88,8 +88,6 @@ void calc(__global float* cityVertices,
 			char res = rayIntersectsTriangle(p, sunDirection, v0, v1, v2);
 			if (res == 1) {
 				hasShadow[gid*18+i/8] |= (1 << (7-i%8));
-//				hasShadow[gid*18+i/8] |= (1 << i%8);
-//				hasShadow[gid*18+i/8] = 0;
 				break;
 			} else {
 				int mask = 255 - (1 << (7-i%8));

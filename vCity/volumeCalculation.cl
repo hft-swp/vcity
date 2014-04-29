@@ -4,9 +4,13 @@ float det(const float ax, const float ay, const float az, const float bx,
 
 __kernel void calc(__global float* vertices,
 				   __global int* trianglesCount,
-				   __global float* volumes)
+				   __global float* volumes,
+				   __const int workSize)
 {
 	int gid = get_global_id(0);
+	if (gid >= workSize) {
+		gid = 0;
+	}
 	int offset = 0;
 	for (int i = 0; i < gid; i++) {
 		offset = offset + trianglesCount[i] * 9;

@@ -13,6 +13,7 @@ import org.jocl.Pointer;
 import org.jocl.Sizeof;
 import org.jocl.cl_command_queue;
 import org.jocl.cl_context;
+import org.jocl.cl_device_id;
 import org.jocl.cl_event;
 import org.jocl.cl_kernel;
 import org.jocl.cl_mem;
@@ -98,10 +99,23 @@ public class VolumeCalculator {
 		clSetKernelArg(kernel, 0, Sizeof.cl_mem, Pointer.to(verticesMem));
 		clSetKernelArg(kernel, 1, Sizeof.cl_mem, Pointer.to(triangleCountMem));
 		clSetKernelArg(kernel, 2, Sizeof.cl_mem, Pointer.to(volumeMem));
+		clSetKernelArg(kernel, 3, Sizeof.cl_int, Pointer.to(new int[] {n}));
+		
+		cl_device_id device = occ.getDevice();
+		long[] kernelWorkSize = new long[1];
+		
+ 		CL.clGetKernelWorkGroupInfo(kernel, device, CL.CL_KERNEL_WORK_GROUP_SIZE, Sizeof.size_t,
+				Pointer.to(kernelWorkSize), null);
+		int localWorkSize = (int) kernelWorkSize[0];
+		
+		int workSize = ((n) / localWorkSize  + 1) * localWorkSize;
+		long global_work_size[] = new long[] { workSize};
+		long local_work_size[] = new long[] { localWorkSize};
+
 
 		// Set the work-item dimensions
-		long global_work_size[] = new long[] { n };
-		long local_work_size[] = new long[] { 1 };
+//		long global_work_size[] = new long[] { n };
+//		long local_work_size[] = new long[] { 1 };
 
 		// Execute the kernel
 		cl_event kernelEvent = new cl_event();
