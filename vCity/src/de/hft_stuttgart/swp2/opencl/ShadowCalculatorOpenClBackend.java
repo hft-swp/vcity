@@ -65,10 +65,10 @@ public class ShadowCalculatorOpenClBackend extends ShadowCalculatorInterface {
 		int[] cityVerticesCount = {cityVertices.length};
 		
 		ArrayList<ShadowTriangle> sts = new ArrayList<ShadowTriangle>();
-//		for (Building b : City.getInstance().getBuildings()) {
-//			sts.addAll(b.getShadowTriangles());
-//		}
-		sts.addAll(City.getInstance().getBuildings().get(0).getShadowTriangles());
+		for (Building b : City.getInstance().getBuildings()) {
+			sts.addAll(b.getShadowTriangles());
+		}
+//		sts.addAll(City.getInstance().getBuildings().get(0).getShadowTriangles());
 		float[] shadowVerticeCenters = new float[sts.size() * 3];
 		int count = 0;
 		for(ShadowTriangle st : sts) {
@@ -138,15 +138,10 @@ public class ShadowCalculatorOpenClBackend extends ShadowCalculatorInterface {
 		
  		CL.clGetKernelWorkGroupInfo(kernel, device, CL.CL_KERNEL_WORK_GROUP_SIZE, Sizeof.size_t,
 				Pointer.to(kernelWorkSize), null);
-		System.out.println(kernelWorkSize[0]);
-		// Set the work-item dimensions
-		System.out.println(shadowVerticeCenters.length / 3);
-//		int localWorkSize = (int) kernelWorkSize[0];
-		int localWorkSize = 1024;
+		int localWorkSize = (int) kernelWorkSize[0];
 		
 		int workSize = ((shadowVerticeCenters.length / 3) / localWorkSize  + 1) * localWorkSize;
-		System.out.println(workSize);
-		long global_work_size[] = new long[] { shadowVerticeCenters.length / 3};
+		long global_work_size[] = new long[] { workSize};
 		long local_work_size[] = new long[] { localWorkSize};
 		
 		// Execute the kernel

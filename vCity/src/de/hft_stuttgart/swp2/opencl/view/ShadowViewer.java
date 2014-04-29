@@ -19,7 +19,6 @@ import javax.media.opengl.glu.GLU;
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 
-import org.jocl.CL;
 import org.jocl.CLException;
 
 import com.jogamp.opengl.util.FPSAnimator;
@@ -101,7 +100,7 @@ public class ShadowViewer extends JFrame implements GLEventListener,
 //		ShadowCalculatorInterface backend = new ShadowCalculatorJavaBackend();
 		System.out.println("Starting shadow calculation...");
 		long start = System.currentTimeMillis(); 
-		backend.calculateShadow(ShadowPrecision.AWESOME); //VERY_LOW(5f), LOW(2.5f), MID(1.25f), HIGH(0.75f), ULTRA(0.375f), HYPER(0.1f), AWESOME(0.01f)
+		backend.calculateShadow(ShadowPrecision.ULTRA); //VERY_LOW(5f), LOW(2.5f), MID(1.25f), HIGH(0.75f), ULTRA(0.375f), HYPER(0.1f), AWESOME(0.01f)
 		long end = System.currentTimeMillis();
 		System.out.printf("calculate shadow took %d milliseconds\n", (end - start));
 		
