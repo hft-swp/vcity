@@ -28,14 +28,16 @@ import de.hft_stuttgart.swp2.model.Triangle;
 import de.hft_stuttgart.swp2.model.Vertex;
 
 public class ShadowCalculatorOpenClBackend extends ShadowCalculatorInterface {
-	private static String filename = "shadowCalculation.cl";
+	private static final String filename = "shadowCalculation.cl";
+	private OpenClContext occ;
+	public ShadowCalculatorOpenClBackend() throws OpenClException {
+		occ = OpenClContext.getInstance();
+	}
 	
 	@Override
-	public void calculateShadow(ShadowPrecision precision) throws OpenClException {
+	public void calculateShadow(ShadowPrecision precision) {
 		recalculateShadowTriangles(precision);
-		
-		OpenClContext occ = OpenClContext.getInstance();
-		
+				
 		cl_kernel kernel = occ.createKernelFromFile(filename);
 		cl_command_queue commandQueue = occ.getClCommandQueue();
 		cl_context context = occ.getClContext();
