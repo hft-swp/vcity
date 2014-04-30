@@ -8,6 +8,7 @@ public class CalculatorImpl implements CalculatorInterface {
 		try {
 			vc = new VolumeCalculatorOpenClBackend();
 		} catch (OpenClException e) {
+			System.out.println("Using Java Backend");
 			vc = new VolumeCalculatorJavaBackend();
 		}
 		
@@ -20,7 +21,7 @@ public class CalculatorImpl implements CalculatorInterface {
 		try {
 			backend = new ShadowCalculatorOpenClBackend();
 		} catch (OpenClException e) {
-			System.out.println("Using java backend");
+			System.out.println("Using Java Backend");
 			backend = new ShadowCalculatorJavaBackend();
 		}
 		backend.calculateShadow(precision);

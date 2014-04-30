@@ -8,12 +8,15 @@ import de.hft_stuttgart.swp2.model.Vertex;
 public class VolumeTest {
 
 	public static void main(String[] args) throws OpenClException {
-		for (int i = 0; i < 70000 ; i++) {
+		for (int i = 0; i < 100000 ; i++) {
 			testCity1();
 		}
 		testCity2();
-		VolumeCalculatorOpenClBackend vc = new VolumeCalculatorOpenClBackend();
+		CalculatorInterface vc = new CalculatorImpl();
+		long start = System.currentTimeMillis(); 
 		vc.calculateVolume();
+		long end = System.currentTimeMillis();
+		System.out.printf("calculate volume took %d milliseconds\n", (end - start));
 //		for (Building b : City.getInstance().getBuildings()) {
 //			System.out.println(b.getVolume());
 //		}
