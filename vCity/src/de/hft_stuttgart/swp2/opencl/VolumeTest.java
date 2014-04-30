@@ -12,7 +12,7 @@ public class VolumeTest {
 			testCity1();
 		}
 		testCity2();
-		VolumeCalculator vc = new VolumeCalculator();
+		VolumeCalculatorOpenClBackend vc = new VolumeCalculatorOpenClBackend();
 		vc.calculateVolume();
 //		for (Building b : City.getInstance().getBuildings()) {
 //			System.out.println(b.getVolume());

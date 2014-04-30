@@ -29,12 +29,11 @@ import de.hft_stuttgart.swp2.model.Triangle;
  * @author 12bema1bif, 12tost1bif, 12riju1bif
  * 
  */
-public class VolumeCalculator {
+public class VolumeCalculatorOpenClBackend implements VolumeCalculatorInterface {
 	OpenClContext occ;
 	String filename = "volumeCalculation.cl";
 
-	public VolumeCalculator() throws OpenClException {
-		// FIXME: Make Singleton
+	public VolumeCalculatorOpenClBackend() throws OpenClException {
 		occ = OpenClContext.getInstance();
 	}
 
@@ -42,6 +41,7 @@ public class VolumeCalculator {
 	 * This method calculates the volume of all buildings stored in the city
 	 * singleton. If no buildings are stored this does nothing.
 	 */
+	@Override
 	public void calculateVolume() {
 		cl_kernel kernel = occ.createKernelFromFile(filename);
 		cl_context context = occ.getClContext();

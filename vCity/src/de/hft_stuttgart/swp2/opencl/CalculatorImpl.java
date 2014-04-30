@@ -4,7 +4,13 @@ public class CalculatorImpl implements CalculatorInterface {
 
 	@Override
 	public void calculateVolume() throws OpenClException {
-		VolumeCalculator vc = new VolumeCalculator();
+		VolumeCalculatorInterface vc;
+		try {
+			vc = new VolumeCalculatorOpenClBackend();
+		} catch (OpenClException e) {
+			vc = new VolumeCalculatorJavaBackend();
+		}
+		
 		vc.calculateVolume();
 	}
 
