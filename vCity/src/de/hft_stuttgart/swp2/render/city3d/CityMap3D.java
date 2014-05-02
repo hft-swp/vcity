@@ -7,6 +7,7 @@ import java.awt.Toolkit;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+
 import javax.media.opengl.GL;
 import javax.media.opengl.GL2;
 import javax.media.opengl.GLAutoDrawable;
@@ -14,6 +15,7 @@ import javax.media.opengl.GLEventListener;
 import javax.media.opengl.awt.GLCanvas;
 import javax.media.opengl.glu.GLU;
 import javax.swing.JFrame;
+
 import com.jogamp.opengl.util.FPSAnimator;
 
 import de.hft_stuttgart.swp2.model.Building;
@@ -21,6 +23,8 @@ import de.hft_stuttgart.swp2.model.City;
 import de.hft_stuttgart.swp2.model.ShadowTriangle;
 import de.hft_stuttgart.swp2.model.Triangle;
 import de.hft_stuttgart.swp2.model.Vertex;
+import de.hft_stuttgart.swp2.opencl.CalculatorImpl;
+import de.hft_stuttgart.swp2.opencl.CalculatorInterface;
 import de.hft_stuttgart.swp2.opencl.OpenClException;
 import de.hft_stuttgart.swp2.opencl.ShadowCalculatorInterface;
 import de.hft_stuttgart.swp2.opencl.ShadowCalculatorOpenClBackend;
@@ -72,7 +76,8 @@ public class CityMap3D extends JFrame implements GLEventListener{
 		
 		City.getInstance().addBuilding(b);
 	
-		ShadowCalculatorInterface backend = new ShadowCalculatorOpenClBackend();
+		CalculatorInterface backend = new CalculatorImpl();
+//		ShadowCalculatorInterface backend = new ShadowCalculatorOpenClBackend();
 //		ShadowCalculatorInterface backend = new ShadowCalculatorJavaBackend();
 		System.out.println("Starting shadow calculation...");
 		long start = System.currentTimeMillis(); 
