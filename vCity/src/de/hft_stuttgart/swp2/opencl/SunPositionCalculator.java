@@ -2,9 +2,6 @@ package de.hft_stuttgart.swp2.opencl;
 
 import static java.lang.Math.floor;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -12,13 +9,17 @@ import java.util.TimeZone;
 
 public class SunPositionCalculator {
 	
+	private double azimut;
+	private double hr;
+	
+	private double x, y, z;
+	
 	public static void main(String[] args) {
 		Calendar utcCal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
 		utcCal.set(2006, Calendar.AUGUST, 6, 6, 0, 0);
-//		utcCal.set(2000, Calendar.JANUARY, 1, 12, 0, 0);
 		new SunPositionCalculator(utcCal.getTime(), 0, 0);
 	}
-	
+
 	/**
 	 * http://de.wikipedia.org/wiki/Julianisches_Datum#Berechnung
 	 * @param d
@@ -29,6 +30,7 @@ public class SunPositionCalculator {
 		GregorianCalendar cal = new GregorianCalendar();
 		cal.setTimeZone(TimeZone.getTimeZone("UTC"));
 		cal.setTimeInMillis(d.getTime());
+//		System.out.println(d);
 		
 		// TODO calc, example for munich
 		double longitude = 11.6;
@@ -50,8 +52,12 @@ public class SunPositionCalculator {
 		double epsilon = 23.439 - 0.0000004 * n;
 		
 		// Rektaszension
-		double alpha = atan((cos(epsilon) * sin(v)) / cos(v));
-		while (alpha < 0) alpha += 180;
+		double rektaszensionsNenner = cos(v);
+		double alpha = atan((cos(epsilon) * sin(v)) / rektaszensionsNenner);
+		// falls nenner < 0 bei der Rektaszensionsberechnung, addiere 180 grad zum Ergebnis
+		if (rektaszensionsNenner < 0) {
+			alpha = alpha + 180;
+		}
 		// Deklination
 		double delta = asin(sin(epsilon) * sin(v));
 		
@@ -71,7 +77,19 @@ public class SunPositionCalculator {
 		double stundenWinkel = stundenWinkelF - alpha;
 		
 		// Azimut (nach Himmelsrichtungen orientierter Horizontalwinkel)
-		double azimut = atan(sin(stundenWinkel) / (cos(stundenWinkel) * sin(latitude) - tan(delta) * cos(latitude)));
+		double azimutNenner = cos(stundenWinkel) * sin(latitude) - tan(delta) * cos(latitude);
+		azimut = atan(sin(stundenWinkel) / azimutNenner);
+		// Falls der Nenner im Argument des Arcustangens einen Wert kleiner Null hat, 
+		// sind 180° zum Ergebnis zu addieren, um den Winkel in den richtigen Quadranten zu bringen.
+		if (azimutNenner < 0) {
+			azimut += 180;
+		}
+		// Bringe azimut in bereich von -180° bis 180°
+		if (azimut > 180d) {
+			azimut -= 360d;
+		} else if (azimut < -180d) {
+			azimut += 360d;
+		}
 		
 		// Höhenwinkel
 		double h = asin(cos(delta) * cos(stundenWinkel) * cos(latitude) + sin(delta) * sin(latitude));
@@ -80,11 +98,37 @@ public class SunPositionCalculator {
 		double r = 1.02 / tan(h + 10.3 / (h + 5.11));
 		
 		// Refraktionsbelastete Höhe
-		double hr = h + r / 60;
+		hr = h + r / 60;
 		
-		System.out.println("Azimut=" + azimut);
-		System.out.println("Höhe=" + hr);
+//		System.out.println("Azimut=" + azimut);
+//		System.out.println("Höhe=" + hr);
+		
+		x = cos(hr) * cos(azimut) * 10000;
+		y = sin(hr) * 10000;
+		z = cos(hr) * sin(azimut) * 10000;
+//		System.out.printf("SunPosition: x=%f, y=%f, z=%f%n", x, y, z);
 	}
+	
+	public double getAzimutAngle() {
+		return azimut;
+	}
+	
+	public double getAltitude() {
+		return hr;
+	}
+	
+	public double getX() {
+		return x;
+	}
+	
+	public double getY() {
+		return y;
+	}
+	
+	public double getZ() {
+		return z;
+	}
+	
 	
 	private double getJulianDate(Calendar cal) {
 		int month = cal.get(Calendar.MONTH) + 1;

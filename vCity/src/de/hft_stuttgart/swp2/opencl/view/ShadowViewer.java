@@ -9,6 +9,8 @@ import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.util.Calendar;
+import java.util.TimeZone;
 
 import javax.media.opengl.GL;
 import javax.media.opengl.GL2;
@@ -31,9 +33,8 @@ import de.hft_stuttgart.swp2.model.Vertex;
 import de.hft_stuttgart.swp2.opencl.CalculatorImpl;
 import de.hft_stuttgart.swp2.opencl.CalculatorInterface;
 import de.hft_stuttgart.swp2.opencl.OpenClException;
-import de.hft_stuttgart.swp2.opencl.ShadowCalculatorInterface;
-import de.hft_stuttgart.swp2.opencl.ShadowCalculatorOpenClBackend;
 import de.hft_stuttgart.swp2.opencl.ShadowPrecision;
+import de.hft_stuttgart.swp2.opencl.SunPositionCalculator;
 import de.hft_stuttgart.swp2.opencl.VolumeTest;
 
 public class ShadowViewer extends JFrame implements GLEventListener,
@@ -49,6 +50,11 @@ public class ShadowViewer extends JFrame implements GLEventListener,
 	private int halfScreenWidth;
 	private float r = 10000;
 	private boolean enableDrawCenters = false;
+	
+	private Calendar utcCal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+	private SunPositionCalculator[] sunPositions;
+//	private int hour = 6;
+//	private int month;
 	
 	private int ray = 0;
 	
@@ -95,9 +101,14 @@ public class ShadowViewer extends JFrame implements GLEventListener,
 		Building b = new Building();
 		b.addTriangle(t1);
 		b.addTriangle(t2);
-		
 		City.getInstance().addBuilding(b);
 	
+		sunPositions = new SunPositionCalculator[24];
+		for (int i = 0; i < sunPositions.length; i++) {
+			utcCal.set(2014, Calendar.MAY, 1, i, 0, 0);
+			sunPositions[i] = new SunPositionCalculator(utcCal.getTime(), 11.6, 48.1);
+		}
+		
 		CalculatorInterface calc = new CalculatorImpl();
 		System.out.println("Starting shadow calculation...");
 		long start = System.currentTimeMillis(); 
@@ -171,6 +182,14 @@ public class ShadowViewer extends JFrame implements GLEventListener,
 	//				}
 	//				gl.glEnd();
 				}
+				gl.glColor3f(255f, 0, 255f);
+				gl.glBegin(GL2.GL_LINE_LOOP);
+				for (int i = 0; i < sunPositions.length; i++) {
+//					int newi = (i + 1) % sunPositions.length;
+//					gl.glVertex3d(sunPositions[newi].getX(), sunPositions[newi].getY(), sunPositions[newi].getZ());
+					gl.glVertex3d(sunPositions[i].getX(), sunPositions[i].getY(), sunPositions[i].getZ());
+				}
+				gl.glEnd();
 			}
 		}
 		
@@ -355,6 +374,22 @@ public class ShadowViewer extends JFrame implements GLEventListener,
 		if (e.getKeyCode() == KeyEvent.VK_E) {
 			enableDrawCenters = !enableDrawCenters;
 		}
+//		if (e.getKeyCode() == KeyEvent.VK_I) {
+//			hour++;
+//			if (hour > 23) {
+//				hour = 0;
+//			}
+//			utcCal.set(2014, Calendar.MAY, 1, hour, 0, 0);
+//			sunPos = new SunPositionCalculator(utcCal.getTime(), 0, 0);
+//		}
+//		if (e.getKeyCode() == KeyEvent.VK_K) {
+//			hour--;
+//			if (hour < 0) {
+//				hour = 23;
+//			}
+//			utcCal.set(2014, Calendar.MAY, 1, hour, 0, 0);
+//			sunPos = new SunPositionCalculator(utcCal.getTime(), 0, 0);
+//		}
 	}
 
 	@Override
