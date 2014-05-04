@@ -53,7 +53,8 @@ public class ShadowViewer extends JFrame implements GLEventListener,
 	
 	private Calendar utcCal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
 	private SunPositionCalculator[][] sunPositions;
-//	private int hour = 6;
+	private SunPositionCalculator sunPos;
+	private int hour = 6;
 	private int month = 0;
 	
 	private int ray = 0;
@@ -110,6 +111,8 @@ public class ShadowViewer extends JFrame implements GLEventListener,
 				sunPositions[j - 1][i] = new SunPositionCalculator(utcCal.getTime(), 11.6, 48.1);
 			}
 		}
+		utcCal.set(2014, month + 1, 1, hour, 0, 0);
+		sunPos = new SunPositionCalculator(utcCal.getTime(), 11.6, 48.1);
 		
 		CalculatorInterface calc = new CalculatorImpl();
 		System.out.println("Starting shadow calculation...");
@@ -161,10 +164,9 @@ public class ShadowViewer extends JFrame implements GLEventListener,
 			for (ShadowTriangle t : b.getShadowTriangles()) {
 //				gl.glBegin(GL2.GL_LINE_LOOP);
 				gl.glBegin(GL2.GL_TRIANGLES);
-				if (t.getShadowSet().get(ray)) {
+				gl.glColor3f(0, 1, 0);
+				if (ray != -1 && t.getShadowSet().get(ray)) {
 					gl.glColor3f(1, 0, 0);
-				} else {
-					gl.glColor3f(0, 1, 0);
 				}
 				for (Vertex v : t.getVertices()) {
 					gl.glVertex3fv(v.getCoordinates(), 0);
@@ -185,6 +187,11 @@ public class ShadowViewer extends JFrame implements GLEventListener,
 					gl.glVertex3d(sunPositions[month][i].getX(), sunPositions[month][i].getY(), sunPositions[month][i].getZ());
 				}
 				gl.glEnd();
+				
+				gl.glBegin(GL2.GL_LINES);
+				gl.glVertex3d(sunPos.getX(), sunPos.getY(), sunPos.getZ());
+				gl.glVertex3d(0, 0, 0);
+				gl.glEnd();
 			}
 		}
 		
@@ -198,6 +205,9 @@ public class ShadowViewer extends JFrame implements GLEventListener,
 	}
 	
 	private void drawCentersOfHemisphere(GL2 gl) {
+		if (ray == -1) {
+			return;
+		}
 		gl.glColor3f(1f, 1f, 0);
 		float dv = (float) (Math.PI / 12);
 		float dh = (float) (2 * Math.PI / 12);
@@ -374,12 +384,37 @@ public class ShadowViewer extends JFrame implements GLEventListener,
 			if (month > 11) {
 				month = 11;
 			}
+			utcCal.set(2014, month + 1, 1, hour, 0, 0);
+			sunPos = new SunPositionCalculator(utcCal.getTime(), 11.6, 48.1);
+			ray = sunPos.getSunPosition();
 		}
 		if (e.getKeyCode() == KeyEvent.VK_K) {
 			month--;
 			if (month < 0) {
 				month = 0;
 			}
+			utcCal.set(2014, month + 1, 1, hour, 0, 0);
+			sunPos = new SunPositionCalculator(utcCal.getTime(), 11.6, 48.1);
+			ray = sunPos.getSunPosition();
+		}
+		if (e.getKeyCode() == KeyEvent.VK_U) {
+			hour++;
+			if (hour > 23) {
+				hour = 23;
+			}
+			utcCal.set(2014, month + 1, 1, hour, 0, 0);
+			sunPos = new SunPositionCalculator(utcCal.getTime(), 11.6, 48.1);
+			ray = sunPos.getSunPosition();
+
+		}
+		if (e.getKeyCode() == KeyEvent.VK_J) {
+			hour--;
+			if (hour < 0) {
+				hour = 0;
+			}
+			utcCal.set(2014, month + 1, 1, hour, 0, 0);
+			sunPos = new SunPositionCalculator(utcCal.getTime(), 11.6, 48.1);
+			ray = sunPos.getSunPosition();
 		}
 	}
 
