@@ -164,9 +164,9 @@ public class ShadowViewer extends JFrame implements GLEventListener,
 			for (ShadowTriangle t : b.getShadowTriangles()) {
 //				gl.glBegin(GL2.GL_LINE_LOOP);
 				gl.glBegin(GL2.GL_TRIANGLES);
-				gl.glColor3f(0, 1, 0);
-				if (ray != -1 && t.getShadowSet().get(ray)) {
-					gl.glColor3f(1, 0, 0);
+				gl.glColor3f(1, 0, 0);
+				if (ray != -1 && !t.getShadowSet().get(ray)) {
+					gl.glColor3f(0, 1, 0);
 				}
 				for (Vertex v : t.getVertices()) {
 					gl.glVertex3fv(v.getCoordinates(), 0);
