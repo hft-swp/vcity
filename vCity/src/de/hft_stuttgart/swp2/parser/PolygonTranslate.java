@@ -28,8 +28,9 @@ public class PolygonTranslate {
 
 			translate = new Matrix(new double[][] {
 					{ 1, 0, 0, (reference[0]) * -1 },
-					{ 0, 1, 0, (reference[1]) * -1 },
-					{ 0, 0, 1, (reference[2]) * -1 }, { 0, 0, 0, 1 } });
+					{ 0, 0, 1, (reference[1]) * -1 },
+					{ 0, -1, 0, (reference[2]) * -1 }, 
+					{ 0, 0, 0, 1 } });
 
 			double[] vals = new double[] { x, y, z, 1 };
 			Matrix v = new Matrix(vals, 1);
