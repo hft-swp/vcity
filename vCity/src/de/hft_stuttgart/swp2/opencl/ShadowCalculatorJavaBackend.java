@@ -72,14 +72,6 @@ public class ShadowCalculatorJavaBackend extends ShadowCalculatorInterface {
 //		calculateShadow(ShadowPrecision.HIGH);
 //	}
 
-	
-
-	
-
-	private static Vertex vertexDiff(Vertex v1, Vertex v0) {
-		return new Vertex(v1.getX() - v0.getX(), v1.getY() - v0.getY(),
-				v1.getZ() - v0.getZ());
-	}
 
 	private static Vertex cross(Vertex v0, Vertex v1) {
 		float upX = v0.getY() * v1.getZ() - v0.getZ() * v1.getY();

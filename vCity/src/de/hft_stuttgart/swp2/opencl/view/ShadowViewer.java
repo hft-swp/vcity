@@ -37,6 +37,8 @@ import de.hft_stuttgart.swp2.opencl.ShadowCalculatorJavaBackend;
 import de.hft_stuttgart.swp2.opencl.ShadowPrecision;
 import de.hft_stuttgart.swp2.opencl.SunPositionCalculator;
 import de.hft_stuttgart.swp2.opencl.VolumeTest;
+import de.hft_stuttgart.swp2.parser.CGMLParser;
+import de.hft_stuttgart.swp2.parser.ParserInterface;
 
 public class ShadowViewer extends JFrame implements GLEventListener,
 		KeyListener, MouseListener, MouseMotionListener {
@@ -112,7 +114,14 @@ public class ShadowViewer extends JFrame implements GLEventListener,
 				b.translate(3 * i, 0, 3 * j);
 			}
 		}
-	
+		
+//		ParserInterface parser = new CGMLParser();
+//		try {
+//			parser.parse("einHaus.gml");
+//		} catch (Exception e1) {
+//			e1.printStackTrace();
+//		}
+
 		sunPositions = new SunPositionCalculator[12][24];
 		for (int j = 1; j < 13; ++j) {
 			for (int i = 0; i < sunPositions[j - 1].length; i++) {

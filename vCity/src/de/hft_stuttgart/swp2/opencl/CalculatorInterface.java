@@ -25,5 +25,7 @@ public interface CalculatorInterface {
 	 */
 	public void calculateShadow(ShadowPrecision precision)
 			throws OpenClException;
+	
+	
 
 }

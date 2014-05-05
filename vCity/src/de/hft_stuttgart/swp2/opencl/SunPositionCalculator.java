@@ -141,8 +141,8 @@ public class SunPositionCalculator {
 	 * @return value between -1 and 144
 	 */
 	public int getSunPosition() {
-		System.out.println("Azimut= " + (azimut + 180));
-		System.out.println("Höhe= " + hr);
+//		System.out.println("Azimut= " + (azimut + 180));
+//		System.out.println("Höhe= " + hr);
 		if (hr < 0) {
 			System.out.println("RayIndex= -1");
 			return -1;
@@ -150,7 +150,7 @@ public class SunPositionCalculator {
 		int result = 0;
 		result += (int) (hr / 15) * 12;
 		result += (-1 * azimut + 270) / 30;
-		System.out.println("RayIndex= " + result);
+//		System.out.println("RayIndex= " + result);
 		return result;
 	}
 

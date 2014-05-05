@@ -5,6 +5,7 @@ import java.util.ArrayList;
 public class City {
 
 	private static City instance;
+	private Vertex center;
 
 	private ArrayList<Building> buildings;
 
@@ -25,6 +26,14 @@ public class City {
 
 	public ArrayList<Building> getBuildings() {
 		return buildings;
+	}
+
+	public Vertex getCenter() {
+		return this.center;
+	}
+
+	public void setCenter(Vertex center) {
+		this.center = center;
 	}
 
 }
