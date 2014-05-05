@@ -28,9 +28,9 @@ import de.hft_stuttgart.swp2.model.Triangle;
 import de.hft_stuttgart.swp2.model.Vertex;
 
 public class ShadowCalculatorOpenClBackend extends ShadowCalculatorInterface {
-	
+
 	private static final float MAX_DISTANCE = 500;
-	
+
 	private static final String filename = "shadowCalculation.cl";
 	private OpenClContext occ;
 
@@ -46,14 +46,11 @@ public class ShadowCalculatorOpenClBackend extends ShadowCalculatorInterface {
 		cl_kernel kernel = occ.createKernelFromFile(filename);
 		cl_command_queue commandQueue = occ.getClCommandQueue();
 		cl_context context = occ.getClContext();
-		
+
 		City city = City.getInstance();
-		for (Building b : city.getBuildings()) {
-//			ArrayList<Building> neighbourhood = getNeighbourhood();
-		}
 		
 		int verticesSize = 0;
-		for (Building b : City.getInstance().getBuildings()) {
+		for (Building b : city.getBuildings()) {
 			verticesSize += b.getTriangles().size() * 9;
 		}
 		if (verticesSize == 0) {
@@ -61,7 +58,7 @@ public class ShadowCalculatorOpenClBackend extends ShadowCalculatorInterface {
 		}
 		float[] cityVertices = new float[verticesSize];
 		int offset = 0;
-		for (Building b : City.getInstance().getBuildings()) {
+		for (Building b : city.getBuildings()) {
 			for (int j = 0; j < b.getTriangles().size(); j++) {
 				Triangle t = b.getTriangles().get(j);
 				cityVertices[offset + j * 9 + 0] = t.getVertices()[0].getX();
@@ -77,8 +74,26 @@ public class ShadowCalculatorOpenClBackend extends ShadowCalculatorInterface {
 			offset = offset + b.getTriangles().size() * 9;
 		}
 
-		int[] cityVerticesCount = { cityVertices.length };
+		int[] cityVerticesCount = new int[city.getBuildings().size()];
+		for (int i = 0; i < cityVerticesCount.length; ++i) {
+			//alles falsch
+			cityVerticesCount[i] = city.getBuildings().get(i).getTriangles().size() * 9;
+		}
 
+		cl_mem cityVerticesMem = clCreateBuffer(context, CL.CL_MEM_READ_ONLY
+				| CL.CL_MEM_USE_HOST_PTR,
+				Sizeof.cl_float * cityVertices.length,
+				Pointer.to(cityVertices), null);
+
+		
+		for (Building b : city.getBuildings()) {
+			 int[] neighbourhood = getNeighbourhood(b);
+			 
+			 
+		}
+
+		
+		
 		ArrayList<ShadowTriangle> sts = new ArrayList<ShadowTriangle>();
 		for (Building b : City.getInstance().getBuildings()) {
 			sts.addAll(b.getShadowTriangles());
@@ -114,11 +129,6 @@ public class ShadowCalculatorOpenClBackend extends ShadowCalculatorInterface {
 		// __global char* hasShadow) // 18*shadowTrianglesCount char
 
 		// allocate memory on gpu
-		cl_mem cityVerticesMem = clCreateBuffer(context, CL.CL_MEM_READ_ONLY
-				| CL.CL_MEM_USE_HOST_PTR,
-				Sizeof.cl_float * cityVertices.length,
-				Pointer.to(cityVertices), null);
-
 		cl_mem cityTriangleCountMem = clCreateBuffer(context,
 				CL.CL_MEM_READ_ONLY | CL.CL_MEM_USE_HOST_PTR, Sizeof.cl_int,
 				Pointer.to(cityVerticesCount), null);
@@ -216,18 +226,19 @@ public class ShadowCalculatorOpenClBackend extends ShadowCalculatorInterface {
 			Vertex v = vertexDiff(b.getCenter(), neighbourBuilding.getCenter());
 			float distance = distance(v);
 			if (distance < MAX_DISTANCE) {
-//					neighbourhood.add(neighbourBuilding);
+				neighbourhood.add(i);
 			}
 		}
 		int[] neigh = new int[neighbourhood.size()];
 		for (int i = 0; i < neigh.length; ++i) {
-			neigh[i] = neighbourhood.get(i);
+			neigh[i] = i;
 		}
 		return neigh;
 	}
-	
+
 	private float distance(Vertex v) {
-		return (float) Math.sqrt(v.getX() * v.getX() + v.getY() * v.getY() + v.getZ() * v.getZ());
+		return (float) Math.sqrt(v.getX() * v.getX() + v.getY() * v.getY()
+				+ v.getZ() * v.getZ());
 	}
 
 	private void calculateCenterOfBuildingsAndCity() {
@@ -249,7 +260,9 @@ public class ShadowCalculatorOpenClBackend extends ShadowCalculatorInterface {
 			b.setCenter(new Vertex(x / count, y / count, z / count));
 		}
 		int buildingCount = City.getInstance().getBuildings().size();
-		City.getInstance().setCenter(new Vertex(xCity / buildingCount, yCity / buildingCount, zCity / buildingCount));
+		City.getInstance().setCenter(
+				new Vertex(xCity / buildingCount, yCity / buildingCount, zCity
+						/ buildingCount));
 	}
 
 }
