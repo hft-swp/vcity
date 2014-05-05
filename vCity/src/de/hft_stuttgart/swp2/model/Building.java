@@ -18,6 +18,14 @@ public class Building extends MeshInterface {
 		this.polygon = polygon;
 	}
 
+	public Building(String bid, ArrayList<Triangle> polyTriangles) {
+		// TODO Auto-generated constructor stub
+		this.id=id;
+		for (int i=0; i<polyTriangles.size();i++) {
+			this.addTriangle(polyTriangles.get(i));
+		}
+	}
+
 	public void setVolume(double volume) {
 		this.volume = volume;
 	}
