@@ -117,7 +117,7 @@ public class ShadowViewer extends JFrame implements GLEventListener,
 		
 		ParserInterface parser = new CGMLParser();
 		try {
-			parser.parse("einHaus.gml");
+			parser.parse("Gruenbuehl_LOD2.gml");
 		} catch (Exception e1) {
 			e1.printStackTrace();
 		}
@@ -136,7 +136,7 @@ public class ShadowViewer extends JFrame implements GLEventListener,
 //		ShadowCalculatorJavaBackend calc = new ShadowCalculatorJavaBackend();
 		System.out.println("Starting shadow calculation...");
 		long start = System.currentTimeMillis(); 
-		calc.calculateShadow(ShadowPrecision.ULTRA); //VERY_LOW(5f), LOW(2.5f), MID(1.25f), HIGH(0.75f), ULTRA(0.375f), HYPER(0.1f), AWESOME(0.01f)
+		calc.calculateShadow(ShadowPrecision.MID); //VERY_LOW(5f), LOW(2.5f), MID(1.25f), HIGH(0.75f), ULTRA(0.375f), HYPER(0.1f), AWESOME(0.01f)
 		long end = System.currentTimeMillis();
 		System.out.printf("calculate shadow took %d milliseconds\n", (end - start));
 		
@@ -333,7 +333,7 @@ public class ShadowViewer extends JFrame implements GLEventListener,
 		camera = new Camera(glu);
 		camera.turnRight(-1.2);
 		camera.turnDown(0.3);
-		gl.glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+		gl.glClearColor(0.5f, 0.5f, 0.5f, 0.0f);
 		gl.glClearDepth(1.0f);
 		
 		gl.glEnable(GL.GL_DEPTH_TEST);
