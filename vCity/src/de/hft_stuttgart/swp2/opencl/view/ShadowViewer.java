@@ -33,6 +33,7 @@ import de.hft_stuttgart.swp2.model.Vertex;
 import de.hft_stuttgart.swp2.opencl.CalculatorImpl;
 import de.hft_stuttgart.swp2.opencl.CalculatorInterface;
 import de.hft_stuttgart.swp2.opencl.OpenClException;
+import de.hft_stuttgart.swp2.opencl.ShadowCalculatorJavaBackend;
 import de.hft_stuttgart.swp2.opencl.ShadowPrecision;
 import de.hft_stuttgart.swp2.opencl.SunPositionCalculator;
 import de.hft_stuttgart.swp2.opencl.VolumeTest;
@@ -83,26 +84,34 @@ public class ShadowViewer extends JFrame implements GLEventListener,
 		super("Shadow view");
 		
 		// test values
-		VolumeTest.testCity2();
-		VolumeTest.testCity2();
-		VolumeTest.testCity2();
-		City.getInstance().getBuildings().get(1).translate(0, 0, 5);
-		City.getInstance().getBuildings().get(2).translate(5, 0, 5);
-		City.getInstance().getBuildings().get(2).scale(1, 5, 1);
+//		VolumeTest.testCity2();
+//		VolumeTest.testCity2();
+//		VolumeTest.testCity2();
+//		City.getInstance().getBuildings().get(1).translate(0, 0, 5);
+//		City.getInstance().getBuildings().get(2).translate(5, 0, 5);
+//		City.getInstance().getBuildings().get(2).scale(1, 5, 1);
+//		
+//		int size = 20;
+//		Vertex v0 = new Vertex(-size, 0, -size);
+//		Vertex v1 = new Vertex(-size, 0, size);
+//		Vertex v2 = new Vertex(size, 0, size);
+//		Vertex v3 = new Vertex(size, 0, -size);
+//		
+//		Triangle t1 = new Triangle(v0, v1, v2);
+//		Triangle t2 = new Triangle(v0, v2, v3);
+//		
+//		Building b = new Building();
+//		b.addTriangle(t1);
+//		b.addTriangle(t2);
+//		City.getInstance().addBuilding(b);
 		
-		int size = 20;
-		Vertex v0 = new Vertex(-size, 0, -size);
-		Vertex v1 = new Vertex(-size, 0, size);
-		Vertex v2 = new Vertex(size, 0, size);
-		Vertex v3 = new Vertex(size, 0, -size);
-		
-		Triangle t1 = new Triangle(v0, v1, v2);
-		Triangle t2 = new Triangle(v0, v2, v3);
-		
-		Building b = new Building();
-		b.addTriangle(t1);
-		b.addTriangle(t2);
-		City.getInstance().addBuilding(b);
+		for (int i = 0; i < 15; i++) {
+			for (int j = 0; j < 15; j++) {
+				VolumeTest.testCity2();
+				Building b = City.getInstance().getBuildings().get(i * 15 + j);
+				b.translate(3 * i, 0, 3 * j);
+			}
+		}
 	
 		sunPositions = new SunPositionCalculator[12][24];
 		for (int j = 1; j < 13; ++j) {
@@ -115,6 +124,7 @@ public class ShadowViewer extends JFrame implements GLEventListener,
 		sunPos = new SunPositionCalculator(utcCal.getTime(), 11.6, 48.1);
 		
 		CalculatorInterface calc = new CalculatorImpl();
+//		ShadowCalculatorJavaBackend calc = new ShadowCalculatorJavaBackend();
 		System.out.println("Starting shadow calculation...");
 		long start = System.currentTimeMillis(); 
 		calc.calculateShadow(ShadowPrecision.ULTRA); //VERY_LOW(5f), LOW(2.5f), MID(1.25f), HIGH(0.75f), ULTRA(0.375f), HYPER(0.1f), AWESOME(0.01f)
