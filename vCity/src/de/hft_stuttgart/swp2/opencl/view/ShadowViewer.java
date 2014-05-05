@@ -107,20 +107,20 @@ public class ShadowViewer extends JFrame implements GLEventListener,
 //		b.addTriangle(t2);
 //		City.getInstance().addBuilding(b);
 		
-		for (int i = 0; i < 15; i++) {
-			for (int j = 0; j < 15; j++) {
-				VolumeTest.testCity2();
-				Building b = City.getInstance().getBuildings().get(i * 15 + j);
-				b.translate(3 * i, 0, 3 * j);
-			}
-		}
-		
-//		ParserInterface parser = new CGMLParser();
-//		try {
-//			parser.parse("einHaus.gml");
-//		} catch (Exception e1) {
-//			e1.printStackTrace();
+//		for (int i = 0; i < 15; i++) {
+//			for (int j = 0; j < 15; j++) {
+//				VolumeTest.testCity2();
+//				Building b = City.getInstance().getBuildings().get(i * 15 + j);
+//				b.translate(3 * i, 0, 3 * j);
+//			}
 //		}
+		
+		ParserInterface parser = new CGMLParser();
+		try {
+			parser.parse("einHaus.gml");
+		} catch (Exception e1) {
+			e1.printStackTrace();
+		}
 
 		sunPositions = new SunPositionCalculator[12][24];
 		for (int j = 1; j < 13; ++j) {

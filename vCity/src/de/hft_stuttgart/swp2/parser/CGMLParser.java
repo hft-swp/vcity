@@ -169,6 +169,8 @@ public class CGMLParser implements ParserInterface {
 											// Triangulate
 											ArrayList<Triangle> tri = PolygonTriangulator.triangulate(pp);
 											
+											
+											
 											ArrayList<Triangle> triNew = new ArrayList<Triangle>();
 											ArrayList<Vertex> vertNew = new ArrayList<Vertex>();
 											
@@ -192,9 +194,9 @@ public class CGMLParser implements ParserInterface {
 							}
 						}
 						
-						// TODO Add the building to our city
-//						String bid = "" + building.getId();
-//						city.addBuilding(new Building(bid, polyTriangles));
+						 //TODO Add the building to our city
+						String bid = "" + building.getId();
+						city.addBuilding(new Building(bid, polyTriangles));
 						
 					}
 				}
