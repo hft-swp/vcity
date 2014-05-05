@@ -176,6 +176,7 @@ public class CGMLParser implements ParserInterface {
 											
 											// Round
 											for (Triangle t : tri) {
+											    vertNew.clear();
 												for (Vertex ve : t.getVertices()) {
 												float newx = (float) ((Math.round(ve.getX() * 1000.0)) / 1000.0);
 												float newy = (float) ((Math.round(ve.getY() * 1000.0)) / 1000.0);
