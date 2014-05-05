@@ -9,6 +9,7 @@ public class Building extends MeshInterface {
 	private double volume;
 	private List<Vertex> polygon;
 	private ArrayList<ShadowTriangle> shadowTriangles = new ArrayList<>();
+	private Vertex center;
 
 	public Building() {
 	}
@@ -16,6 +17,14 @@ public class Building extends MeshInterface {
 	public Building(String id, List<Vertex> polygon) {
 		this.id = id;
 		this.polygon = polygon;
+	}
+
+	public Building(String bid, ArrayList<Triangle> polyTriangles) {
+		// TODO Auto-generated constructor stub
+		this.id=id;
+		for (int i=0; i<polyTriangles.size();i++) {
+			this.addTriangle(polyTriangles.get(i));
+		}
 	}
 
 	public void setVolume(double volume) {
@@ -90,6 +99,14 @@ public class Building extends MeshInterface {
 				}
 			}
 		}
+	}
+
+	public Vertex getCenter() {
+		return center;
+	}
+
+	public void setCenter(Vertex center) {
+		this.center = center;
 	}
 
 }
