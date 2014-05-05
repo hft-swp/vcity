@@ -107,17 +107,18 @@ public class ShadowViewer extends JFrame implements GLEventListener,
 //		b.addTriangle(t2);
 //		City.getInstance().addBuilding(b);
 		
-//		for (int i = 0; i < 15; i++) {
-//			for (int j = 0; j < 15; j++) {
+//		for (int i = 0; i < 150; i++) {
+//			for (int j = 0; j < 150; j++) {
 //				VolumeTest.testCity2();
-//				Building b = City.getInstance().getBuildings().get(i * 15 + j);
-//				b.translate(3 * i, 0, 3 * j);
+//				Building b = City.getInstance().getBuildings().get(i * 150 + j);
+//				b.translate(20 * i, 0, 20 * j);
 //			}
 //		}
 		
 		ParserInterface parser = new CGMLParser();
 		try {
 			parser.parse("Gruenbuehl_LOD2.gml");
+//			parser.parse("einHaus.gml");
 		} catch (Exception e1) {
 			e1.printStackTrace();
 		}
@@ -136,7 +137,7 @@ public class ShadowViewer extends JFrame implements GLEventListener,
 //		ShadowCalculatorJavaBackend calc = new ShadowCalculatorJavaBackend();
 		System.out.println("Starting shadow calculation...");
 		long start = System.currentTimeMillis(); 
-		calc.calculateShadow(ShadowPrecision.MID); //VERY_LOW(5f), LOW(2.5f), MID(1.25f), HIGH(0.75f), ULTRA(0.375f), HYPER(0.1f), AWESOME(0.01f)
+		calc.calculateShadow(ShadowPrecision.LOW); //VERY_LOW(5f), LOW(2.5f), MID(1.25f), HIGH(0.75f), ULTRA(0.375f), HYPER(0.1f), AWESOME(0.01f)
 		long end = System.currentTimeMillis();
 		System.out.printf("calculate shadow took %d milliseconds\n", (end - start));
 		
@@ -419,7 +420,7 @@ public class ShadowViewer extends JFrame implements GLEventListener,
 		if (e.getKeyCode() == KeyEvent.VK_U) {
 			hour++;
 			if (hour > 23) {
-				hour = 23;
+				hour = 0;
 			}
 			utcCal.set(2014, month + 1, 1, hour, 0, 0);
 			sunPos = new SunPositionCalculator(utcCal.getTime(), 11.6, 48.1);
@@ -429,7 +430,7 @@ public class ShadowViewer extends JFrame implements GLEventListener,
 		if (e.getKeyCode() == KeyEvent.VK_J) {
 			hour--;
 			if (hour < 0) {
-				hour = 0;
+				hour = 23;
 			}
 			utcCal.set(2014, month + 1, 1, hour, 0, 0);
 			sunPos = new SunPositionCalculator(utcCal.getTime(), 11.6, 48.1);

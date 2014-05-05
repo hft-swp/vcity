@@ -29,7 +29,7 @@ import de.hft_stuttgart.swp2.model.Vertex;
 
 public class ShadowCalculatorOpenClBackend extends ShadowCalculatorInterface {
 
-	private static final float MAX_DISTANCE = 500;
+	private static final float MAX_DISTANCE = 100;
 
 	private static final String filename = "shadowCalculation.cl";
 	private OpenClContext occ;
@@ -48,7 +48,7 @@ public class ShadowCalculatorOpenClBackend extends ShadowCalculatorInterface {
 		cl_context context = occ.getClContext();
 
 		City city = City.getInstance();
-		
+
 		int verticesSize = 0;
 		for (Building b : city.getBuildings()) {
 			verticesSize += b.getTriangles().size() * 9;
@@ -76,8 +76,8 @@ public class ShadowCalculatorOpenClBackend extends ShadowCalculatorInterface {
 
 		int[] cityVerticesCount = new int[city.getBuildings().size()];
 		for (int i = 0; i < cityVerticesCount.length; ++i) {
-			//alles falsch
-			cityVerticesCount[i] = city.getBuildings().get(i).getTriangles().size() * 9;
+			cityVerticesCount[i] = city.getBuildings().get(i).getTriangles()
+					.size() * 9;
 		}
 
 		cl_mem cityVerticesMem = clCreateBuffer(context, CL.CL_MEM_READ_ONLY
@@ -85,32 +85,12 @@ public class ShadowCalculatorOpenClBackend extends ShadowCalculatorInterface {
 				Sizeof.cl_float * cityVertices.length,
 				Pointer.to(cityVertices), null);
 
-		
-		for (Building b : city.getBuildings()) {
-			 int[] neighbourhood = getNeighbourhood(b);
-			 
-			 
-		}
+		cl_mem cityVerticesCountMem = clCreateBuffer(context,
+				CL.CL_MEM_READ_ONLY | CL.CL_MEM_USE_HOST_PTR, Sizeof.cl_int
+						* cityVerticesCount.length,
+				Pointer.to(cityVerticesCount), null);
 
-		
-		
-		ArrayList<ShadowTriangle> sts = new ArrayList<ShadowTriangle>();
-		for (Building b : City.getInstance().getBuildings()) {
-			sts.addAll(b.getShadowTriangles());
-		}
-		// sts.addAll(City.getInstance().getBuildings().get(0).getShadowTriangles());
-		float[] shadowVerticeCenters = new float[sts.size() * 3];
 		int count = 0;
-		for (ShadowTriangle st : sts) {
-			for (float p : st.getCenter().getCoordinates()) {
-				shadowVerticeCenters[count] = p;
-				count++;
-			}
-		}
-
-		int[] shadowVerticeCentersCount = { shadowVerticeCenters.length / 3 };
-
-		count = 0;
 		float[] sunDirections = new float[144 * 3];
 		for (Vertex v : calcDirections()) {
 			for (float p : v.getCoordinates()) {
@@ -119,7 +99,157 @@ public class ShadowCalculatorOpenClBackend extends ShadowCalculatorInterface {
 			}
 		}
 
-		byte[] hasShadow = new byte[18 * shadowVerticeCentersCount[0]];
+		cl_mem sunDirectionsMem = clCreateBuffer(context, CL.CL_MEM_READ_ONLY
+				| CL.CL_MEM_USE_HOST_PTR, Sizeof.cl_float
+				* sunDirections.length, Pointer.to(sunDirections), null);
+
+		for (Building b : city.getBuildings()) {
+			int[] neighbourhood = getNeighbourhood(b);
+			if (neighbourhood.length == 0) {
+				continue;
+			}
+			System.out.println("Anzahl umgebungsgebäude: " + neighbourhood.length);
+			// TODO: gebäude schatten berechnen
+			cl_mem buildingNeighboursMem = clCreateBuffer(context,
+					CL.CL_MEM_READ_ONLY | CL.CL_MEM_USE_HOST_PTR, Sizeof.cl_int
+							* neighbourhood.length, Pointer.to(neighbourhood),
+					null);
+
+			float[] shadowVerticeCenters = new float[b.getShadowTriangles()
+					.size() * 3];
+			count = 0;
+			for (ShadowTriangle st : b.getShadowTriangles()) {
+				for (float p : st.getCenter().getCoordinates()) {
+					shadowVerticeCenters[count] = p;
+					count++;
+				}
+			}
+			int[] shadowVerticeCentersCount = { shadowVerticeCenters.length / 3 };
+
+			cl_mem shadowVerticesMem = clCreateBuffer(context,
+					CL.CL_MEM_READ_ONLY | CL.CL_MEM_USE_HOST_PTR,
+					Sizeof.cl_float * shadowVerticeCenters.length,
+					Pointer.to(shadowVerticeCenters), null);
+
+			cl_mem shadowTriangleCountMem = clCreateBuffer(context,
+					CL.CL_MEM_READ_ONLY | CL.CL_MEM_USE_HOST_PTR,
+					Sizeof.cl_int, Pointer.to(shadowVerticeCentersCount), null);
+
+			byte[] hasShadow = new byte[18 * shadowVerticeCentersCount[0]];
+
+			Pointer hasShadowPointer = Pointer.to(hasShadow);
+			cl_mem hasShadowMem = clCreateBuffer(context, CL_MEM_READ_WRITE,
+					Sizeof.cl_char * hasShadow.length, null, null);
+
+			count = 0;
+			clSetKernelArg(kernel, count++, Sizeof.cl_mem,
+					Pointer.to(cityVerticesMem));
+			clSetKernelArg(kernel, count++, Sizeof.cl_mem,
+					Pointer.to(cityVerticesCountMem));
+
+			clSetKernelArg(kernel, count++, Sizeof.cl_mem,
+					Pointer.to(buildingNeighboursMem));
+			clSetKernelArg(kernel, count++, Sizeof.cl_int,
+					Pointer.to(new int[] { neighbourhood.length }));
+
+			clSetKernelArg(kernel, count++, Sizeof.cl_mem,
+					Pointer.to(shadowVerticesMem));
+			clSetKernelArg(kernel, count++, Sizeof.cl_mem,
+					Pointer.to(shadowTriangleCountMem));
+
+			clSetKernelArg(kernel, count++, Sizeof.cl_mem,
+					Pointer.to(sunDirectionsMem));
+			clSetKernelArg(kernel, count++, Sizeof.cl_mem,
+					Pointer.to(hasShadowMem));
+			clSetKernelArg(kernel, count++, Sizeof.cl_int,
+					Pointer.to(new int[] { shadowVerticeCenters.length / 3 }));
+
+			cl_device_id device = occ.getDevice();
+			long[] kernelWorkSize = new long[1];
+
+			CL.clGetKernelWorkGroupInfo(kernel, device,
+					CL.CL_KERNEL_WORK_GROUP_SIZE, Sizeof.size_t,
+					Pointer.to(kernelWorkSize), null);
+			int localWorkSize = (int) kernelWorkSize[0];
+
+			int workSize = ((shadowVerticeCenters.length / 3) / localWorkSize + 1)
+					* localWorkSize;
+			System.out.println(shadowVerticeCenters.length / 3);
+			long global_work_size[] = new long[] { workSize };
+			long local_work_size[] = new long[] { localWorkSize };
+
+			// Execute the kernel
+			cl_event kernelEvent = new cl_event();
+
+			clEnqueueNDRangeKernel(commandQueue, kernel, 1, null,
+					global_work_size, local_work_size, 0, null, kernelEvent);
+
+			// Read the output data
+			clEnqueueReadBuffer(commandQueue, hasShadowMem, CL_TRUE, 0,
+					hasShadow.length * Sizeof.cl_char, hasShadowPointer, 0,
+					null, null);
+
+			// wait for the kernel to finish
+			CL.clFinish(commandQueue);
+
+			occ.profile(kernelEvent);
+
+			count = 0;
+			// BitSet bs = BitSet.valueOf(hasShadow);
+			for (ShadowTriangle st : b.getShadowTriangles()) {
+				// BitSet new_bs = bs.get(count*144, (count+1)*144);
+				BitSet new_bs = new BitSet(144);
+				for (int i = 0; i < 144; i++) {
+					if ((hasShadow[count * 18 + i / 8] & (1 << 7 - i % 8)) > 0) {
+						new_bs.set(i, true);
+					} else {
+						new_bs.set(i, false);
+					}
+				}
+				st.setShadowSet(new_bs);
+				count++;
+			}
+
+			clReleaseMemObject(shadowVerticesMem);
+			clReleaseMemObject(shadowTriangleCountMem);
+			clReleaseMemObject(hasShadowMem);
+			clReleaseMemObject(buildingNeighboursMem);
+		}
+		// Release kernel, program, and memory objects
+		clReleaseMemObject(cityVerticesMem);
+		clReleaseMemObject(sunDirectionsMem);
+		clReleaseMemObject(cityVerticesCountMem);
+
+		occ.finalizeKernel(kernel);
+
+		// ArrayList<ShadowTriangle> sts = new ArrayList<ShadowTriangle>();
+		// for (Building b : City.getInstance().getBuildings()) {
+		// sts.addAll(b.getShadowTriangles());
+		// }
+		// //
+		// sts.addAll(City.getInstance().getBuildings().get(0).getShadowTriangles());
+		// float[] shadowVerticeCenters = new float[sts.size() * 3];
+		// int count = 0;
+		// for (ShadowTriangle st : sts) {
+		// for (float p : st.getCenter().getCoordinates()) {
+		// shadowVerticeCenters[count] = p;
+		// count++;
+		// }
+		// }
+
+		// int[] shadowVerticeCentersCount = { shadowVerticeCenters.length / 3
+		// };
+		//
+		// count = 0;
+		// float[] sunDirections = new float[144 * 3];
+		// for (Vertex v : calcDirections()) {
+		// for (float p : v.getCoordinates()) {
+		// sunDirections[count] = p;
+		// count++;
+		// }
+		// }
+
+		// byte[] hasShadow = new byte[18 * shadowVerticeCentersCount[0]];
 
 		// __kernel void calc(__global float* cityVertices,
 		// __global int* cityVerticesCount,
@@ -129,93 +259,90 @@ public class ShadowCalculatorOpenClBackend extends ShadowCalculatorInterface {
 		// __global char* hasShadow) // 18*shadowTrianglesCount char
 
 		// allocate memory on gpu
-		cl_mem cityTriangleCountMem = clCreateBuffer(context,
-				CL.CL_MEM_READ_ONLY | CL.CL_MEM_USE_HOST_PTR, Sizeof.cl_int,
-				Pointer.to(cityVerticesCount), null);
+		// cl_mem cityTriangleCountMem = clCreateBuffer(context,
+		// CL.CL_MEM_READ_ONLY | CL.CL_MEM_USE_HOST_PTR, Sizeof.cl_int,
+		// Pointer.to(cityVerticesCount), null);
 
-		cl_mem shadowVerticesMem = clCreateBuffer(context, CL.CL_MEM_READ_ONLY
-				| CL.CL_MEM_USE_HOST_PTR, Sizeof.cl_float
-				* shadowVerticeCenters.length,
-				Pointer.to(shadowVerticeCenters), null);
+		// cl_mem shadowVerticesMem = clCreateBuffer(context,
+		// CL.CL_MEM_READ_ONLY
+		// | CL.CL_MEM_USE_HOST_PTR, Sizeof.cl_float
+		// * shadowVerticeCenters.length,
+		// Pointer.to(shadowVerticeCenters), null);
+		//
+		// cl_mem shadowTriangleCountMem = clCreateBuffer(context,
+		// CL.CL_MEM_READ_ONLY | CL.CL_MEM_USE_HOST_PTR, Sizeof.cl_int,
+		// Pointer.to(shadowVerticeCentersCount), null);
 
-		cl_mem shadowTriangleCountMem = clCreateBuffer(context,
-				CL.CL_MEM_READ_ONLY | CL.CL_MEM_USE_HOST_PTR, Sizeof.cl_int,
-				Pointer.to(shadowVerticeCentersCount), null);
+		// cl_mem sunDirectionsMem = clCreateBuffer(context, CL.CL_MEM_READ_ONLY
+		// | CL.CL_MEM_USE_HOST_PTR, Sizeof.cl_float
+		// * sunDirections.length, Pointer.to(sunDirections), null);
 
-		cl_mem sunDirectionsMem = clCreateBuffer(context, CL.CL_MEM_READ_ONLY
-				| CL.CL_MEM_USE_HOST_PTR, Sizeof.cl_float
-				* sunDirections.length, Pointer.to(sunDirections), null);
-
-		Pointer hasShadowPointer = Pointer.to(hasShadow);
-		cl_mem hasShadowMem = clCreateBuffer(context, CL_MEM_READ_WRITE,
-				Sizeof.cl_char * hasShadow.length, null, null);
+		// Pointer hasShadowPointer = Pointer.to(hasShadow);
+		// cl_mem hasShadowMem = clCreateBuffer(context, CL_MEM_READ_WRITE,
+		// Sizeof.cl_char * hasShadow.length, null, null);
 
 		// Set the arguments for the kernel
-		clSetKernelArg(kernel, 0, Sizeof.cl_mem, Pointer.to(cityVerticesMem));
-		clSetKernelArg(kernel, 1, Sizeof.cl_mem,
-				Pointer.to(cityTriangleCountMem));
-		clSetKernelArg(kernel, 2, Sizeof.cl_mem, Pointer.to(shadowVerticesMem));
-		clSetKernelArg(kernel, 3, Sizeof.cl_mem,
-				Pointer.to(shadowTriangleCountMem));
-		clSetKernelArg(kernel, 4, Sizeof.cl_mem, Pointer.to(sunDirectionsMem));
-		clSetKernelArg(kernel, 5, Sizeof.cl_mem, Pointer.to(hasShadowMem));
-		clSetKernelArg(kernel, 6, Sizeof.cl_int,
-				Pointer.to(new int[] { shadowVerticeCenters.length / 3 }));
+		// clSetKernelArg(kernel, 0, Sizeof.cl_mem,
+		// Pointer.to(cityVerticesMem));
+		// clSetKernelArg(kernel, 1, Sizeof.cl_mem,
+		// Pointer.to(cityTriangleCountMem));
+		// clSetKernelArg(kernel, 2, Sizeof.cl_mem,
+		// Pointer.to(shadowVerticesMem));
+		// clSetKernelArg(kernel, 3, Sizeof.cl_mem,
+		// Pointer.to(shadowTriangleCountMem));
+		// clSetKernelArg(kernel, 4, Sizeof.cl_mem,
+		// Pointer.to(sunDirectionsMem));
+		// clSetKernelArg(kernel, 5, Sizeof.cl_mem, Pointer.to(hasShadowMem));
+		// clSetKernelArg(kernel, 6, Sizeof.cl_int,
+		// Pointer.to(new int[] { shadowVerticeCenters.length / 3 }));
 
-		cl_device_id device = occ.getDevice();
-		long[] kernelWorkSize = new long[1];
+		// cl_device_id device = occ.getDevice();
+		// long[] kernelWorkSize = new long[1];
+		//
+		// CL.clGetKernelWorkGroupInfo(kernel, device,
+		// CL.CL_KERNEL_WORK_GROUP_SIZE, Sizeof.size_t,
+		// Pointer.to(kernelWorkSize), null);
+		// int localWorkSize = (int) kernelWorkSize[0];
+		//
+		// int workSize = ((shadowVerticeCenters.length / 3) / localWorkSize +
+		// 1)
+		// * localWorkSize;
+		// long global_work_size[] = new long[] { workSize };
+		// long local_work_size[] = new long[] { localWorkSize };
+		//
+		// // Execute the kernel
+		// cl_event kernelEvent = new cl_event();
+		//
+		// clEnqueueNDRangeKernel(commandQueue, kernel, 1, null,
+		// global_work_size,
+		// local_work_size, 0, null, kernelEvent);
+		//
+		// // Read the output data
+		// clEnqueueReadBuffer(commandQueue, hasShadowMem, CL_TRUE, 0,
+		// hasShadow.length * Sizeof.cl_char, hasShadowPointer, 0, null,
+		// null);
+		//
+		// // wait for the kernel to finish
+		// CL.clFinish(commandQueue);
+		//
+		// occ.profile(kernelEvent);
+		//
+		// count = 0;
+		// // BitSet bs = BitSet.valueOf(hasShadow);
+		// for (ShadowTriangle st : sts) {
+		// // BitSet new_bs = bs.get(count*144, (count+1)*144);
+		// BitSet new_bs = new BitSet(144);
+		// for (int i = 0; i < 144; i++) {
+		// if ((hasShadow[count * 18 + i / 8] & (1 << 7 - i % 8)) > 0) {
+		// new_bs.set(i, true);
+		// } else {
+		// new_bs.set(i, false);
+		// }
+		// }
+		// st.setShadowSet(new_bs);
+		// count++;
+		// }
 
-		CL.clGetKernelWorkGroupInfo(kernel, device,
-				CL.CL_KERNEL_WORK_GROUP_SIZE, Sizeof.size_t,
-				Pointer.to(kernelWorkSize), null);
-		int localWorkSize = (int) kernelWorkSize[0];
-
-		int workSize = ((shadowVerticeCenters.length / 3) / localWorkSize + 1)
-				* localWorkSize;
-		long global_work_size[] = new long[] { workSize };
-		long local_work_size[] = new long[] { localWorkSize };
-
-		// Execute the kernel
-		cl_event kernelEvent = new cl_event();
-
-		clEnqueueNDRangeKernel(commandQueue, kernel, 1, null, global_work_size,
-				local_work_size, 0, null, kernelEvent);
-
-		// Read the output data
-		clEnqueueReadBuffer(commandQueue, hasShadowMem, CL_TRUE, 0,
-				hasShadow.length * Sizeof.cl_char, hasShadowPointer, 0, null,
-				null);
-
-		// wait for the kernel to finish
-		CL.clFinish(commandQueue);
-
-		occ.profile(kernelEvent);
-
-		count = 0;
-		// BitSet bs = BitSet.valueOf(hasShadow);
-		for (ShadowTriangle st : sts) {
-			// BitSet new_bs = bs.get(count*144, (count+1)*144);
-			BitSet new_bs = new BitSet(144);
-			for (int i = 0; i < 144; i++) {
-				if ((hasShadow[count * 18 + i / 8] & (1 << 7 - i % 8)) > 0) {
-					new_bs.set(i, true);
-				} else {
-					new_bs.set(i, false);
-				}
-			}
-			st.setShadowSet(new_bs);
-			count++;
-		}
-
-		// Release kernel, program, and memory objects
-		clReleaseMemObject(cityVerticesMem);
-		clReleaseMemObject(cityTriangleCountMem);
-		clReleaseMemObject(shadowVerticesMem);
-		clReleaseMemObject(shadowTriangleCountMem);
-		clReleaseMemObject(sunDirectionsMem);
-		clReleaseMemObject(hasShadowMem);
-
-		occ.finalizeKernel(kernel);
 	}
 
 	private int[] getNeighbourhood(Building b) {
@@ -223,6 +350,9 @@ public class ShadowCalculatorOpenClBackend extends ShadowCalculatorInterface {
 		ArrayList<Integer> neighbourhood = new ArrayList<>();
 		for (int i = 0; i < city.getBuildings().size(); ++i) {
 			Building neighbourBuilding = city.getBuildings().get(i);
+			if (i == 4000) {
+				System.out.println();
+			}
 			Vertex v = vertexDiff(b.getCenter(), neighbourBuilding.getCenter());
 			float distance = distance(v);
 			if (distance < MAX_DISTANCE) {
@@ -231,7 +361,7 @@ public class ShadowCalculatorOpenClBackend extends ShadowCalculatorInterface {
 		}
 		int[] neigh = new int[neighbourhood.size()];
 		for (int i = 0; i < neigh.length; ++i) {
-			neigh[i] = i;
+			neigh[i] = neighbourhood.get(i);
 		}
 		return neigh;
 	}

@@ -64,6 +64,8 @@ char rayIntersectsTriangle(float3 p, float3 sunDirection, float3 v0, float3 v1, 
 __kernel  
 void calc(__global float* cityVertices,
 				   __global int* cityVerticesCount,
+				   __global int* neighbours,
+				   __const int neighboursCount,
 				   __global float* shadowVerticeCenters,
 				   __global int* shadowVerticeCentersCount,
 				   __global float* sunDirections,
@@ -76,24 +78,40 @@ void calc(__global float* cityVertices,
 	}
 	
 	float3 v0, v1, v2, sunDirection, p;
+
 	
 	p = (float3)(shadowVerticeCenters[gid*3], shadowVerticeCenters[gid*3+1], shadowVerticeCenters[gid*3+2]);
 	for (int i = 0; i < 144; i++) {
 		sunDirection = (float3)(sunDirections[i*3], sunDirections[i*3+1], sunDirections[i*3+2]);
 		// skalarprodukt < 0 rausschmeißen
-		for (int cityIdx = 0; cityIdx < cityVerticesCount[0]; cityIdx += 9) {
-			v0 = (float3)(cityVertices[cityIdx], cityVertices[cityIdx+1], cityVertices[cityIdx+2]);
-			v1 = (float3)(cityVertices[cityIdx+3], cityVertices[cityIdx+4], cityVertices[cityIdx+5]);
-			v2 = (float3)(cityVertices[cityIdx+6], cityVertices[cityIdx+7], cityVertices[cityIdx+8]);
-			char res = rayIntersectsTriangle(p, sunDirection, v0, v1, v2);
-			if (res == 1) {
-				hasShadow[gid*18+i/8] |= (1 << (7-i%8));
-				break;
-			} else {
-				int mask = 255 - (1 << (7-i%8));
-				hasShadow[gid*18+i/8] &= mask;
+		
+		int breakInt = 0;
+		for (int neighbourIdx = 0; neighbourIdx < neighboursCount; ++neighbourIdx) {
+			int offset = 0;
+			for (int j = 0; j < neighbours[neighbourIdx]; ++j) {
+				offset += cityVerticesCount[j];
 			}
-		}
+			
+			
+			for (int cityIdx = offset; cityIdx < offset + cityVerticesCount[neighbours[neighbourIdx]]; cityIdx += 9) {
+				v0 = (float3)(cityVertices[cityIdx], cityVertices[cityIdx+1], cityVertices[cityIdx+2]);
+				v1 = (float3)(cityVertices[cityIdx+3], cityVertices[cityIdx+4], cityVertices[cityIdx+5]);
+				v2 = (float3)(cityVertices[cityIdx+6], cityVertices[cityIdx+7], cityVertices[cityIdx+8]);
+				char res = rayIntersectsTriangle(p, sunDirection, v0, v1, v2);
+				if (res == 1) {
+					hasShadow[gid*18+i/8] |= (1 << (7-i%8));
+					breakInt = 1;
+					break;
+				} else {
+					int mask = 255 - (1 << (7-i%8));
+					hasShadow[gid*18+i/8] &= mask;
+				}
+			}
+			
+			if (breakInt == 1) {
+				break;
+			}
+		}		
 	}  
 
 
