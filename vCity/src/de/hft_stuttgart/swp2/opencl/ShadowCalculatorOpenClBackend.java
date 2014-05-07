@@ -9,6 +9,7 @@ import static org.jocl.CL.clReleaseMemObject;
 import static org.jocl.CL.clSetKernelArg;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.BitSet;
 
 import org.jocl.CL;
@@ -99,8 +100,7 @@ public class ShadowCalculatorOpenClBackend extends ShadowCalculatorInterface {
 
 		int currentBuilding = 0;
 		while (currentBuilding < city.getBuildings().size()) {
-			// suche gebäude zusammen solange schatten dreiecke weniger als 1
-			// meolone
+			// suche gebäude zusammen solange schatten dreiecke weniger als 1 mio
 			int triangleCount = 0;
 			ArrayList<Building> calcBuildings = new ArrayList<Building>();
 			while (triangleCount < TRIANGLE_COUNT
@@ -131,7 +131,11 @@ public class ShadowCalculatorOpenClBackend extends ShadowCalculatorInterface {
 						neighbours.add(i);
 					}
 				}
-				numNeighbours[calculateBuildingIdx] = neighbours.size();
+				int numNeighbour = neighbours.size();
+				for (int i = 0; i < calculateBuildingIdx; ++i) {
+					numNeighbour -= numNeighbours[i];
+				}
+				numNeighbours[calculateBuildingIdx] = numNeighbour;
 
 				for (ShadowTriangle st : b.getShadowTriangles()) {
 					for (float p : st.getCenter().getCoordinates()) {
@@ -195,16 +199,18 @@ public class ShadowCalculatorOpenClBackend extends ShadowCalculatorInterface {
 			// Schattendreiecksmittenanzahl pro Gebäude
 			clSetKernelArg(kernel, 5, Sizeof.cl_mem,
 					Pointer.to(shadowTriangleCountMem));
+			// Anzahl der Schattendreiecken
+			clSetKernelArg(kernel, 6, Sizeof.cl_int, Pointer.to(new int[] {calcBuildings.size()}));
 
 			// Sonnenrichtungs vektoren
-			clSetKernelArg(kernel, 6, Sizeof.cl_mem,
+			clSetKernelArg(kernel, 7, Sizeof.cl_mem,
 					Pointer.to(sunDirectionsMem));
 
 			// Ergebnis array
-			clSetKernelArg(kernel, 7, Sizeof.cl_mem, Pointer.to(hasShadowMem));
+			clSetKernelArg(kernel, 8, Sizeof.cl_mem, Pointer.to(hasShadowMem));
 
 			// actual work size
-			clSetKernelArg(kernel, 8, Sizeof.cl_int,
+			clSetKernelArg(kernel, 9, Sizeof.cl_int,
 					Pointer.to(new int[] { shadowVerticeCenters.length / 3 }));
 
 			cl_device_id device = occ.getDevice();
@@ -217,7 +223,7 @@ public class ShadowCalculatorOpenClBackend extends ShadowCalculatorInterface {
 
 			int workSize = ((shadowVerticeCenters.length / 3) / localWorkSize + 1)
 					* localWorkSize;
-			System.out.println(shadowVerticeCenters.length / 3);
+			System.out.println(workSize);
 			long global_work_size[] = new long[] { workSize };
 			long local_work_size[] = new long[] { localWorkSize };
 
@@ -240,7 +246,6 @@ public class ShadowCalculatorOpenClBackend extends ShadowCalculatorInterface {
 			int count = 0;
 			// BitSet bs = BitSet.valueOf(hasShadow);
 			for (Building b : calcBuildings) {
-
 				for (ShadowTriangle st : b.getShadowTriangles()) {
 					// BitSet new_bs = bs.get(count*144, (count+1)*144);
 					BitSet new_bs = new BitSet(144);
@@ -255,6 +260,8 @@ public class ShadowCalculatorOpenClBackend extends ShadowCalculatorInterface {
 					count++;
 				}
 			}
+			System.out.println(Arrays.toString(cityVerticesCount));
+			System.out.println("Count = "+ count);
 
 			clReleaseMemObject(shadowVerticesMem);
 			clReleaseMemObject(shadowTriangleCountMem);

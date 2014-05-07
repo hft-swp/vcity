@@ -33,12 +33,9 @@ import de.hft_stuttgart.swp2.model.Vertex;
 import de.hft_stuttgart.swp2.opencl.CalculatorImpl;
 import de.hft_stuttgart.swp2.opencl.CalculatorInterface;
 import de.hft_stuttgart.swp2.opencl.OpenClException;
-import de.hft_stuttgart.swp2.opencl.ShadowCalculatorJavaBackend;
 import de.hft_stuttgart.swp2.opencl.ShadowPrecision;
 import de.hft_stuttgart.swp2.opencl.SunPositionCalculator;
 import de.hft_stuttgart.swp2.opencl.VolumeTest;
-import de.hft_stuttgart.swp2.parser.CGMLParser;
-import de.hft_stuttgart.swp2.parser.ParserInterface;
 
 public class ShadowViewer extends JFrame implements GLEventListener,
 		KeyListener, MouseListener, MouseMotionListener {
@@ -107,10 +104,10 @@ public class ShadowViewer extends JFrame implements GLEventListener,
 		b.addTriangle(t2);
 		City.getInstance().addBuilding(b);
 		
-//		for (int i = 0; i < 150; i++) {
-//			for (int j = 0; j < 150; j++) {
+//		for (int i = 0; i < 10; i++) {
+//			for (int j = 0; j < 10; j++) {
 //				VolumeTest.testCity2();
-//				Building b = City.getInstance().getBuildings().get(i * 150 + j);
+//				Building b = City.getInstance().getBuildings().get(i * 10 + j);
 //				b.translate(20 * i, 0, 20 * j);
 //			}
 //		}
