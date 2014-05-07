@@ -46,8 +46,8 @@ public class CityMap3D extends JFrame implements GLEventListener {
 	public int halfScreenWidth;
 	private float r = 10000;
 	public boolean enableDrawCenters = false;
-	private boolean isShadowCalc = true;
-	private boolean isVolumeCalc = false;
+	private boolean isShadowCalc = false;
+	private boolean isVolumeCalc = true;
 	private int minGroundSize = -20;
 	private int maxGroundSize = 20;
 
@@ -180,20 +180,10 @@ public class CityMap3D extends JFrame implements GLEventListener {
 					gl.glColor3f(0, 1, 0);
 					for (Vertex v : t.getVertices()) {
 						//If Triangle is in ground => blue else green 
-						if (v.getY() == 0) {
-							if(((v.getX() == minGroundSize) && (v.getZ() == minGroundSize)) ||
-									((v.getX() == maxGroundSize) && (v.getZ() == minGroundSize)) ||
-									((v.getX() == maxGroundSize) && (v.getZ() == maxGroundSize)) ||
-									((v.getX() == minGroundSize) && (v.getZ() == maxGroundSize)) 
-									){
-								gl.glColor3f(0, 0, 1);
-							}else{
-								gl.glColor3f(0, 1, 0);
-							}
-
-						}
 						if(isGround(v)){
-							
+							gl.glColor3f(0, 0, 1);
+						}else{
+							gl.glColor3f(0, 1, 0);
 						}
 						gl.glVertex3fv(v.getCoordinates(), 0);
 					}

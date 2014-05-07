@@ -13,6 +13,7 @@ import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.SwingConstants;
 
 import de.hft_stuttgart.swp2.render.options.FileChooserGmlFileView;
 import de.hft_stuttgart.swp2.render.options.FileChooserGmlFilter;
@@ -37,7 +38,7 @@ public class PanelSettings extends JPanel implements Refreshable{
 	String strBtnFileChooser = "GML-Datei auswählen";
 	JFileChooser fc;
 	File gmlFile;
-	String strPathContent = "Sie haben noch keinen Pfad zu einer GML-Datei ausgewählt.";
+	String strPathContent = "Pfad zur GML Datei";
 	JLabel lblPath;
 	
 
@@ -52,24 +53,24 @@ public class PanelSettings extends JPanel implements Refreshable{
 
 		JLabel lblChooseSource = new JLabel("Quelle wählen");
 
-		constraints.insets = new Insets(0, 0, 0, 0);
+		constraints.insets = new Insets(0, 10, 0, 0);
+		constraints.fill = GridBagConstraints.HORIZONTAL;
 		constraints.weightx = 0.5;// components
-		constraints.ipady = 10;
+		constraints.ipady = 0;
 		constraints.weighty = 0;   //request any extra vertical space
 		constraints.gridx = 0; // column 0
 		constraints.gridy = 0; // row 0
-		constraints.gridwidth = 2;
+		constraints.gridwidth = 1;
 		constraints.anchor = GridBagConstraints.PAGE_START;
+		lblChooseSource.setHorizontalAlignment(SwingConstants.LEFT);
 		//constraints.fill = GridBagConstraints.HORIZONTAL;
 		this.add(lblChooseSource, constraints);
 		//lblChooseSource.setHorizontalAlignment(SwingConstants.LEFT);
-		constraints.ipady = 0;
-		constraints.weightx = 0.5;// components
 		//constraints.weighty = 0;   //request any extra vertical space
-		constraints.gridx = 2; // column 0
+		constraints.gridx = 1; // column 0
 		constraints.gridwidth = 1;
 		constraints.gridy = 0; // row 0
-		constraints.fill = GridBagConstraints.NONE;
+		//constraints.fill = GridBagConstraints.NONE;
 		//constraints.anchor = GridBagConstraints.LINE_END;
 		cmbChooseSource.setSelectedIndex(0);
 		cmbChooseSource.addActionListener(chooseSourceAction());
@@ -77,14 +78,14 @@ public class PanelSettings extends JPanel implements Refreshable{
 		
 
 		generatePanelFile();
-		constraints.insets = new Insets(10, 0, 0, 0);
+		constraints.insets = new Insets(10, 10, 0, 0);
 		//constraints.gridwidth = GridBagConstraints.REMAINDER;
-		constraints.gridheight = 2;
+		constraints.gridheight = 1;
 		constraints.weightx = 0.5;// components
 		//constraints.weighty = 0.1;   //request any extra vertical space
-		constraints.gridx = 1; // column 0
+		constraints.gridx = 0; // column 0
 		constraints.gridy = 1; // row 0
-		constraints.gridwidth = 3;
+		constraints.gridwidth = 2;
 		constraints.fill = GridBagConstraints.BOTH;
 		this.add(panelFile, constraints);
 		
