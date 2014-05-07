@@ -86,26 +86,26 @@ public class ShadowViewer extends JFrame implements GLEventListener,
 		super("Shadow view");
 		
 		// test values
-//		VolumeTest.testCity2();
-//		VolumeTest.testCity2();
-//		VolumeTest.testCity2();
-//		City.getInstance().getBuildings().get(1).translate(0, 0, 5);
-//		City.getInstance().getBuildings().get(2).translate(5, 0, 5);
-//		City.getInstance().getBuildings().get(2).scale(1, 5, 1);
-//		
-//		int size = 20;
-//		Vertex v0 = new Vertex(-size, 0, -size);
-//		Vertex v1 = new Vertex(-size, 0, size);
-//		Vertex v2 = new Vertex(size, 0, size);
-//		Vertex v3 = new Vertex(size, 0, -size);
-//		
-//		Triangle t1 = new Triangle(v0, v1, v2);
-//		Triangle t2 = new Triangle(v0, v2, v3);
-//		
-//		Building b = new Building();
-//		b.addTriangle(t1);
-//		b.addTriangle(t2);
-//		City.getInstance().addBuilding(b);
+		VolumeTest.testCity2();
+		VolumeTest.testCity2();
+		VolumeTest.testCity2();
+		City.getInstance().getBuildings().get(1).translate(0, 0, 5);
+		City.getInstance().getBuildings().get(2).translate(5, 0, 5);
+		City.getInstance().getBuildings().get(2).scale(1, 5, 1);
+		
+		int size = 20;
+		Vertex v0 = new Vertex(-size, 0, -size);
+		Vertex v1 = new Vertex(-size, 0, size);
+		Vertex v2 = new Vertex(size, 0, size);
+		Vertex v3 = new Vertex(size, 0, -size);
+		
+		Triangle t1 = new Triangle(v0, v1, v2);
+		Triangle t2 = new Triangle(v0, v2, v3);
+		
+		Building b = new Building();
+		b.addTriangle(t1);
+		b.addTriangle(t2);
+		City.getInstance().addBuilding(b);
 		
 //		for (int i = 0; i < 150; i++) {
 //			for (int j = 0; j < 150; j++) {
@@ -115,13 +115,13 @@ public class ShadowViewer extends JFrame implements GLEventListener,
 //			}
 //		}
 		
-		ParserInterface parser = new CGMLParser();
-		try {
-			parser.parse("Gruenbuehl_LOD2.gml");
-//			parser.parse("einHaus.gml");
-		} catch (Exception e1) {
-			e1.printStackTrace();
-		}
+//		ParserInterface parser = new CGMLParser();
+//		try {
+//			parser.parse("Gruenbuehl_LOD2.gml");
+////			parser.parse("einHaus.gml");
+//		} catch (Exception e1) {
+//			e1.printStackTrace();
+//		}
 
 		sunPositions = new SunPositionCalculator[12][24];
 		for (int j = 1; j < 13; ++j) {
@@ -137,7 +137,7 @@ public class ShadowViewer extends JFrame implements GLEventListener,
 //		ShadowCalculatorJavaBackend calc = new ShadowCalculatorJavaBackend();
 		System.out.println("Starting shadow calculation...");
 		long start = System.currentTimeMillis(); 
-		calc.calculateShadow(ShadowPrecision.LOW); //VERY_LOW(5f), LOW(2.5f), MID(1.25f), HIGH(0.75f), ULTRA(0.375f), HYPER(0.1f), AWESOME(0.01f)
+		calc.calculateShadow(ShadowPrecision.ULTRA); //VERY_LOW(5f), LOW(2.5f), MID(1.25f), HIGH(0.75f), ULTRA(0.375f), HYPER(0.1f), AWESOME(0.01f)
 		long end = System.currentTimeMillis();
 		System.out.printf("calculate shadow took %d milliseconds\n", (end - start));
 		
