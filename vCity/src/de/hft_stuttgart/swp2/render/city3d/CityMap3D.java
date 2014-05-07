@@ -7,6 +7,7 @@ import java.awt.Toolkit;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.util.ArrayList;
 
 import javax.media.opengl.GL;
 import javax.media.opengl.GL2;
@@ -50,6 +51,7 @@ public class CityMap3D extends JFrame implements GLEventListener {
 	private boolean isVolumeCalc = true;
 	private int minGroundSize = -20;
 	private int maxGroundSize = 20;
+	private FPSAnimator animator;
 
 	public int ray = 0;
 
@@ -107,9 +109,9 @@ public class CityMap3D extends JFrame implements GLEventListener {
 		getContentPane().add(canvas);
 
 		// draw the scene at FPS fps
-		FPSAnimator animator = new FPSAnimator(canvas, FPS);
+		animator = new FPSAnimator(canvas, FPS);
 		animator.start();
-
+		
 		canvas.addGLEventListener(this);
 		KeyEventListener keyEvent = new KeyEventListener(this);
 		this.addKeyListener(keyEvent);
@@ -172,7 +174,20 @@ public class CityMap3D extends JFrame implements GLEventListener {
 		// drawing building 0
 		gl.glColor3f(1f, 1f, 1f);
 
-
+		ArrayList<Building> test = City.getInstance().getBuildings();
+//		float minZ = Float.MAX_VALUE;
+//		for(int i=0; i<test.size();i++){
+//			Vertex [] v= test.get(0).getTriangles().get(i).getVertices();
+//			for(int j=0; j<2;j++){
+//				System.out.println("Point " + String.valueOf(i) + String.valueOf(j) +  
+//						" x Wert: "+ v[j].getX() + " y Wert: "+ v[j].getY() + 
+//						" z Wert: "+ v[j].getZ());
+//				if(minZ > v[j].getZ()){
+//					v[j].;
+//				}
+//			}
+//		}
+		
 		if (isVolumeCalc) {
 			for (Building b : City.getInstance().getBuildings()) {
 				for (Triangle t : b.getTriangles()) {
@@ -332,6 +347,13 @@ public class CityMap3D extends JFrame implements GLEventListener {
 			gl.glVertex3f(0f, 0f, 10000f);
 		}
 		gl.glEnd();
+		
+		gl.glColor3f(1f, 1f, 1f);
+		gl.glBegin(GL2.GL_POINTS);
+		{
+			gl.glVertex3f(1f, 1f, 1f);
+		}
+		gl.glEnd();
 	}
 
 	@Override
@@ -375,6 +397,18 @@ public class CityMap3D extends JFrame implements GLEventListener {
 		// Enable the model-view transform
 		gl.glMatrixMode(GL2.GL_MODELVIEW);
 		gl.glLoadIdentity();
+	}
+	
+	public void stopAnimator(){
+		if (animator != null){
+			animator.pause();
+		}
+	}
+	
+	public void startAnimator(){
+		if (animator != null){
+			animator.resume();
+		}
 	}
 
 }

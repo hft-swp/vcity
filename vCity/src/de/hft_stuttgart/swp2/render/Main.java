@@ -62,6 +62,7 @@ public class Main {
 
 	public static void startParser(String path) {
 		try {
+			City.getInstance().getBuildings().clear();
 			city = CGMLParser.getInstance().parse(path);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
@@ -73,6 +74,19 @@ public class Main {
 	public static City getCity() {
 		return city;
 	}
+
+
+
+	public static OptionGUI getOptionGUI() {
+		return optionGUI;
+	}
+
+
+
+	public static CityMap3D getCityMap3D() {
+		return cityMap3D;
+	}
+
 
 
 

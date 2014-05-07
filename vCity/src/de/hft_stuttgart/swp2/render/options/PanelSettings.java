@@ -6,21 +6,27 @@ import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.util.Date;
 
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JSeparator;
 import javax.swing.SwingConstants;
 
+import org.jdesktop.swingx.JXDatePicker;
+
+import de.hft_stuttgart.swp2.render.Main;
 import de.hft_stuttgart.swp2.render.options.FileChooserGmlFileView;
 import de.hft_stuttgart.swp2.render.options.FileChooserGmlFilter;
 import de.hft_stuttgart.swp2.render.options.FileChooserImagePreview;
 import de.hft_stuttgart.swp2.render.threads.StartParserRunnable;
 
-public class PanelSettings extends JPanel implements Refreshable{
+public class PanelSettings extends JPanel{
 	
 	/**
 	 * 
@@ -30,7 +36,7 @@ public class PanelSettings extends JPanel implements Refreshable{
 	private JPanel panelDatabase = new JPanel();
 	private String[] strChooseSource = { "Filesystem", "Datenbank"};
 	private final JComboBox<String> cmbChooseSource = new JComboBox<String>(strChooseSource);
-	private Thread parser;
+	private Thread threadStartParsing;
 	
 	//Elements of panelFile
 	private JPanel panelFile;
@@ -40,8 +46,11 @@ public class PanelSettings extends JPanel implements Refreshable{
 	File gmlFile;
 	String strPathContent = "Pfad zur GML Datei";
 	JLabel lblPath;
-	
-
+	JCheckBox cbGUI = new JCheckBox("Stadt 3D gerendert anzeigen");
+	JCheckBox cbVolume = new JCheckBox("Volumen berechnen");
+	JCheckBox cbShadow = new JCheckBox("Schatten berechnen");
+	JXDatePicker jxDatePicker = new JXDatePicker(new Date());
+	private JButton btnStartParse;
 
 
 	public PanelSettings(){
@@ -52,12 +61,12 @@ public class PanelSettings extends JPanel implements Refreshable{
 	private void setContent() {
 
 		JLabel lblChooseSource = new JLabel("Quelle wählen");
-
-		constraints.insets = new Insets(0, 10, 0, 0);
+		constraints.insets = new Insets(2, 10, 0, 0);
 		constraints.fill = GridBagConstraints.HORIZONTAL;
-		constraints.weightx = 0.5;// components
+		constraints.weightx = 1.0;// components
 		constraints.ipady = 0;
-		constraints.weighty = 0;   //request any extra vertical space
+		constraints.fill = GridBagConstraints.BOTH;
+		constraints.weighty = 1.0;   //request any extra vertical space
 		constraints.gridx = 0; // column 0
 		constraints.gridy = 0; // row 0
 		constraints.gridwidth = 1;
@@ -69,6 +78,8 @@ public class PanelSettings extends JPanel implements Refreshable{
 		//constraints.weighty = 0;   //request any extra vertical space
 		constraints.gridx = 1; // column 0
 		constraints.gridwidth = 1;
+		constraints.insets = new Insets(8, 10, 0, 0);
+		constraints.fill = GridBagConstraints.HORIZONTAL;
 		constraints.gridy = 0; // row 0
 		//constraints.fill = GridBagConstraints.NONE;
 		//constraints.anchor = GridBagConstraints.LINE_END;
@@ -81,7 +92,6 @@ public class PanelSettings extends JPanel implements Refreshable{
 		constraints.insets = new Insets(10, 10, 0, 0);
 		//constraints.gridwidth = GridBagConstraints.REMAINDER;
 		constraints.gridheight = 1;
-		constraints.weightx = 0.5;// components
 		//constraints.weighty = 0.1;   //request any extra vertical space
 		constraints.gridx = 0; // column 0
 		constraints.gridy = 1; // row 0
@@ -89,6 +99,57 @@ public class PanelSettings extends JPanel implements Refreshable{
 		constraints.fill = GridBagConstraints.BOTH;
 		this.add(panelFile, constraints);
 		
+		
+		constraints.gridx = 0; // column 0
+		constraints.gridy = 2; // row 0
+		btnStartParse = new JButton("Start Parser");
+		btnStartParse.addActionListener(actionStartParsing());
+		this.add(btnStartParse, constraints);
+		
+		constraints.gridx = 0; // column 0
+		constraints.gridy = 3; // row 0
+		constraints.gridwidth = 2;
+		this.add(new JSeparator(JSeparator.HORIZONTAL),
+				constraints);
+		
+		constraints.gridx = 0; // column 0
+		constraints.gridy = 4; // row 0
+		constraints.gridwidth = 2;
+		
+		this.add(cbGUI,
+				constraints);
+		
+		constraints.gridx = 0; // column 0
+		constraints.gridy = 5; // row 0
+		constraints.gridwidth = 2;
+		
+		this.add(cbVolume,
+				constraints);
+		
+		constraints.gridx = 0; // column 0
+		constraints.gridy = 6; // row 0
+		constraints.gridwidth = 2;
+		
+		this.add(cbShadow,
+				constraints);
+	}
+
+	private ActionListener actionStartParsing() {
+		return new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				Runnable StartParserRunnable = new StartParserRunnable(gmlFile.getPath());
+				threadStartParsing = new Thread(StartParserRunnable);
+				threadStartParsing.start();
+				try {
+					threadStartParsing.join();
+				} catch (InterruptedException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+				//Main.startParser(gmlFile.getPath());
+			}
+		};
 	}
 
 	private ActionListener chooseSourceAction() {
@@ -98,15 +159,12 @@ public class PanelSettings extends JPanel implements Refreshable{
 				if(cmbChooseSource.getSelectedIndex() == 0){
 					panelDatabase.setVisible(false);
 					panelFile.setVisible(true);
-					refresh();
 				}else if(cmbChooseSource.getSelectedIndex() == 1){
 					panelFile.setVisible(false);
 					panelDatabase.setVisible(true);
-					refresh();
 				}else{
 					panelDatabase.setVisible(false);
 					panelFile.setVisible(true);	
-					refresh();
 				}
 			}
 		};
@@ -140,11 +198,6 @@ public class PanelSettings extends JPanel implements Refreshable{
 		panelFile.add(lblPath, constraints);
 	}
 
-	@Override
-	public void refresh() {
-		// TODO Auto-generated method stub
-		
-	}
 	
 	private void setFileChooser() {
 		// Set up the file chooser.
@@ -177,10 +230,7 @@ public class PanelSettings extends JPanel implements Refreshable{
 			Boolean flag = false;
 			for (String extension : okFileExtensions) {
 				if (gmlFile.getName().toLowerCase().endsWith(extension)) {
-					parser = new Thread(new StartParserRunnable(gmlFile.getPath()));
-					parser.start();
 					lblPath.setText(gmlFile.getPath());
-					//Main.startParser(gmlFile.getPath());
 					flag = true;
 				}
 			}

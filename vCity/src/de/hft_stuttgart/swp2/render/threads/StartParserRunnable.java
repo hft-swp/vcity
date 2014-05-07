@@ -10,7 +10,9 @@ public class StartParserRunnable implements Runnable{
 
 	@Override
 	public void run() {
+		Main.getCityMap3D().stopAnimator();
 		Main.startParser(pathToGmlFile);
+		Main.getCityMap3D().startAnimator();
 	}
 
 }
