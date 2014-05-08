@@ -14,6 +14,7 @@ import javax.media.opengl.GL2;
 import javax.media.opengl.GLAutoDrawable;
 import javax.media.opengl.GLEventListener;
 import javax.media.opengl.awt.GLCanvas;
+import javax.media.opengl.fixedfunc.GLLightingFunc;
 import javax.media.opengl.glu.GLU;
 import javax.swing.JFrame;
 
@@ -34,8 +35,9 @@ import de.hft_stuttgart.swp2.opencl.ShadowCalculatorOpenClBackend;
 import de.hft_stuttgart.swp2.opencl.ShadowCalculatorJavaBackend;
 import de.hft_stuttgart.swp2.opencl.ShadowPrecision;
 import de.hft_stuttgart.swp2.opencl.VolumeTest;
+import de.hft_stuttgart.swp2.render.Main;
 
-public class CityMap3D extends JFrame implements GLEventListener {
+public class CityMap3D extends JFrame implements GLEventListener{
 
 	private static final long serialVersionUID = 6681486095144440340L;
 	private static final int FPS = 60;
@@ -49,8 +51,8 @@ public class CityMap3D extends JFrame implements GLEventListener {
 	public boolean enableDrawCenters = false;
 	private boolean isShadowCalc = false;
 	private boolean isVolumeCalc = true;
-	private int minGroundSize = -20;
-	private int maxGroundSize = 20;
+	private int minGroundSize = 0;
+	private int maxGroundSize = 1000;
 	private FPSAnimator animator;
 
 	public int ray = 0;
@@ -123,15 +125,26 @@ public class CityMap3D extends JFrame implements GLEventListener {
 		pack();
 		this.setLocationRelativeTo(null);
 		robot.mouseMove(halfScreenWidth, halfScreenHeight);
+		
 	}
 
+	
+	public static float[] RGBToOpenGL(int r1, int g1, int b1) {
+		float[] tmp = new float[3];
+		tmp[0] = r1/255f;
+		tmp[1] = g1/255f;
+		tmp[2] = b1/255f;
+		return tmp;
+	}
+	
+	
 	private void setTestValues() {
-		VolumeTest.testCity2();
-		VolumeTest.testCity2();
-		VolumeTest.testCity2();
-		City.getInstance().getBuildings().get(1).translate(0, 0, 5);
-		City.getInstance().getBuildings().get(2).translate(5, 0, 5);
-		City.getInstance().getBuildings().get(2).scale(1, 5, 1);
+//		VolumeTest.testCity2();
+//		VolumeTest.testCity2();
+//		VolumeTest.testCity2();
+//		City.getInstance().getBuildings().get(1).translate(0, 0, 5);
+//		City.getInstance().getBuildings().get(2).translate(5, 0, 5);
+//		City.getInstance().getBuildings().get(2).scale(1, 5, 1);
 	}
 
 	private void setGround(int minSize, int maxSize) {
@@ -173,20 +186,6 @@ public class CityMap3D extends JFrame implements GLEventListener {
 		camera.lookAt();
 		// drawing building 0
 		gl.glColor3f(1f, 1f, 1f);
-
-		ArrayList<Building> test = City.getInstance().getBuildings();
-//		float minZ = Float.MAX_VALUE;
-//		for(int i=0; i<test.size();i++){
-//			Vertex [] v= test.get(0).getTriangles().get(i).getVertices();
-//			for(int j=0; j<2;j++){
-//				System.out.println("Point " + String.valueOf(i) + String.valueOf(j) +  
-//						" x Wert: "+ v[j].getX() + " y Wert: "+ v[j].getY() + 
-//						" z Wert: "+ v[j].getZ());
-//				if(minZ > v[j].getZ()){
-//					v[j].;
-//				}
-//			}
-//		}
 		
 		if (isVolumeCalc) {
 			for (Building b : City.getInstance().getBuildings()) {
@@ -194,9 +193,11 @@ public class CityMap3D extends JFrame implements GLEventListener {
 					gl.glBegin(GL2.GL_TRIANGLES);
 					gl.glColor3f(0, 1, 0);
 					for (Vertex v : t.getVertices()) {
-						//If Triangle is in ground => blue else green 
+						//If Triangle is in ground => light green else green 
 						if(isGround(v)){
-							gl.glColor3f(0, 0, 1);
+							//
+							float [] tmpColor = RGBToOpenGL(102, 255, 102);
+							gl.glColor3f(tmpColor[0], tmpColor[1], tmpColor[2]);
 						}else{
 							gl.glColor3f(0, 1, 0);
 						}
@@ -324,7 +325,11 @@ public class CityMap3D extends JFrame implements GLEventListener {
 	private void drawAxis(GL2 gl) {
 		gl.glColor3f(0f, 0f, 1f);
 		// x Axis in blue
+		gl.glEnable(GL.GL_TRUE);
+		gl.glEnable(GL.GL_LINE_SMOOTH); 
 		gl.glBegin(GL2.GL_LINES);
+
+		gl.glLineWidth(5.0f);
 		{
 			gl.glVertex3f(0f, 0f, 0f);
 			gl.glVertex3f(10000f, 0f, 0f);
@@ -349,11 +354,14 @@ public class CityMap3D extends JFrame implements GLEventListener {
 		gl.glEnd();
 		
 		gl.glColor3f(1f, 1f, 1f);
+		gl.glDisable(GL.GL_TRUE);
+		gl.glDisable(GL.GL_LINE_SMOOTH); 
 		gl.glBegin(GL2.GL_POINTS);
 		{
 			gl.glVertex3f(1f, 1f, 1f);
 		}
 		gl.glEnd();
+
 	}
 
 	@Override
