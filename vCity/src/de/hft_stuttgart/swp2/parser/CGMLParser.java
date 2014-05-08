@@ -18,8 +18,10 @@ import org.citygml4j.model.citygml.building.BoundarySurfaceProperty;
 import org.citygml4j.model.citygml.core.AbstractCityObject;
 import org.citygml4j.model.citygml.core.CityModel;
 import org.citygml4j.model.citygml.core.CityObjectMember;
+import org.citygml4j.model.gml.feature.BoundingShape;
 import org.citygml4j.model.gml.geometry.primitives.AbstractRingProperty;
 import org.citygml4j.model.gml.geometry.primitives.DirectPositionList;
+import org.citygml4j.model.gml.geometry.primitives.Envelope;
 import org.citygml4j.model.gml.geometry.primitives.LinearRing;
 import org.citygml4j.model.gml.geometry.primitives.Polygon;
 import org.citygml4j.model.gml.geometry.primitives.SurfaceProperty;
@@ -38,7 +40,7 @@ import de.hft_stuttgart.swp2.model.Vertex;
 
 /**
  * Main class of the CityGML Parser
- * @author 02grst1bif, 02grfr1bif
+ * @author 02grst1bif, 02grfr1bif, 12alsi1bif
  */
 public class CGMLParser implements ParserInterface {
 
@@ -49,7 +51,8 @@ public class CGMLParser implements ParserInterface {
 	public static CGMLParser parser = null;
 	
 	private static CityModel cityModel = null;
-	private double reference[] = new double[]{Double.MAX_VALUE, Double.MAX_VALUE, Double.MAX_VALUE};
+	private double reference[] = null;
+	private String epsg = null;
 	
 	public static CGMLParser getInstance() {
 		if (parser == null) {
@@ -68,6 +71,10 @@ public class CGMLParser implements ParserInterface {
 	 * @return List of Buildings
 	 */
 	public City parse(String InputFileName) throws Exception {
+		
+		// Initiate or reset
+		reference = new double[]{Double.MAX_VALUE, Double.MAX_VALUE, Double.MAX_VALUE};
+		epsg = "undef";
 				
 		// Read file
 		CityGMLContext ctx = new CityGMLContext();
@@ -96,6 +103,11 @@ public class CGMLParser implements ParserInterface {
 						org.citygml4j.model.citygml.building.Building building = (org.citygml4j.model.citygml.building.Building) cityObject;
 						
 						if (building.isSetBoundedBySurface()) {
+							
+							// read EPSG
+							BoundingShape bs = building.getBoundedBy();
+							Envelope env = bs.getEnvelope();
+							epsg = env.getSrsName();
 							
 							for (BoundarySurfaceProperty property : building.getBoundedBySurface()) {
 								
@@ -306,6 +318,10 @@ public class CGMLParser implements ParserInterface {
 
 	public double[] getReference() {
 		return reference;
+	}
+
+	public String getEPSG() {
+		return epsg;
 	}
 	
 }

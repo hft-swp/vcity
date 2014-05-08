@@ -8,7 +8,7 @@ import de.hft_stuttgart.swp2.model.Vertex;
 /**
  * Collects generated vertices and creates triangles that can be used later.
  * 
- * @author 02grst1bif
+ * @author 12alsi1bif, 02grst1bif
  * 
  */
 public class PolygonTriangulatorCollector {

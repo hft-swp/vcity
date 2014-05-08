@@ -35,6 +35,16 @@ public interface ParserInterface {
 	 */
 	public boolean exportToCGML(City city, String outputFileName);
 	
+	/**
+	 * Returns the reference value used for the coordinate translation
+	 * @return reference value
+	 */
 	public double[] getReference();
+	
+	/**
+	 * Returns EPSG used in GML file
+	 * @return EPSG
+	 */
+	public String getEPSG();
 	
 }
