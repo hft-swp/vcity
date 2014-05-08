@@ -35,4 +35,6 @@ public interface ParserInterface {
 	 */
 	public boolean exportToCGML(City city, String outputFileName);
 	
+	public double[] getReference();
+	
 }

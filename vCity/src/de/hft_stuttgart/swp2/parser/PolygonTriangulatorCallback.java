@@ -45,4 +45,8 @@ public class PolygonTriangulatorCallback extends GLUtessellatorCallbackAdapter {
 //		System.out.println("Dreieck Punkt (" + coords[0] + ", " + coords[1] + ", " + coords[2] + ")");
 	}
 	
+	public void combine(double[] coords, Object[] data, float[] weight, Object[] outData) {
+		outData[0] = coords;
+	}
+	
 }

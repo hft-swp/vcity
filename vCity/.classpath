@@ -31,5 +31,7 @@
 	<classpathentry kind="lib" path="lib/jogl/jogl-all-natives-windows-amd64.jar"/>
 	<classpathentry kind="lib" path="lib/jogl/gluegen-rt-natives-windows-amd64.jar"/>
 	<classpathentry kind="lib" path="lib/swingx/swingx-all-1.6.4.jar"/>
+	<classpathentry kind="lib" path="lib/citygml/sjsxp-1.0.1.jar"/>
+	<classpathentry kind="lib" path="lib/citygml/stax-api-1.0.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

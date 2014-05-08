@@ -31,6 +31,7 @@ public class PolygonTriangulator {
 		GLU.gluTessCallback(tessellator, GLU.GLU_TESS_BEGIN, callback);
 		GLU.gluTessCallback(tessellator, GLU.GLU_TESS_END, callback);
 		GLU.gluTessCallback(tessellator, GLU.GLU_TESS_ERROR, callback);
+		GLU.gluTessCallback(tessellator, GLU.GLU_TESS_COMBINE, callback);
 		
 		GLU.gluTessBeginPolygon(tessellator, null);
 	    GLU.gluTessBeginContour(tessellator);

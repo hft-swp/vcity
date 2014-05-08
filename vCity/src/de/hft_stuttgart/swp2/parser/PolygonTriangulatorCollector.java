@@ -1,7 +1,6 @@
 package de.hft_stuttgart.swp2.parser;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 
 import de.hft_stuttgart.swp2.model.Triangle;
 import de.hft_stuttgart.swp2.model.Vertex;
@@ -41,7 +40,6 @@ public class PolygonTriangulatorCollector {
 
 	public void end() {
 		
-	
 		ArrayList<Vertex> vertexcoll = new ArrayList<Vertex>();
 
 		if (type == GL_LINE_LOOP) {
@@ -92,10 +90,6 @@ public class PolygonTriangulatorCollector {
 			}
 
 		}
-
-		// TODO Je nach typ irgendwas tun
-		// Die fertigen Dreiecke muessen zum "result" hinzugefuegt werden
-		// result.add( new Triangle ( ...... ) );
 
 	}
 

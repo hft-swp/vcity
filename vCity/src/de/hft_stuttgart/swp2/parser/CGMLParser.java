@@ -268,6 +268,8 @@ public class CGMLParser implements ParserInterface {
 				String currentID = ((org.citygml4j.model.citygml.building.Building) (cityObjectMember.getCityObject())).getId();
 				
 				for(Building b : builds) {
+					System.out.println("Local: " + b.getId() + "| cgml:" + currentID);
+					// FIXME TODO Warum ist die Building ID Null ? Artjom sagt: Sinan macht!!!
 					if (b.getId().equalsIgnoreCase(currentID)) {
 						cityObjectMember.getCityObject().setLocalProperty("Volume", b.getVolume());
 						break;
@@ -300,6 +302,10 @@ public class CGMLParser implements ParserInterface {
 		}
 		
 		return true;
+	}
+
+	public double[] getReference() {
+		return reference;
 	}
 	
 }
