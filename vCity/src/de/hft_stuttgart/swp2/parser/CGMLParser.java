@@ -1,9 +1,11 @@
 package de.hft_stuttgart.swp2.parser;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.FileAlreadyExistsException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,6 +31,7 @@ import org.citygml4j.model.module.citygml.CityGMLVersion;
 import org.citygml4j.model.module.citygml.CoreModule;
 import org.citygml4j.xml.io.CityGMLInputFactory;
 import org.citygml4j.xml.io.CityGMLOutputFactory;
+import org.citygml4j.xml.io.reader.CityGMLReadException;
 import org.citygml4j.xml.io.reader.CityGMLReader;
 import org.citygml4j.xml.io.writer.CityGMLWriteException;
 import org.citygml4j.xml.io.writer.CityGMLWriter;
@@ -41,7 +44,7 @@ import de.hft_stuttgart.swp2.model.Vertex;
 /**
  * Main class of the CityGML Parser
  * 
- * @author 02grst1bif, 02grfr1bif, 12alsi1bif
+ * @author 02grst1bif, 02grfr1bif, 12alsi1bif, 02gasa1bif
  */
 public class CGMLParser implements ParserInterface {
 
@@ -69,36 +72,65 @@ public class CGMLParser implements ParserInterface {
      * @param fileName
      *            Input file name
      * @return List of Buildings
+     * @throws Exception 
      */
-    public City parse(String InputFileName) throws Exception {
-
+    public City parse(String InputFileName) throws ParserException {
+    	
 	// Initiate or reset
 	reference = new double[] { Double.MAX_VALUE, Double.MAX_VALUE, Double.MAX_VALUE };
 	epsg = "undef";
 
 	// Read file
 	CityGMLContext ctx = new CityGMLContext();
-	CityGMLBuilder builder = ctx.createCityGMLBuilder();
-	CityGMLInputFactory in = builder.createCityGMLInputFactory();
+	CityGMLBuilder builder = null;
+	try {
+		builder = ctx.createCityGMLBuilder();
+	} catch (JAXBException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	}
+	CityGMLInputFactory in = null;
+	try {
+		in = builder.createCityGMLInputFactory();
+	} catch (CityGMLReadException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	}
 	ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
 	InputStream input = classLoader.getResourceAsStream(InputFileName);
-	CityGMLReader reader = in.createCityGMLReader(InputFileName, input);
-
+	CityGMLReader reader = null;
+	try {
+		reader = in.createCityGMLReader(InputFileName, input);
+	} catch (CityGMLReadException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	}
+	
 	// Create a city object which we will fill with Buildings
 	final City city = City.getInstance();
 
-	while (reader.hasNext()) {
-	    CityGML citygml = reader.nextFeature();
+	try {
+		while (reader.hasNext()) {
+		    CityGML citygml = reader.nextFeature();
 
-	    if (citygml.getCityGMLClass() == CityGMLClass.CITY_MODEL) {
-		cityModel = (CityModel) citygml;
+		    if (citygml.getCityGMLClass() == CityGMLClass.CITY_MODEL) {
+			cityModel = (CityModel) citygml;
 
-		getBuildingCoordinates();
-		setBuildingCoordinates(city);
-	    }
+			getBuildingCoordinates();
+			setBuildingCoordinates(city);
+		    }
+		}
+	} catch (CityGMLReadException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
 	}
 
-	reader.close();
+	try {
+		reader.close();
+	} catch (CityGMLReadException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	}
 	return city;
     }
 
@@ -254,7 +286,7 @@ public class CGMLParser implements ParserInterface {
      *            Output file name
      * @return true if the export was successful
      */
-    public boolean exportToCsv(City city, String outputFileName) {
+    public boolean exportToCsv(City city, String outputFileName) throws ParserException{
 
 	List<Building> b = city.getBuildings();
 	if (b.isEmpty()) {
@@ -301,7 +333,7 @@ public class CGMLParser implements ParserInterface {
      *            Output file name
      * @return true if the export was successful
      */
-    public boolean exportToCGML(City city, String outputFileName) {
+    public boolean exportToCGML(City city, String outputFileName) throws ParserException {
 
 	ArrayList<Building> builds = city.getBuildings();
 

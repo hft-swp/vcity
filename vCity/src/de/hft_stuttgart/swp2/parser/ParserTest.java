@@ -2,6 +2,8 @@ package de.hft_stuttgart.swp2.parser;
 
 import java.util.ArrayList;
 
+import javax.xml.bind.JAXBException;
+
 import de.hft_stuttgart.swp2.model.Building;
 import de.hft_stuttgart.swp2.model.City;
 import de.hft_stuttgart.swp2.model.Triangle;
@@ -90,8 +92,19 @@ public class ParserTest {
 
 	private static void testExportToGml(String outputFileName) {
 		
-		boolean success = CGMLParser.getInstance().exportToCGML(city, outputFileName);
-		System.out.println(success ? "OK" : "ERROR");
+		boolean success;
+		try {
+			success = CGMLParser.getInstance().exportToCGML(city, outputFileName);
+		} catch (NullPointerException e) {
+			// TODO Auto-generated catch block
+			e = new NullPointerException("Failure by exporting!");
+			e.printStackTrace();
+		}
+		//System.out.println(success ? "OK" : "ERROR");
+ catch (ParserException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		
 	}
 	
