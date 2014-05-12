@@ -16,7 +16,7 @@ public abstract class ShadowCalculatorInterface {
 		float z = 0.5f * (v0.getZ() + v1.getZ());
 		Vertex vNeu = new Vertex(x, y, z);
 		Triangle tNeu1 = new Triangle(v0, vNeu, v2);
-		Triangle tNeu2 = new Triangle(v2, v1, vNeu);
+		Triangle tNeu2 = new Triangle(v2, vNeu, v1);
 		addTriangles(b, tNeu1, precision);
 		addTriangles(b, tNeu2, precision);
 	}
@@ -58,7 +58,7 @@ public abstract class ShadowCalculatorInterface {
 				return;
 			}
 			if (dis3 >= dis2 && dis3 >= dis1) {
-				splitTriangles(t.getVertices()[0], t.getVertices()[2],
+				splitTriangles(t.getVertices()[2], t.getVertices()[0],
 						t.getVertices()[1], b, precision);
 				return;
 			}

@@ -134,7 +134,7 @@ public class ShadowViewer extends JFrame implements GLEventListener,
 //		ShadowCalculatorJavaBackend calc = new ShadowCalculatorJavaBackend();
 		System.out.println("Starting shadow calculation...");
 		long start = System.currentTimeMillis(); 
-		calc.calculateShadow(ShadowPrecision.VERY_LOW); //VERY_LOW(5f), LOW(2.5f), MID(1.25f), HIGH(0.75f), ULTRA(0.375f), HYPER(0.1f), AWESOME(0.01f)
+		calc.calculateShadow(ShadowPrecision.MID); //VERY_LOW(5f), LOW(2.5f), MID(1.25f), HIGH(0.75f), ULTRA(0.375f), HYPER(0.1f), AWESOME(0.01f)
 		long end = System.currentTimeMillis();
 		System.out.printf("calculate shadow took %d milliseconds\n", (end - start));
 		
