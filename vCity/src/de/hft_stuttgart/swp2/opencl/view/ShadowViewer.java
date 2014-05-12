@@ -104,10 +104,10 @@ public class ShadowViewer extends JFrame implements GLEventListener,
 		b.addTriangle(t2);
 		City.getInstance().addBuilding(b);
 		
-//		for (int i = 0; i < 10; i++) {
-//			for (int j = 0; j < 10; j++) {
+//		for (int i = 0; i < 100; i++) {
+//			for (int j = 0; j < 100; j++) {
 //				VolumeTest.testCity2();
-//				Building b = City.getInstance().getBuildings().get(i * 10 + j);
+//				Building b = City.getInstance().getBuildings().get(i * 100 + j);
 //				b.translate(20 * i, 0, 20 * j);
 //			}
 //		}
@@ -134,7 +134,7 @@ public class ShadowViewer extends JFrame implements GLEventListener,
 //		ShadowCalculatorJavaBackend calc = new ShadowCalculatorJavaBackend();
 		System.out.println("Starting shadow calculation...");
 		long start = System.currentTimeMillis(); 
-		calc.calculateShadow(ShadowPrecision.ULTRA); //VERY_LOW(5f), LOW(2.5f), MID(1.25f), HIGH(0.75f), ULTRA(0.375f), HYPER(0.1f), AWESOME(0.01f)
+		calc.calculateShadow(ShadowPrecision.HIGH); //VERY_LOW(5f), LOW(2.5f), MID(1.25f), HIGH(0.75f), ULTRA(0.375f), HYPER(0.1f), AWESOME(0.01f)
 		long end = System.currentTimeMillis();
 		System.out.printf("calculate shadow took %d milliseconds\n", (end - start));
 		

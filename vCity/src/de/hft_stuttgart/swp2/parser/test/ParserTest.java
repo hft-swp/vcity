@@ -5,7 +5,6 @@ import static org.junit.Assert.*;
 import java.util.ArrayList;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import de.hft_stuttgart.swp2.model.Building;
@@ -15,6 +14,11 @@ import de.hft_stuttgart.swp2.model.Vertex;
 import de.hft_stuttgart.swp2.parser.CGMLParser;
 import de.hft_stuttgart.swp2.parser.PolygonTranslate;
 
+/**
+ * Parser JUnit Test
+ * @author 02grst1bif
+ *
+ */
 public class ParserTest {
 
 	String fileName = "einHaus.gml";

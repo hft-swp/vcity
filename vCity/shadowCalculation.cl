@@ -94,7 +94,7 @@ void calc(__global float* cityVertices,
 					break;
 				} else {
 					int mask = 255 - (1 << (7-i%8));
-					hasShadow[gid*18+i/8] |= mask;
+					hasShadow[gid*18+i/8] &= mask;
 				}
 			}
 			

@@ -2,6 +2,8 @@ package de.hft_stuttgart.swp2.parser;
 
 import java.util.ArrayList;
 
+import javax.xml.bind.JAXBException;
+
 import de.hft_stuttgart.swp2.model.Building;
 import de.hft_stuttgart.swp2.model.City;
 import de.hft_stuttgart.swp2.model.Triangle;
@@ -12,21 +14,23 @@ import de.hft_stuttgart.swp2.model.Vertex;
  * @author 02grst1bif
  */
 public class ParserTest {
+	
+	private static City city = null;
 
 	public static void main(String[] args) throws NullPointerException {
 		
-//		long id = System.currentTimeMillis();
+		long id = System.currentTimeMillis();
 		
-	//String inputFileName = "Gruenbuehl_LOD2.gml";
-	String inputFileName = "einHaus.gml";
+	String inputFileName = "Gruenbuehl_LOD2.gml";
+//	String inputFileName = "einHaus.gml";
 		
 //		String outputFileNameCsv = "testCSV_" + Long.toString(id) + ".csv";
-//		String outputFileNameCgml = "testCGML_" + Long.toString(id) + ".gml";
+		String outputFileNameCgml = "testCGML_" + Long.toString(id) + ".gml";
 		
 		// Tests
 		testParse(inputFileName);
 		
-//		testExportToCsv(outputFileName);
+		testExportToGml(outputFileNameCgml);
 
 	}
 	
@@ -40,7 +44,7 @@ public class ParserTest {
 				System.err.println("CGMLParser FAILED.");
 		
 			System.out.println("Parsing file (This may take a few seconds)...");
-			City city = parser.parse(fileName);
+			city = parser.parse(fileName);
 			System.out.println("Let's see if we were successful...");
 		
 			if (city != null)
@@ -86,7 +90,22 @@ public class ParserTest {
 		
 	}
 
-//	private static void testExportToCsv(String outputFileName) {
-//		
-//	}
+	private static void testExportToGml(String outputFileName) {
+		
+		boolean success;
+		try {
+			success = CGMLParser.getInstance().exportToCGML(city, outputFileName);
+		} catch (NullPointerException e) {
+			// TODO Auto-generated catch block
+			e = new NullPointerException("Failure by exporting!");
+			e.printStackTrace();
+		}
+		//System.out.println(success ? "OK" : "ERROR");
+ catch (ParserException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	}
+	
 }
