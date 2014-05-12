@@ -44,7 +44,9 @@ public class ParserTest {
 			
 			Building b = bs.get(0);
 			assertNotNull(b);
-//			String bName = b.getId();
+			
+			String bName = b.getId();
+			assertEquals("DEBW_LOD2_1007722", bName);
 			
 			ArrayList<Triangle> tri = b.getTriangles();
 			assertNotNull(tri);
@@ -59,17 +61,21 @@ public class ParserTest {
 			int len = v.length;
 			assertTrue(len == 3);
 			
-			assertEquals(v[0].getX(), 8.09f, 0.01f);
-			assertEquals(v[0].getY(), -0.67f, 0.01f);
-			assertEquals(v[0].getZ(), 0.0f, 0.01f);
+//			System.out.println("v0 " + v[0].getX() + "|" + v[0].getY() + "|" + v[0].getZ());
+//			System.out.println("v1 " + v[1].getX() + "|" + v[1].getY() + "|" + v[1].getZ());
+//			System.out.println("v2 " + v[2].getX() + "|" + v[2].getY() + "|" + v[2].getZ());
 			
-			assertEquals(v[1].getX(), 0.09f, 0.01f);
-			assertEquals(v[1].getY(), -0.17f, 0.01f);
-			assertEquals(v[1].getZ(), 0.0f, 0.01f);
+			assertEquals(v[0].getX(), 0.09f, 0.01f);
+			assertEquals(v[0].getY(), 0.0f, 0.01f);
+			assertEquals(v[0].getZ(), 0.17f, 0.01f);
 			
-			assertEquals(v[2].getX(), 0.34f, 0.01f);
-			assertEquals(v[2].getY(), 5.33f, 0.01f);
-			assertEquals(v[2].getZ(), 0.0f, 0.01f);
+			assertEquals(v[1].getX(), 0.34f, 0.01f);
+			assertEquals(v[1].getY(), 0.0f, 0.01f);
+			assertEquals(v[1].getZ(), -5.33f, 0.01f);
+			
+			assertEquals(v[2].getX(), 8.59f, 0.01f);
+			assertEquals(v[2].getY(), 0.0f, 0.01f);
+			assertEquals(v[2].getZ(), -4.83f, 0.01f);
 			
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -87,10 +93,11 @@ public class ParserTest {
 		ArrayList<Vertex> poly2 = PolygonTranslate.translateToOrigin(poly, reference);
 		
 		float[] poly3 = poly2.get(0).getCoordinates();
+//		System.out.println("Coords: " + poly3[0] + "" + poly3[1] + "" + poly3[2]);
 		
 		assertEquals(6.0f, poly3[0], 0.1f);
 		assertEquals(6.0f, poly3[1], 0.1f);
-		assertEquals(6.0f, poly3[2], 0.1f);
+		assertEquals(-6.0f, poly3[2], 0.1f);
 		
 	}
 

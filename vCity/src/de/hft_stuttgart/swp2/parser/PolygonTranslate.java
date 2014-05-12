@@ -27,8 +27,6 @@ public class PolygonTranslate {
 			double x = poly.get(i).getX();
 			double y = poly.get(i).getY();
 			double z = poly.get(i).getZ();
-
-			//TODO Koordinatenachsen transformieren			
 			
 			translate = new Matrix(new double[][] {
 					{ 1, 0, 0, (reference[0]) * -1 },

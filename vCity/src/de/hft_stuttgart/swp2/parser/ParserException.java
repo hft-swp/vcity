@@ -1,11 +1,12 @@
 package de.hft_stuttgart.swp2.parser;
 
 /**
- * Own Exception class 
+ * Exception class 
  * @author 02gasa1bif
  *
  */
 
+@SuppressWarnings("serial")
 public class ParserException extends Exception {
 
 	public ParserException() {

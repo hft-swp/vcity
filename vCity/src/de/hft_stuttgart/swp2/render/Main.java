@@ -100,7 +100,7 @@ public class Main {
 				isParserSuccess = false;
 			}
 
-			e.printStackTrace();
+			e.getMessage(); // Contains the error message
 		}
 	}
 

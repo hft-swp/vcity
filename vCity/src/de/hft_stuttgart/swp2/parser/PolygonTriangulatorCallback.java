@@ -21,8 +21,6 @@ public class PolygonTriangulatorCallback extends GLUtessellatorCallbackAdapter {
 	
 	
 	public void begin(int type) {
-//		String[] typename = new String[] { "invalid type 0", "invalid type 1", "GL_LINE_LOOP", "invalid type 3", "GL_TRIANGLES", "GL_TRIANGLE_STRIP", "GL_TRIANGLE_FAN" };
-
 		collector.begin(type);
 	}
 	
@@ -41,8 +39,6 @@ public class PolygonTriangulatorCallback extends GLUtessellatorCallbackAdapter {
 	public void vertex(Object vertexData) {
 		double[] coords = (double[]) vertexData;
 		collector.collect(coords);
-		
-//		System.out.println("Dreieck Punkt (" + coords[0] + ", " + coords[1] + ", " + coords[2] + ")");
 	}
 	
 	public void combine(double[] coords, Object[] data, float[] weight, Object[] outData) {

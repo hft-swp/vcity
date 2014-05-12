@@ -1,11 +1,9 @@
 package de.hft_stuttgart.swp2.parser;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.FileAlreadyExistsException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,6 +18,8 @@ import org.citygml4j.model.citygml.building.BoundarySurfaceProperty;
 import org.citygml4j.model.citygml.core.AbstractCityObject;
 import org.citygml4j.model.citygml.core.CityModel;
 import org.citygml4j.model.citygml.core.CityObjectMember;
+import org.citygml4j.model.citygml.generics.AbstractGenericAttribute;
+import org.citygml4j.model.citygml.generics.DoubleAttribute;
 import org.citygml4j.model.gml.feature.BoundingShape;
 import org.citygml4j.model.gml.geometry.primitives.AbstractRingProperty;
 import org.citygml4j.model.gml.geometry.primitives.DirectPositionList;
@@ -29,6 +29,7 @@ import org.citygml4j.model.gml.geometry.primitives.Polygon;
 import org.citygml4j.model.gml.geometry.primitives.SurfaceProperty;
 import org.citygml4j.model.module.citygml.CityGMLVersion;
 import org.citygml4j.model.module.citygml.CoreModule;
+import org.citygml4j.model.xal.Locality;
 import org.citygml4j.xml.io.CityGMLInputFactory;
 import org.citygml4j.xml.io.CityGMLOutputFactory;
 import org.citygml4j.xml.io.reader.CityGMLReadException;
@@ -69,8 +70,7 @@ public class CGMLParser implements ParserInterface {
      * Read the file, transform Coordinates to an useful format, convert
      * Polygons to Vertices and create Building Objects
      * 
-     * @param fileName
-     *            Input file name
+     * @param fileName Input file name
      * @return List of Buildings
      * @throws Exception 
      */
@@ -82,29 +82,18 @@ public class CGMLParser implements ParserInterface {
 
 	// Read file
 	CityGMLContext ctx = new CityGMLContext();
-	CityGMLBuilder builder = null;
-	try {
-		builder = ctx.createCityGMLBuilder();
-	} catch (JAXBException e) {
-		// TODO Auto-generated catch block
-		e.printStackTrace();
-	}
-	CityGMLInputFactory in = null;
-	try {
-		in = builder.createCityGMLInputFactory();
-	} catch (CityGMLReadException e) {
-		// TODO Auto-generated catch block
-		e.printStackTrace();
-	}
-	ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-	InputStream input = classLoader.getResourceAsStream(InputFileName);
 	CityGMLReader reader = null;
 	try {
+		CityGMLBuilder builder = ctx.createCityGMLBuilder();
+		CityGMLInputFactory in = builder.createCityGMLInputFactory();
+		ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+		InputStream input = classLoader.getResourceAsStream(InputFileName);
 		reader = in.createCityGMLReader(InputFileName, input);
 	} catch (CityGMLReadException e) {
-		// TODO Auto-generated catch block
-		e.printStackTrace();
-	}
+			throw new ParserException(e.getMessage());
+	} catch (JAXBException e) {
+			throw new ParserException(e.getMessage());
+	} 
 	
 	// Create a city object which we will fill with Buildings
 	final City city = City.getInstance();
@@ -120,17 +109,11 @@ public class CGMLParser implements ParserInterface {
 			setBuildingCoordinates(city);
 		    }
 		}
-	} catch (CityGMLReadException e) {
-		// TODO Auto-generated catch block
-		e.printStackTrace();
-	}
-
-	try {
 		reader.close();
 	} catch (CityGMLReadException e) {
-		// TODO Auto-generated catch block
-		e.printStackTrace();
+		throw new ParserException(e.getMessage());
 	}
+	
 	return city;
     }
 
@@ -181,24 +164,22 @@ public class CGMLParser implements ParserInterface {
 					    reference[1] = polypoints.get(j + 1);
 					    reference[2] = polypoints.get(j + 2);
 					}
-				    }
+				  }
 				}
-			    }
+			  }
 			}
-		    }
+		  }
 		}
-	    }
+	  }
 	}
-    }
+  }
 
     /**
      * Uses the PolygonTriangulator to triangulate the polygons of the surfaces,
      * uses the PolygonTranslate to move the buildings to the right position of
      * the coordinate system
      * 
-     * @param city
-     *            contains the data (coordinates of the polygons) of the new
-     *            parsed city
+     * @param city contains the data (coordinates of the polygons) of the new parsed city
      * @param polyTriangles
      */
     private void setBuildingCoordinates(final City city) {
@@ -210,7 +191,12 @@ public class CGMLParser implements ParserInterface {
 	    if (cityObject.getCityGMLClass() == CityGMLClass.BUILDING) {
 		org.citygml4j.model.citygml.building.Building building = (org.citygml4j.model.citygml.building.Building) cityObject;
 		polyTriangles.clear();
-
+		
+		Locality loc = building.getAddress().get(0).getAddress().getXalAddress().getAddressDetails().getCountry().getLocality();
+		String streetName = loc.getThoroughfare().getThoroughfareName().get(0).getContent();
+		String cityName = loc.getLocalityName().get(0).getContent();
+		
+		
 		if (building.isSetBoundedBySurface()) {
 
 		    for (BoundarySurfaceProperty property : building.getBoundedBySurface()) {
@@ -261,36 +247,35 @@ public class CGMLParser implements ParserInterface {
 				    }
 
 				    polyTriangles.addAll(triNew);
-
 				}
-			    }
+			  }
 			}
-		    }
+		  }
 		}
 
 		// TODO Add the building to our city
 		String bid = "" + building.getId();
-		city.addBuilding(new Building(bid, polyTriangles));
-
+		Building build = new Building(bid, polyTriangles);
+		build.setCityName(cityName);
+		build.setStreetName(streetName);
+		city.addBuilding(build);
 	    }
-	}
+	  }
     }
 
     /**
      * Exports the Building Objects to a CSV file, which will contain <b>ID</b>
      * and <b>Volume</b> of each Building
      * 
-     * @param city
-     *            List of Buildings
-     * @param outputFileName
-     *            Output file name
+     * @param city List of Buildings
+     * @param outputFileName Output file name
      * @return true if the export was successful
      */
     public boolean exportToCsv(City city, String outputFileName) throws ParserException{
 
 	List<Building> b = city.getBuildings();
 	if (b.isEmpty()) {
-	    return false;
+		throw new ParserException("City is empty.");
 	}
 
 	try {
@@ -317,8 +302,7 @@ public class CGMLParser implements ParserInterface {
 	    writer.flush();
 	    writer.close();
 	} catch (IOException e) {
-	    System.err.println("Error writing CSV File.");
-	    return false;
+		throw new ParserException(e.getMessage());
 	}
 
 	return true;
@@ -327,15 +311,17 @@ public class CGMLParser implements ParserInterface {
     /**
      * Exports the Building Objects to a cityGML file
      * 
-     * @param city
-     *            List of Buildings
-     * @param OutputFileName
-     *            Output file name
+     * @param city List of Buildings
+     * @param OutputFileName Output file name
      * @return true if the export was successful
      */
     public boolean exportToCGML(City city, String outputFileName) throws ParserException {
 
 	ArrayList<Building> builds = city.getBuildings();
+	if (builds.isEmpty()) {
+		throw new ParserException("City is empty.");
+	}
+
 
 	for (CityObjectMember cityObjectMember : cityModel.getCityObjectMember()) {
 	    if (cityObjectMember.getCityObject().getCityGMLClass() == CityGMLClass.BUILDING) {
@@ -343,15 +329,16 @@ public class CGMLParser implements ParserInterface {
 		String currentID = ((org.citygml4j.model.citygml.building.Building) (cityObjectMember.getCityObject())).getId();
 
 		for (Building b : builds) {
-		    System.out.println("Local: " + b.getId() + "| cgml:" + currentID);
-		    // FIXME TODO Warum ist die Building ID Null ? Artjom sagt:
-		    // Sinan macht!!!
 		    if (b.getId().equalsIgnoreCase(currentID)) {
-			cityObjectMember.getCityObject().setLocalProperty("Volume", b.getVolume());
+		    	List<AbstractGenericAttribute> att = cityObjectMember.getCityObject().getGenericAttribute();
+		    	DoubleAttribute da = new DoubleAttribute();
+		    	da.setName("Volume");
+		    	da.setValue(b.getVolume());
+		    	att.add(da);
 			break;
 		    }
 		}
-	    }
+	  }
 	}
 
 	// Write out file
@@ -369,22 +356,20 @@ public class CGMLParser implements ParserInterface {
 	    writer.write(cityModel);
 	    writer.close();
 	} catch (CityGMLWriteException e) {
-	    e.printStackTrace();
-	    return false;
+		throw new ParserException(e.getMessage());
 	} catch (JAXBException e) {
-	    e.printStackTrace();
-	    return false;
+		throw new ParserException(e.getMessage());
 	}
 
 	return true;
     }
 
     public double[] getReference() {
-	return reference;
+    	return reference;
     }
 
     public String getEPSG() {
-	return epsg;
+    	return epsg;
     }
 
 }

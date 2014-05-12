@@ -6,6 +6,8 @@ import java.util.List;
 public class Building extends MeshInterface {
 
 	private String id;
+	private String city;
+	private String street;
 	private double volume;
 	private List<Vertex> polygon;
 	private ArrayList<ShadowTriangle> shadowTriangles = new ArrayList<>();
@@ -21,7 +23,7 @@ public class Building extends MeshInterface {
 
 	public Building(String bid, ArrayList<Triangle> polyTriangles) {
 		// TODO Auto-generated constructor stub
-		this.id=id;
+		this.id = bid;
 		for (int i=0; i<polyTriangles.size();i++) {
 			this.addTriangle(polyTriangles.get(i));
 		}
@@ -107,6 +109,22 @@ public class Building extends MeshInterface {
 
 	public void setCenter(Vertex center) {
 		this.center = center;
+	}
+	
+	public String getCityName() {
+		return city;
+	}
+
+	public void setCityName(String city) {
+		this.city = city;
+	}
+
+	public String getStreetName() {
+		return street;
+	}
+
+	public void setStreetName(String street) {
+		this.street = street;
 	}
 
 }
