@@ -11,6 +11,8 @@ import static org.jocl.CL.clSetKernelArg;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.BitSet;
+import java.util.HashMap;
+import java.util.Map.Entry;
 
 import org.jocl.CL;
 import org.jocl.Pointer;
@@ -30,7 +32,7 @@ import de.hft_stuttgart.swp2.model.Vertex;
 
 public class ShadowCalculatorOpenClBackend extends ShadowCalculatorInterface {
 
-	private static final int TRIANGLE_COUNT = 1000;
+	private static final int TRIANGLE_COUNT = 10000;
 
 	private static final float MAX_DISTANCE = 100;
 
@@ -55,11 +57,11 @@ public class ShadowCalculatorOpenClBackend extends ShadowCalculatorInterface {
 		cl_command_queue commandQueue = occ.getClCommandQueue();
 		cl_context context = occ.getClContext();
 
-		float[] cityVertices = getCityVerticesArray();
-		int[] cityVerticesCount = getCityVerticesCountArray();
-
-		cl_mem cityVerticesMem = storeOnGPUAsReadOnly(context, cityVertices);
-		cl_mem cityVerticesCountMem = storeOnGPUAsReadOnly(context, cityVerticesCount);
+//		float[] cityVertices = getCityVerticesArray();
+//		int[] cityVerticesCount = getCityVerticesCountArray();
+//
+//		cl_mem cityVerticesMem = storeOnGPUAsReadOnly(context, cityVertices);
+//		cl_mem cityVerticesCountMem = storeOnGPUAsReadOnly(context, cityVerticesCount);
 
 		float[] sunDirections = getSunDirections();
 		cl_mem sunDirectionsMem = storeOnGPUAsReadOnly(context, sunDirections);
@@ -76,6 +78,7 @@ public class ShadowCalculatorOpenClBackend extends ShadowCalculatorInterface {
 				triangleCount += b.getShadowTriangles().size();
 				currentBuilding++;
 			}
+			
 
 			ArrayList<Integer> neighbours = new ArrayList<Integer>();
 			int[] numNeighbours = new int[calcBuildings.size()];
@@ -84,6 +87,7 @@ public class ShadowCalculatorOpenClBackend extends ShadowCalculatorInterface {
 			int[] shadowVerticeCentersCount = new int[calcBuildings.size()];
 
 			int shadowVerticeCenterIdx = 0;
+			HashMap<Integer, Building> cityBuildings = new HashMap<Integer, Building>(); 
 			for (int calculateBuildingIdx = 0; calculateBuildingIdx < calcBuildings.size(); ++calculateBuildingIdx) {
 				Building b = calcBuildings.get(calculateBuildingIdx);
 				// calculate neighbours
@@ -93,6 +97,7 @@ public class ShadowCalculatorOpenClBackend extends ShadowCalculatorInterface {
 					float distance = distance(v);
 					if (distance < MAX_DISTANCE) {
 						neighbours.add(i);
+						cityBuildings.put(i, neighbourBuilding);
 					}
 				}
 				int numNeighbour = neighbours.size();
@@ -109,16 +114,31 @@ public class ShadowCalculatorOpenClBackend extends ShadowCalculatorInterface {
 				}
 				shadowVerticeCentersCount[calculateBuildingIdx] = b.getShadowTriangles().size();
 			}
-
+			HashMap<Integer, Integer> indexMap = new HashMap<Integer, Integer>();
+			ArrayList<Building> shadowCaster = new ArrayList<Building>();
+			
+			for (Entry<Integer, Building> e : cityBuildings.entrySet()) {
+				int toIndex = shadowCaster.size();
+				shadowCaster.add(e.getValue());
+				indexMap.put(e.getKey(), toIndex);
+			}
+			
+			
+			float[] cityVertices = getCityVerticesArray(shadowCaster);
+			int[] cityVerticesCount = getCityVerticesCountArray(shadowCaster);
+			
+			cl_mem cityVerticesMem = storeOnGPUAsReadOnly(context, cityVertices);
+			cl_mem cityVerticesCountMem = storeOnGPUAsReadOnly(context, cityVerticesCount);
+			
 			// tritt nur ein für MAX_DISTANCE = 0
 			if (neighbours.size() == 0) {
 				continue;
 			}
 			int[] neigh = new int[neighbours.size()];
 			for (int i = 0; i < neigh.length; ++i) {
-				neigh[i] = neighbours.get(i);
+				neigh[i] = indexMap.get(neighbours.get(i));
 			}
-			System.out.println("Umgebungsgebäude: " + Arrays.toString(neigh));
+//			System.out.println("Umgebungsgebäude: " + Arrays.toString(neigh));
 			System.out.println("Anzahl umgebungsgebäude: " + neigh.length);
 
 			cl_mem buildingNeighboursMem = storeOnGPUAsReadOnly(context, neigh);
@@ -186,19 +206,19 @@ public class ShadowCalculatorOpenClBackend extends ShadowCalculatorInterface {
 			occ.profile(kernelEvent);
 
 			writeShadowDataIntoTriangles(calcBuildings, hasShadow);
-			System.out.println(Arrays.toString(cityVerticesCount));
+//			System.out.println(Arrays.toString(cityVerticesCount));
 
 			clReleaseMemObject(shadowVerticesMem);
 			clReleaseMemObject(shadowTriangleCountMem);
 			clReleaseMemObject(hasShadowMem);
 			clReleaseMemObject(buildingNeighboursMem);
 			clReleaseMemObject(buildingNeighboursCountMem);
+			clReleaseMemObject(cityVerticesCountMem);
+			clReleaseMemObject(cityVerticesMem);
 		}
 
 		// Release kernel, program, and memory objects
-		clReleaseMemObject(cityVerticesMem);
 		clReleaseMemObject(sunDirectionsMem);
-		clReleaseMemObject(cityVerticesCountMem);
 
 		occ.finalizeKernel(kernel);
 
@@ -234,8 +254,7 @@ public class ShadowCalculatorOpenClBackend extends ShadowCalculatorInterface {
 				Sizeof.cl_float * array.length, Pointer.to(array), null);
 	}
 
-	private int[] getCityVerticesCountArray() {
-		ArrayList<Building> buildings = City.getInstance().getBuildings();
+	private int[] getCityVerticesCountArray(ArrayList<Building> buildings) {
 		int[] cityVerticesCount = new int[buildings.size()];
 		for (int i = 0; i < cityVerticesCount.length; ++i) {
 			cityVerticesCount[i] = buildings.get(i).getTriangles().size() * 9;
@@ -243,14 +262,14 @@ public class ShadowCalculatorOpenClBackend extends ShadowCalculatorInterface {
 		return cityVerticesCount;
 	}
 
-	private float[] getCityVerticesArray() {
+	private float[] getCityVerticesArray(ArrayList<Building> buildings) {
 		int verticesSize = 0;
-		for (Building b : City.getInstance().getBuildings()) {
+		for (Building b : buildings) {
 			verticesSize += b.getTriangles().size() * 9;
 		}
 		float[] cityVertices = new float[verticesSize];
 		int offset = 0;
-		for (Building b : City.getInstance().getBuildings()) {
+		for (Building b : buildings) {
 			for (int j = 0; j < b.getTriangles().size(); j++) {
 				Triangle t = b.getTriangles().get(j);
 				cityVertices[offset + j * 9 + 0] = t.getVertices()[0].getX();

@@ -28,14 +28,14 @@ import com.jogamp.opengl.util.FPSAnimator;
 import de.hft_stuttgart.swp2.model.Building;
 import de.hft_stuttgart.swp2.model.City;
 import de.hft_stuttgart.swp2.model.ShadowTriangle;
-import de.hft_stuttgart.swp2.model.Triangle;
 import de.hft_stuttgart.swp2.model.Vertex;
 import de.hft_stuttgart.swp2.opencl.CalculatorImpl;
 import de.hft_stuttgart.swp2.opencl.CalculatorInterface;
 import de.hft_stuttgart.swp2.opencl.OpenClException;
 import de.hft_stuttgart.swp2.opencl.ShadowPrecision;
 import de.hft_stuttgart.swp2.opencl.SunPositionCalculator;
-import de.hft_stuttgart.swp2.opencl.VolumeTest;
+import de.hft_stuttgart.swp2.parser.CGMLParser;
+import de.hft_stuttgart.swp2.parser.ParserInterface;
 
 public class ShadowViewer extends JFrame implements GLEventListener,
 		KeyListener, MouseListener, MouseMotionListener {
@@ -83,26 +83,26 @@ public class ShadowViewer extends JFrame implements GLEventListener,
 		super("Shadow view");
 		
 		// test values
-		VolumeTest.testCity2();
-		VolumeTest.testCity2();
-		VolumeTest.testCity2();
-		City.getInstance().getBuildings().get(1).translate(0, 0, 5);
-		City.getInstance().getBuildings().get(2).translate(5, 0, 5);
-		City.getInstance().getBuildings().get(2).scale(1, 5, 1);
-		
-		int size = 20;
-		Vertex v0 = new Vertex(-size, 0, -size);
-		Vertex v1 = new Vertex(-size, 0, size);
-		Vertex v2 = new Vertex(size, 0, size);
-		Vertex v3 = new Vertex(size, 0, -size);
-		
-		Triangle t1 = new Triangle(v0, v1, v2);
-		Triangle t2 = new Triangle(v0, v2, v3);
-		
-		Building b = new Building();
-		b.addTriangle(t1);
-		b.addTriangle(t2);
-		City.getInstance().addBuilding(b);
+//		VolumeTest.testCity2();
+//		VolumeTest.testCity2();
+//		VolumeTest.testCity2();
+//		City.getInstance().getBuildings().get(1).translate(0, 0, 5);
+//		City.getInstance().getBuildings().get(2).translate(5, 0, 5);
+//		City.getInstance().getBuildings().get(2).scale(1, 5, 1);
+//		
+//		int size = 20;
+//		Vertex v0 = new Vertex(-size, 0, -size);
+//		Vertex v1 = new Vertex(-size, 0, size);
+//		Vertex v2 = new Vertex(size, 0, size);
+//		Vertex v3 = new Vertex(size, 0, -size);
+//		
+//		Triangle t1 = new Triangle(v0, v1, v2);
+//		Triangle t2 = new Triangle(v0, v2, v3);
+//		
+//		Building b = new Building();
+//		b.addTriangle(t1);
+//		b.addTriangle(t2);
+//		City.getInstance().addBuilding(b);
 		
 //		for (int i = 0; i < 100; i++) {
 //			for (int j = 0; j < 100; j++) {
@@ -112,13 +112,13 @@ public class ShadowViewer extends JFrame implements GLEventListener,
 //			}
 //		}
 		
-//		ParserInterface parser = new CGMLParser();
-//		try {
-//			parser.parse("Gruenbuehl_LOD2.gml");
-////			parser.parse("einHaus.gml");
-//		} catch (Exception e1) {
-//			e1.printStackTrace();
-//		}
+		ParserInterface parser = new CGMLParser();
+		try {
+			parser.parse("Gruenbuehl_LOD2.gml");
+//			parser.parse("einHaus.gml");
+		} catch (Exception e1) {
+			e1.printStackTrace();
+		}
 
 		sunPositions = new SunPositionCalculator[12][24];
 		for (int j = 1; j < 13; ++j) {
@@ -134,7 +134,7 @@ public class ShadowViewer extends JFrame implements GLEventListener,
 //		ShadowCalculatorJavaBackend calc = new ShadowCalculatorJavaBackend();
 		System.out.println("Starting shadow calculation...");
 		long start = System.currentTimeMillis(); 
-		calc.calculateShadow(ShadowPrecision.HIGH); //VERY_LOW(5f), LOW(2.5f), MID(1.25f), HIGH(0.75f), ULTRA(0.375f), HYPER(0.1f), AWESOME(0.01f)
+		calc.calculateShadow(ShadowPrecision.VERY_LOW); //VERY_LOW(5f), LOW(2.5f), MID(1.25f), HIGH(0.75f), ULTRA(0.375f), HYPER(0.1f), AWESOME(0.01f)
 		long end = System.currentTimeMillis();
 		System.out.printf("calculate shadow took %d milliseconds\n", (end - start));
 		
@@ -333,6 +333,8 @@ public class ShadowViewer extends JFrame implements GLEventListener,
 		camera.turnDown(0.3);
 		gl.glClearColor(0.5f, 0.5f, 0.5f, 0.0f);
 		gl.glClearDepth(1.0f);
+//		gl.glCullFace(GL.GL_FRONT_AND_BACK);
+		gl.glEnable(GL.GL_CULL_FACE);
 		
 		gl.glEnable(GL.GL_DEPTH_TEST);
 		gl.glDepthFunc(GL.GL_LEQUAL);
