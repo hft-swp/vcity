@@ -8,6 +8,10 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.TimeZone;
 
 import javax.media.opengl.GL;
 import javax.media.opengl.GL2;
@@ -21,6 +25,7 @@ import javax.swing.JFrame;
 import org.citygml4j.jaxb.gml._3_1_1.VerticalCRSRefType;
 
 import com.jogamp.opengl.util.FPSAnimator;
+import com.jogamp.opengl.util.gl2.GLUT;
 
 import de.hft_stuttgart.swp2.model.Building;
 import de.hft_stuttgart.swp2.model.City;
@@ -34,15 +39,18 @@ import de.hft_stuttgart.swp2.opencl.ShadowCalculatorInterface;
 import de.hft_stuttgart.swp2.opencl.ShadowCalculatorOpenClBackend;
 import de.hft_stuttgart.swp2.opencl.ShadowCalculatorJavaBackend;
 import de.hft_stuttgart.swp2.opencl.ShadowPrecision;
+import de.hft_stuttgart.swp2.opencl.SunPositionCalculator;
 import de.hft_stuttgart.swp2.opencl.VolumeTest;
 import de.hft_stuttgart.swp2.render.Main;
+import de.hft_stuttgart.swp2.render.options.OptionGUI;
 
-public class CityMap3D extends JFrame implements GLEventListener{
+public class CityMap3D extends JFrame implements GLEventListener {
 
 	private static final long serialVersionUID = 6681486095144440340L;
 	private static final int FPS = 60;
 
 	private GLU glu;
+	private GLUT glut = new GLUT();
 	public Camera camera;
 	public Robot robot;
 	public int halfScreenHeight;
@@ -52,59 +60,77 @@ public class CityMap3D extends JFrame implements GLEventListener{
 	private boolean isShadowCalc = false;
 	private boolean isVolumeCalc = true;
 	private int minGroundSize = 0;
-	private int maxGroundSize = 1000;
+	private int maxGroundSize = 10000;
 	private FPSAnimator animator;
-
+	
+	//Sunposition vars
+	private Calendar utcCal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+	private SunPositionCalculator[][] sunPositions;
+	private SunPositionCalculator sunPos;
+	private int hour = 6;
+	private int month = 0;
 	public int ray = 0;
 
 	private static final boolean showGrid = true;
+	
+	public ArrayList<Building> findBugBuildings(){
+		ArrayList<Building> listeBuilding = new ArrayList <Building>();
+		for (Building b : City.getInstance().getBuildings()) {
+				int triangleIndex = 0;
+				float minZ = Float.MAX_VALUE;
+				float minY = Float.MAX_VALUE;
+				for (Triangle triangle : b.getTriangles()){
+					Vertex [] v= triangle.getVertices();
+					for(int j=0; j<3;j++){
+						System.out.println("Point " + String.valueOf(triangleIndex) + String.valueOf(j) +  
+								" x Wert: "+ v[j].getX() + " y Wert: "+ v[j].getY() + 
+								" z Wert: "+ v[j].getZ());
+						if(minZ > v[j].getZ()){
+							minZ = v[j].getZ();
+						}
+						if(minY > v[j].getY()){
+							minY = v[j].getY();
+						}
+					}
+					triangleIndex ++;
+				}
+				if(minY < 0 || minZ <0){
+					listeBuilding.add(b);
+				}
+		}
+		return listeBuilding;
+	}
+	
+	private Boolean isStartCalculation = true;
+	public void setIsStartCalculation(Boolean isStartCalculation) {
+		this.isStartCalculation = isStartCalculation;
+	}
+
+	private CalculatorInterface backend = new CalculatorImpl();
+
 
 	public CityMap3D(int width, int height) throws OpenClException {
 		super("vCity - 3D Stadtansicht");
 		this.setSize(width, height);
 		this.requestFocus();
-		// test values
-		setTestValues();
-
 		setGround(minGroundSize, maxGroundSize);
-
-		CalculatorInterface backend = new CalculatorImpl();
-		long start;
-		long end;
-
-		if (isVolumeCalc) {
-			System.out.println("Starting volume calculation...");
-			start = System.currentTimeMillis();
-			backend.calculateVolume();
-			end = System.currentTimeMillis();
-			System.out.printf("calculate volume took %d milliseconds\n",
-					(end - start));
+	
+		sunPositions = new SunPositionCalculator[12][24];
+		for (int j = 1; j < 13; ++j) {
+			for (int i = 0; i < sunPositions[j - 1].length; i++) {
+				utcCal.set(2014, j, 1, i, 0, 0);
+				sunPositions[j - 1][i] = new SunPositionCalculator(utcCal.getTime(), 11.6, 48.1);
+			}
 		}
-		if (isShadowCalc) {
-			System.out.println("Starting shadow calculation...");
-			start = System.currentTimeMillis();
-			backend.calculateShadow(ShadowPrecision.ULTRA); // VERY_LOW(5),
-															// LOW(2.5f),
-															// MID(1.25f),
-															// HIGH(0.75f),
-															// ULTRA(0.375f),
-															// HYPER(0.1f),
-															// AWESOME(0.01f)
-			end = System.currentTimeMillis();
-			System.out.printf("calculate shadow took %d milliseconds\n",
-					(end - start));
-		}
-
-		halfScreenHeight = Toolkit.getDefaultToolkit().getScreenSize().height / 2;
-		halfScreenWidth = Toolkit.getDefaultToolkit().getScreenSize().width / 2;
-
+		setSunPosition();
+		
+		calculation(backend);
 		try {
 			robot = new Robot();
 		} catch (AWTException e) {
 		}
 
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
 		// set up the drawing canvas
 		GLCanvas canvas = new GLCanvas();
 		canvas.setPreferredSize(new Dimension(width, height));
@@ -114,6 +140,36 @@ public class CityMap3D extends JFrame implements GLEventListener{
 		animator = new FPSAnimator(canvas, FPS);
 		animator.start();
 		
+		addListeners(canvas);
+		pack();
+		this.setLocationRelativeTo(null);
+		halfScreenHeight = Toolkit.getDefaultToolkit().getScreenSize().height / 2;
+		halfScreenWidth = Toolkit.getDefaultToolkit().getScreenSize().width / 2;
+		robot.mouseMove(halfScreenWidth, halfScreenHeight);
+	}
+
+
+	private void setSunPosition() {	
+		Date date = new Date();
+		Calendar calendar = new GregorianCalendar();
+		calendar.setTime(date);
+		utcCal.set(calendar.get(Calendar.YEAR), Calendar.MONTH + 1, 
+				calendar.get(Calendar.DAY_OF_MONTH), calendar.get(Calendar.HOUR_OF_DAY), 
+				calendar.get(Calendar.MINUTE), 0);
+		sunPos = new SunPositionCalculator(utcCal.getTime(), 11.6, 48.1);
+	}
+	
+	public void setSunPosition(Date date) {	
+		Calendar calendar = new GregorianCalendar();
+		calendar.setTime(date);
+		utcCal.set(calendar.get(Calendar.YEAR), Calendar.MONTH + 1, 
+				calendar.get(Calendar.DAY_OF_MONTH), calendar.get(Calendar.HOUR_OF_DAY), 
+				calendar.get(Calendar.MINUTE), 0);
+		sunPos = new SunPositionCalculator(utcCal.getTime(), 11.6, 48.1);
+	}
+	
+
+	private void addListeners(GLCanvas canvas) {
 		canvas.addGLEventListener(this);
 		KeyEventListener keyEvent = new KeyEventListener(this);
 		this.addKeyListener(keyEvent);
@@ -122,29 +178,48 @@ public class CityMap3D extends JFrame implements GLEventListener{
 		canvas.addMouseListener(mouseEvent);
 		canvas.addMouseMotionListener(mouseEvent);
 		canvas.addMouseWheelListener(mouseEvent);
-		pack();
-		this.setLocationRelativeTo(null);
-		robot.mouseMove(halfScreenWidth, halfScreenHeight);
-		
 	}
 
-	
+	private void calculation(CalculatorInterface backend)
+			throws OpenClException {
+		if(Main.isParserSuccess()){
+			long start;
+			long end;
+
+			if (isVolumeCalc) {
+				System.out.println("Starting volume calculation...");
+				start = System.currentTimeMillis();
+				backend.calculateVolume();
+				end = System.currentTimeMillis();
+				System.out.printf("calculate volume took %d milliseconds\n",
+						(end - start));
+			}
+			//TODO reafactorn und in drawscene
+			if (isShadowCalc) {
+				setSunPosition();
+				System.out.println("Starting shadow calculation...");
+				start = System.currentTimeMillis();
+				backend.calculateShadow(ShadowPrecision.VERY_LOW); // VERY_LOW(5),
+																	// LOW(2.5f),
+																	// MID(1.25f),
+																	// HIGH(0.75f),
+																	// ULTRA(0.375f),
+																	// HYPER(0.1f),
+																	// AWESOME(0.01f)
+				end = System.currentTimeMillis();
+				System.out.printf("calculate shadow took %d milliseconds\n",
+						(end - start));
+			}	
+		}
+
+	}
+
 	public static float[] RGBToOpenGL(int r1, int g1, int b1) {
 		float[] tmp = new float[3];
-		tmp[0] = r1/255f;
-		tmp[1] = g1/255f;
-		tmp[2] = b1/255f;
+		tmp[0] = r1 / 255f;
+		tmp[1] = g1 / 255f;
+		tmp[2] = b1 / 255f;
 		return tmp;
-	}
-	
-	
-	private void setTestValues() {
-//		VolumeTest.testCity2();
-//		VolumeTest.testCity2();
-//		VolumeTest.testCity2();
-//		City.getInstance().getBuildings().get(1).translate(0, 0, 5);
-//		City.getInstance().getBuildings().get(2).translate(5, 0, 5);
-//		City.getInstance().getBuildings().get(2).scale(1, 5, 1);
 	}
 
 	private void setGround(int minSize, int maxSize) {
@@ -152,7 +227,6 @@ public class CityMap3D extends JFrame implements GLEventListener{
 		Vertex v1 = new Vertex(minSize, 0, maxSize);
 		Vertex v2 = new Vertex(maxSize, 0, maxSize);
 		Vertex v3 = new Vertex(maxSize, 0, minSize);
-
 		Triangle t1 = new Triangle(v0, v1, v2);
 		Triangle t2 = new Triangle(v0, v2, v3);
 
@@ -162,23 +236,10 @@ public class CityMap3D extends JFrame implements GLEventListener{
 		City.getInstance().addBuilding(b);
 	}
 
-	private boolean isGround(Vertex v){
-		if (v.getY() == 0) {
-			if(((v.getX() == minGroundSize) && (v.getZ() == minGroundSize)) ||
-					((v.getX() == maxGroundSize) && (v.getZ() == minGroundSize)) ||
-					((v.getX() == maxGroundSize) && (v.getZ() == maxGroundSize)) ||
-					((v.getX() == minGroundSize) && (v.getZ() == maxGroundSize)) 
-					){
-				return true;
-			}else{
-				return false;
-			}
-		}
-		return false;
-	}
-	
 	@Override
 	public void display(GLAutoDrawable drawable) {
+		isShadowCalc = Main.getOptionGUI().isCalculateShadow();
+		isVolumeCalc = Main.getOptionGUI().isCalculateVolume();
 		GL2 gl = drawable.getGL().getGL2();
 		gl.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT);
 		gl.glLoadIdentity();
@@ -187,69 +248,204 @@ public class CityMap3D extends JFrame implements GLEventListener{
 		// drawing building 0
 		gl.glColor3f(1f, 1f, 1f);
 		
-		if (isVolumeCalc) {
-			for (Building b : City.getInstance().getBuildings()) {
-				for (Triangle t : b.getTriangles()) {
-					gl.glBegin(GL2.GL_TRIANGLES);
-					gl.glColor3f(0, 1, 0);
-					for (Vertex v : t.getVertices()) {
-						//If Triangle is in ground => light green else green 
-						if(isGround(v)){
-							//
-							float [] tmpColor = RGBToOpenGL(102, 255, 102);
-							gl.glColor3f(tmpColor[0], tmpColor[1], tmpColor[2]);
-						}else{
-							gl.glColor3f(0, 1, 0);
-						}
-						gl.glVertex3fv(v.getCoordinates(), 0);
-					}
-					gl.glEnd();
-					if (showGrid) {
-						gl.glColor3f(0, 0, 0);
-						gl.glBegin(GL2.GL_LINE_LOOP);
-						for (Vertex v : t.getVertices()) {
-							gl.glVertex3fv(v.getCoordinates(), 0);
-						}
-						gl.glEnd();
-					}
-				}
+
+		if(isStartCalculation){
+			try {
+				calculation(backend);
+				isStartCalculation = false;
+			} catch (OpenClException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
 		}
-
-		if (isShadowCalc) {
-			for (Building b : City.getInstance().getBuildings()) {
-				for (ShadowTriangle t : b.getShadowTriangles()) {
-					gl.glBegin(GL2.GL_TRIANGLES);
-					if (t.getShadowSet().get(ray)) {
-						gl.glColor3f(1, 0, 0);
-					} else {
-						gl.glColor3f(0, 1, 0);
-					}
-					for (Vertex v : t.getVertices()) {
-						gl.glVertex3fv(v.getCoordinates(), 0);
-					}
-					gl.glEnd();
-					if (showGrid) {
-						gl.glColor3f(0, 0, 0);
-						gl.glBegin(GL2.GL_LINE_LOOP);
-						for (Vertex v : t.getVertices()) {
-							gl.glVertex3fv(v.getCoordinates(), 0);
+		if (City.getInstance().getBuildings() != null) {
+			if(isVolumeCalc && isShadowCalc){
+				for (Building b : City.getInstance().getBuildings()) {
+					drawShadowCalcBuildingWithVolume(gl, b);
+					float minZ = Float.MAX_VALUE;
+					float minY = Float.MAX_VALUE;
+					float minX = Float.MAX_VALUE;
+					float maxX = Float.MIN_VALUE;
+					float maxY = Float.MIN_VALUE;
+					float maxZ = Float.MIN_VALUE;
+					
+					if(b.getVolume() > 0){
+						int triangleIndex = 0;
+						for (Triangle triangle : b.getTriangles()){
+							Vertex [] v= triangle.getVertices();
+							for(int j=0; j<3;j++){
+								System.out.println("Point " + String.valueOf(triangleIndex) + String.valueOf(j) +  
+										" x Wert: "+ v[j].getX() + " y Wert: "+ v[j].getY() + 
+										" z Wert: "+ v[j].getZ());
+								if(minX > v[j].getX()){
+									minX = v[j].getX();
+								}
+								if(minY > v[j].getY()){
+									minY = v[j].getY();
+								}
+								if(minZ > v[j].getZ()){
+									minZ = v[j].getZ();
+								}
+								if(maxX < v[j].getX()){
+									maxX = v[j].getX();
+								}
+								if(maxY < v[j].getY()){
+									maxY = v[j].getY();
+								}
+								if(maxZ < v[j].getZ()){
+									maxZ = v[j].getZ();
+								}
+							}
+							triangleIndex ++;
 						}
-						gl.glEnd();
+						
+						float averageValueX;
+						if(minX <= 0 && maxX >= 0){
+							averageValueX = ((maxX + Math.abs(minX))/2f) + minX;
+						}else if(maxX <= 0 && minX <= 0){
+							averageValueX = ((Math.abs(minX) - Math.abs(maxX))/2f) * (-1f) + maxX;
+						}else if(maxX >= 0 && minX >= 0){
+							averageValueX = ((maxX - minX)/2f) + minX;
+						}else{
+							averageValueX = ((Math.abs(maxX) - Math.abs(minX))/2f) + minX;
+						}
+						
+						float averageValueY = (Math.abs(minY) + Math.abs(maxY)/2f)+minY;
+						if(minY <= 0 && maxY >= 0){
+							averageValueY = ((maxY + Math.abs(minY))/2f) + minY;
+						}else if(maxY <= 0 && minY <= 0){
+							averageValueY = ((Math.abs(minY) - Math.abs(maxY))/2f) * (-1f) + maxY;
+						}else if(maxY >= 0 && minY >= 0){
+							averageValueY = ((Math.abs(maxY) - Math.abs(minY))/2f) + minY;
+						}else{
+							averageValueY = ((Math.abs(maxY) - Math.abs(minY))/2f) + minY;
+						}
+
+						float averageValueZ = (Math.abs(minZ) + Math.abs(maxZ)/2f)+minZ;
+						if(minZ <= 0 && maxZ >= 0){
+							averageValueZ = ((maxZ + Math.abs(minZ))/2f) + minZ;
+						}else if(maxZ <= 0 && minZ <= 0){
+							averageValueZ = ((Math.abs(minZ) - Math.abs(maxZ))/2f) * (-1f) + maxZ;
+						}else if(maxZ >= 0 && minZ >= 0){
+							averageValueZ = ((Math.abs(maxZ) - Math.abs(minZ))/2f) + minZ;
+						}else{
+							averageValueZ = ((Math.abs(maxZ) - Math.abs(minZ))/2f) + minZ;
+						}
+						gl.glColor3f(1, 1, 1);
+						System.out.println("averageValueX: " + averageValueX + " " + 
+								"averageValueY: " + averageValueY+ " " +
+								"averageValueZ: " + averageValueZ + " ");
+						gl.glRasterPos3f(averageValueX, maxY + 2f, averageValueZ);
+						glut.glutBitmapString(7, String.valueOf(Math.rint(b.getVolume())));
+					}
+					
+					drawBuildingVolumeAmount();
+				}
+			}else{
+				if (isVolumeCalc) {
+					for (Building b : City.getInstance().getBuildings()) {
+						drawVolumeCalcBuilding(gl, b);
+					}
+				} else if (isShadowCalc) {
+					for (Building b : City.getInstance().getBuildings()) {
+						drawShadowCalcBuilding(gl, b);
+					}
+				}else{
+					for (Building b : City.getInstance().getBuildings()) {
+						drawVolumeCalcBuilding(gl, b);
 					}
 				}
 			}
-
 		}
 
 		drawHemisphere(gl);
 		drawAxis(gl);
-
+//		setGround(minGroundSize, maxGroundSize);
 		if (enableDrawCenters) {
 			drawCentersOfHemisphere(gl);
 		}
 
 	}
+
+	private void drawBuildingVolumeAmount() {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+	private void drawShadowCalcBuildingWithVolume(GL2 gl, Building building) {
+		drawShadowCalcBuilding(gl, building);
+		// TODO Texturen Volumen
+	}
+
+
+	private void drawVolumeCalcBuilding(GL2 gl, Building building) {
+		for (Triangle t : building.getTriangles()) {
+			gl.glBegin(GL2.GL_TRIANGLES);
+			gl.glColor3f(0, 1, 0);
+			for (Vertex v : t.getVertices()) {
+				// green
+				gl.glColor3f(0, 1, 0);
+				gl.glVertex3fv(v.getCoordinates(), 0);
+			}
+			gl.glEnd();
+			drawGrid(gl, t);
+		}
+		// TODO Texturen Volumen
+	}
+
+	private void drawShadowCalcBuilding(GL2 gl, Building building) {
+		for (ShadowTriangle t : building.getShadowTriangles()) {
+			gl.glBegin(GL2.GL_TRIANGLES);
+			if (t.getShadowSet().get(ray)) {
+				gl.glColor3f(1, 0, 0);
+			} else {
+				gl.glColor3f(0, 1, 0);
+			}
+			for (Vertex v : t.getVertices()) {
+				gl.glVertex3fv(v.getCoordinates(), 0);
+			}
+			gl.glEnd();
+			if (showGrid) {
+				drawGrid(gl, t);
+			}
+			
+			setSunPosition(Main.getTimeForSunPosition());
+			gl.glColor3f(255f, 0, 255f);
+			gl.glBegin(GL2.GL_LINE_LOOP);
+			for (int i = 0; i < sunPositions[month].length; i++) {
+				gl.glVertex3d(sunPositions[month][i].getX(), sunPositions[month][i].getY(), sunPositions[month][i].getZ());
+			}
+			gl.glEnd();
+			
+			gl.glBegin(GL2.GL_LINES);
+			gl.glVertex3d(sunPos.getX(), sunPos.getY(), sunPos.getZ());
+			gl.glVertex3d(0, 0, 0);
+			gl.glEnd();
+		}
+	}
+
+	private void drawGrid(GL2 gl, Triangle triangle) {
+		if (showGrid) {
+			gl.glColor3f(0, 0, 0);
+			gl.glBegin(GL2.GL_LINE_LOOP);
+			for (Vertex v : triangle.getVertices()) {
+				gl.glVertex3fv(v.getCoordinates(), 0);
+			}
+			gl.glEnd();
+		}
+	}
+
+	private void drawGrid(GL2 gl, ShadowTriangle triangle) {
+		gl.glColor3f(0, 0, 0);
+		gl.glBegin(GL2.GL_LINE_LOOP);
+		for (Vertex v : triangle.getVertices()) {
+			gl.glVertex3fv(v.getCoordinates(), 0);
+		}
+		gl.glEnd();
+	}
+
+
 
 	private void drawCentersOfHemisphere(GL2 gl) {
 		gl.glColor3f(1f, 1f, 0);
@@ -326,7 +522,7 @@ public class CityMap3D extends JFrame implements GLEventListener{
 		gl.glColor3f(0f, 0f, 1f);
 		// x Axis in blue
 		gl.glEnable(GL.GL_TRUE);
-		gl.glEnable(GL.GL_LINE_SMOOTH); 
+		gl.glEnable(GL.GL_LINE_SMOOTH);
 		gl.glBegin(GL2.GL_LINES);
 
 		gl.glLineWidth(5.0f);
@@ -352,15 +548,10 @@ public class CityMap3D extends JFrame implements GLEventListener{
 			gl.glVertex3f(0f, 0f, 10000f);
 		}
 		gl.glEnd();
-		
+
 		gl.glColor3f(1f, 1f, 1f);
 		gl.glDisable(GL.GL_TRUE);
-		gl.glDisable(GL.GL_LINE_SMOOTH); 
-		gl.glBegin(GL2.GL_POINTS);
-		{
-			gl.glVertex3f(1f, 1f, 1f);
-		}
-		gl.glEnd();
+		gl.glDisable(GL.GL_LINE_SMOOTH);
 
 	}
 
@@ -406,15 +597,15 @@ public class CityMap3D extends JFrame implements GLEventListener{
 		gl.glMatrixMode(GL2.GL_MODELVIEW);
 		gl.glLoadIdentity();
 	}
-	
-	public void stopAnimator(){
-		if (animator != null){
+
+	public void stopAnimator() {
+		if (animator != null) {
 			animator.pause();
 		}
 	}
-	
-	public void startAnimator(){
-		if (animator != null){
+
+	public void startAnimator() {
+		if (animator != null) {
 			animator.resume();
 		}
 	}

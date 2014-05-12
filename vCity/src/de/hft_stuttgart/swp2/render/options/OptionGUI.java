@@ -8,6 +8,7 @@ import java.awt.GridLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Date;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -38,7 +39,25 @@ public class OptionGUI extends JFrame implements Refreshable{
 			INSET_LEFT_BUTTON, INSET_BOTTOM_BUTTON, INSET_RIGHT_BUTTON);
 	
 	private JPanel content_panel = new JPanel();
-	private JPanel panelSettings = new PanelSettings();
+	private PanelSettings panelSettings = new PanelSettings();
+	
+	public Boolean isCalculateVolume(){
+		return panelSettings.cbVolume.isSelected();
+	}
+	
+	public Boolean isCalculateShadow(){
+		return panelSettings.cbShadow.isSelected();
+	}
+	
+	public JButton getBtnStartParseOfPanelSettings() {
+		return panelSettings.getBtnStartParse();
+	}
+	
+	public Date getTime(){
+		return panelSettings.getTime();
+	}
+	
+
 	private JPanel panelCityInfo = new PanelCityInfo();
 	private JPanel panelNavigation = new PanelNavigation();
 	private JButton btn1 = new JButton("Einstellungen");

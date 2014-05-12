@@ -21,7 +21,7 @@
 			<attribute name="javadoc_location" value="jar:platform:/resource/vCity/lib/jogl/gluegen-javadoc.jar!/"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="lib/jogl/jogl-all.jar">
+	<classpathentry kind="lib" path="lib/jogl/jogl-all.jar" sourcepath="C:/Users/Marcel/.m2/repository/org/jogamp/jogl/jogl-all/2.1.5-01/jogl-all-2.1.5-01-sources.jar">
 		<attributes>
 			<attribute name="javadoc_location" value="jar:platform:/resource/vCity/lib/jogl/jogl_javadoc.jar!/"/>
 		</attributes>
