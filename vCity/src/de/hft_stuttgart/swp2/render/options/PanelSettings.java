@@ -22,19 +22,13 @@ import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JSeparator;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
-import javax.swing.border.Border;
-import javax.swing.border.MatteBorder;
 import javax.swing.border.TitledBorder;
 
 import org.jdesktop.swingx.JXDatePicker;
 
 import de.hft_stuttgart.swp2.render.Main;
-import de.hft_stuttgart.swp2.render.options.FileChooserGmlFileView;
-import de.hft_stuttgart.swp2.render.options.FileChooserGmlFilter;
-import de.hft_stuttgart.swp2.render.options.FileChooserImagePreview;
 import de.hft_stuttgart.swp2.render.threads.StartParserRunnable;
 
 public class PanelSettings extends JPanel{
@@ -69,6 +63,22 @@ public class PanelSettings extends JPanel{
 	JCheckBox cbShadow = new JCheckBox("Schatten berechnen");
 	JXDatePicker jxDatePicker = new JXDatePicker(new Date());
 	private JButton btnStart;
+	
+	public void setTime(){
+		if (userDate != null) {
+			GregorianCalendar gc = new GregorianCalendar();
+			gc.setTime(userDate);
+			try{
+				int hours = getHours();
+				int minutes = getMinutes();
+				gc.set(gc.get(GregorianCalendar.YEAR), gc.get(GregorianCalendar.MONTH), 
+						gc.get(GregorianCalendar.DAY_OF_MONTH), hours, minutes);
+			}catch(Exception e1){
+				gc.set(gc.get(GregorianCalendar.YEAR), gc.get(GregorianCalendar.MONTH), 
+						gc.get(GregorianCalendar.DAY_OF_MONTH), 12, 0, 0);
+			};
+		}
+	}
 
 	public Date getTime(){
 		if(userDate != null){
@@ -236,6 +246,7 @@ public class PanelSettings extends JPanel{
 		jxDatePicker.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				userDate = jxDatePicker.getDate();
+				setTime();
 			}
 		});
 		
@@ -252,8 +263,8 @@ public class PanelSettings extends JPanel{
 		panelTime.add(lblHours);
 		panelTime.add(lblMin);
 
-		txtHours.addFocusListener(new Selection(txtHours));
-		txtMin.addFocusListener(new Selection(txtMin));
+		txtHours.addFocusListener(new SelectionHours(txtHours));
+		txtMin.addFocusListener(new SelectionMinutes(txtMin));
 		panelTime.add(txtHours);
 		panelTime.add(txtMin);
 		constraints.gridx = 0; // column 0
@@ -272,7 +283,6 @@ public class PanelSettings extends JPanel{
 						Runnable StartParserRunnable = new StartParserRunnable(gmlFile.getPath());
 						threadStartParsing = new Thread(StartParserRunnable);
 						threadStartParsing.start();
-						State s = threadStartParsing.getState();
 						if(threadStartParsing.getState()==Thread.State.TERMINATED){ 
 							try {
 								threadStartParsing.join();

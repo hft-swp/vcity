@@ -4,9 +4,9 @@ import javax.media.opengl.glu.GLU;
 
 public class Camera {
 
-	private double speed = 1f;
-	private double horizontalAngle = Math.PI;
-	private double verticalAngle = 0.0d;
+	public double speed = 1f;
+	public double horizontalAngle = 0.70 * Math.PI;
+	public double verticalAngle = -0.10d;
 
 	private GLU glu;
 
@@ -14,9 +14,9 @@ public class Camera {
 	private double directionY;
 	private double directionZ;
 
-	private double positionX = -10;
-	private double positionY = 8;
-	private double positionZ = 10;
+	public double positionX = -45;
+	public double positionY = 75;
+	public double positionZ = 29;
 
 	private double rightX;
 	private double rightY;

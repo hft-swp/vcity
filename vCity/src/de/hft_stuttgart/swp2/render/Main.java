@@ -19,7 +19,8 @@ public class Main {
 	private static OptionGUI optionGUI;
 	private static CityMap3D cityMap3D;
 	private static City city;
-	private static Boolean isParserSuccess = false;;
+	private static Boolean isParserSuccess = false;
+	private static Date currentDate = new Date();
 
 	/**
 	 * @param args
@@ -43,6 +44,10 @@ public class Main {
 
 	public static Date getTimeForSunPosition(){
 		return optionGUI.getTime();
+	}
+	
+	public static Date getCurrentTime(){
+		return currentDate;
 	}
 
 	public static void createGUI() {

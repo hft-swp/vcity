@@ -1,7 +1,9 @@
 package de.hft_stuttgart.swp2.render.city3d;
 
 import java.awt.AWTException;
+import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Graphics;
 import java.awt.Robot;
 import java.awt.Toolkit;
 import java.awt.event.MouseEvent;
@@ -62,13 +64,14 @@ public class CityMap3D extends JFrame implements GLEventListener {
 	private int minGroundSize = 0;
 	private int maxGroundSize = 10000;
 	private FPSAnimator animator;
-	
-	//Sunposition vars
-	private Calendar utcCal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
 	private SunPositionCalculator[][] sunPositions;
-	private SunPositionCalculator sunPos;
-	private int hour = 6;
-	private int month = 0;
+	//Sunposition vars
+	
+	public Calendar utcCal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+	public SunPositionCalculator sunPos;
+	private boolean isShowVolumeAmount = true;
+	public int month = 0;
+	public int hour = 0;
 	public int ray = 0;
 
 	private static final boolean showGrid = true;
@@ -157,6 +160,7 @@ public class CityMap3D extends JFrame implements GLEventListener {
 				calendar.get(Calendar.DAY_OF_MONTH), calendar.get(Calendar.HOUR_OF_DAY), 
 				calendar.get(Calendar.MINUTE), 0);
 		sunPos = new SunPositionCalculator(utcCal.getTime(), 11.6, 48.1);
+		ray = sunPos.getSunPosition();
 	}
 	
 	public void setSunPosition(Date date) {	
@@ -165,7 +169,9 @@ public class CityMap3D extends JFrame implements GLEventListener {
 		utcCal.set(calendar.get(Calendar.YEAR), Calendar.MONTH + 1, 
 				calendar.get(Calendar.DAY_OF_MONTH), calendar.get(Calendar.HOUR_OF_DAY), 
 				calendar.get(Calendar.MINUTE), 0);
+		month = Calendar.MONTH;
 		sunPos = new SunPositionCalculator(utcCal.getTime(), 11.6, 48.1);
+		ray = sunPos.getSunPosition();
 	}
 	
 
@@ -180,12 +186,12 @@ public class CityMap3D extends JFrame implements GLEventListener {
 		canvas.addMouseWheelListener(mouseEvent);
 	}
 
+	
 	private void calculation(CalculatorInterface backend)
 			throws OpenClException {
 		if(Main.isParserSuccess()){
 			long start;
 			long end;
-
 			if (isVolumeCalc) {
 				System.out.println("Starting volume calculation...");
 				start = System.currentTimeMillis();
@@ -238,6 +244,7 @@ public class CityMap3D extends JFrame implements GLEventListener {
 
 	@Override
 	public void display(GLAutoDrawable drawable) {
+//		info();
 		isShadowCalc = Main.getOptionGUI().isCalculateShadow();
 		isVolumeCalc = Main.getOptionGUI().isCalculateVolume();
 		GL2 gl = drawable.getGL().getGL2();
@@ -248,7 +255,7 @@ public class CityMap3D extends JFrame implements GLEventListener {
 		// drawing building 0
 		gl.glColor3f(1f, 1f, 1f);
 		
-
+		
 		if(isStartCalculation){
 			try {
 				calculation(backend);
@@ -262,97 +269,32 @@ public class CityMap3D extends JFrame implements GLEventListener {
 			if(isVolumeCalc && isShadowCalc){
 				for (Building b : City.getInstance().getBuildings()) {
 					drawShadowCalcBuildingWithVolume(gl, b);
-					float minZ = Float.MAX_VALUE;
-					float minY = Float.MAX_VALUE;
-					float minX = Float.MAX_VALUE;
-					float maxX = Float.MIN_VALUE;
-					float maxY = Float.MIN_VALUE;
-					float maxZ = Float.MIN_VALUE;
-					
-					if(b.getVolume() > 0){
-						int triangleIndex = 0;
-						for (Triangle triangle : b.getTriangles()){
-							Vertex [] v= triangle.getVertices();
-							for(int j=0; j<3;j++){
-								System.out.println("Point " + String.valueOf(triangleIndex) + String.valueOf(j) +  
-										" x Wert: "+ v[j].getX() + " y Wert: "+ v[j].getY() + 
-										" z Wert: "+ v[j].getZ());
-								if(minX > v[j].getX()){
-									minX = v[j].getX();
-								}
-								if(minY > v[j].getY()){
-									minY = v[j].getY();
-								}
-								if(minZ > v[j].getZ()){
-									minZ = v[j].getZ();
-								}
-								if(maxX < v[j].getX()){
-									maxX = v[j].getX();
-								}
-								if(maxY < v[j].getY()){
-									maxY = v[j].getY();
-								}
-								if(maxZ < v[j].getZ()){
-									maxZ = v[j].getZ();
-								}
-							}
-							triangleIndex ++;
-						}
-						
-						float averageValueX;
-						if(minX <= 0 && maxX >= 0){
-							averageValueX = ((maxX + Math.abs(minX))/2f) + minX;
-						}else if(maxX <= 0 && minX <= 0){
-							averageValueX = ((Math.abs(minX) - Math.abs(maxX))/2f) * (-1f) + maxX;
-						}else if(maxX >= 0 && minX >= 0){
-							averageValueX = ((maxX - minX)/2f) + minX;
-						}else{
-							averageValueX = ((Math.abs(maxX) - Math.abs(minX))/2f) + minX;
-						}
-						
-						float averageValueY = (Math.abs(minY) + Math.abs(maxY)/2f)+minY;
-						if(minY <= 0 && maxY >= 0){
-							averageValueY = ((maxY + Math.abs(minY))/2f) + minY;
-						}else if(maxY <= 0 && minY <= 0){
-							averageValueY = ((Math.abs(minY) - Math.abs(maxY))/2f) * (-1f) + maxY;
-						}else if(maxY >= 0 && minY >= 0){
-							averageValueY = ((Math.abs(maxY) - Math.abs(minY))/2f) + minY;
-						}else{
-							averageValueY = ((Math.abs(maxY) - Math.abs(minY))/2f) + minY;
-						}
-
-						float averageValueZ = (Math.abs(minZ) + Math.abs(maxZ)/2f)+minZ;
-						if(minZ <= 0 && maxZ >= 0){
-							averageValueZ = ((maxZ + Math.abs(minZ))/2f) + minZ;
-						}else if(maxZ <= 0 && minZ <= 0){
-							averageValueZ = ((Math.abs(minZ) - Math.abs(maxZ))/2f) * (-1f) + maxZ;
-						}else if(maxZ >= 0 && minZ >= 0){
-							averageValueZ = ((Math.abs(maxZ) - Math.abs(minZ))/2f) + minZ;
-						}else{
-							averageValueZ = ((Math.abs(maxZ) - Math.abs(minZ))/2f) + minZ;
-						}
-						gl.glColor3f(1, 1, 1);
-						System.out.println("averageValueX: " + averageValueX + " " + 
-								"averageValueY: " + averageValueY+ " " +
-								"averageValueZ: " + averageValueZ + " ");
-						gl.glRasterPos3f(averageValueX, maxY + 2f, averageValueZ);
-						glut.glutBitmapString(7, String.valueOf(Math.rint(b.getVolume())));
+					if(isShowVolumeAmount){
+						drawBuildingVolumeAmount(gl, b);
 					}
-					
-					drawBuildingVolumeAmount();
 				}
+				//isShowVolumeAmount = false;
 			}else{
 				if (isVolumeCalc) {
 					for (Building b : City.getInstance().getBuildings()) {
 						drawVolumeCalcBuilding(gl, b);
+						if(isShowVolumeAmount){
+							drawBuildingVolumeAmount(gl, b);
+						}
 					}
 				} else if (isShadowCalc) {
 					for (Building b : City.getInstance().getBuildings()) {
 						drawShadowCalcBuilding(gl, b);
+						if(isShowVolumeAmount){
+							drawBuildingVolumeAmount(gl, b);
+						}
 					}
 				}else{
 					for (Building b : City.getInstance().getBuildings()) {
 						drawVolumeCalcBuilding(gl, b);
+						if(isShowVolumeAmount){
+							drawBuildingVolumeAmount(gl, b);
+						}
 					}
 				}
 			}
@@ -367,10 +309,73 @@ public class CityMap3D extends JFrame implements GLEventListener {
 
 	}
 
-	private void drawBuildingVolumeAmount() {
-		// TODO Auto-generated method stub
+
+	private void drawBuildingVolumeAmount(GL2 gl, Building building) {
+		float minZ = Float.MAX_VALUE;
+		float minY = Float.MAX_VALUE;
+		float minX = Float.MAX_VALUE;
+		float maxX = Float.MIN_VALUE;
+		float maxY = Float.MIN_VALUE;
+		float maxZ = Float.MIN_VALUE;
 		
+		if(building.getVolume() > 0){
+			int triangleIndex = 0;
+			for (Triangle triangle : building.getTriangles()){
+				Vertex [] v= triangle.getVertices();
+				for(int j=0; j<3;j++){
+//					System.out.println("Point " + String.valueOf(triangleIndex) + String.valueOf(j) +  
+//							" x Wert: "+ v[j].getX() + " y Wert: "+ v[j].getY() + 
+//							" z Wert: "+ v[j].getZ());
+					if(minX > v[j].getX()){
+						minX = v[j].getX();
+					}
+					if(minY > v[j].getY()){
+						minY = v[j].getY();
+					}
+					if(minZ > v[j].getZ()){
+						minZ = v[j].getZ();
+					}
+					if(maxX < v[j].getX()){
+						maxX = v[j].getX();
+					}
+					if(maxY < v[j].getY()){
+						maxY = v[j].getY();
+					}
+					if(maxZ < v[j].getZ()){
+						maxZ = v[j].getZ();
+					}
+				}
+				triangleIndex ++;
+			}
+			
+			float averageValueX;
+			if(minX <= 0 && maxX >= 0){
+				averageValueX = ((maxX + Math.abs(minX))/2f) + minX;
+			}else if(maxX <= 0 && minX <= 0){
+				averageValueX = ((Math.abs(minX) - Math.abs(maxX))/2f) * (-1f) + maxX;
+			}else if(maxX >= 0 && minX >= 0){
+				averageValueX = ((maxX - minX)/2f) + minX;
+			}else{
+				averageValueX = ((Math.abs(maxX) - Math.abs(minX))/2f) + minX;
+			}
+			
+
+			float averageValueZ = (Math.abs(minZ) + Math.abs(maxZ)/2f)+minZ;
+			if(minZ <= 0 && maxZ >= 0){
+				averageValueZ = ((maxZ + Math.abs(minZ))/2f) + minZ;
+			}else if(maxZ <= 0 && minZ <= 0){
+				averageValueZ = ((Math.abs(minZ) - Math.abs(maxZ))/2f) * (-1f) + maxZ;
+			}else if(maxZ >= 0 && minZ >= 0){
+				averageValueZ = ((Math.abs(maxZ) - Math.abs(minZ))/2f) + minZ;
+			}else{
+				averageValueZ = ((Math.abs(maxZ) - Math.abs(minZ))/2f) + minZ;
+			}
+			gl.glColor3f(1, 1, 1);
+			gl.glRasterPos3f(averageValueX, maxY + 1f, averageValueZ);
+			glut.glutBitmapString(7, String.valueOf(Math.rint(building.getVolume())));
+		}
 	}
+
 
 
 	private void drawShadowCalcBuildingWithVolume(GL2 gl, Building building) {
@@ -397,9 +402,8 @@ public class CityMap3D extends JFrame implements GLEventListener {
 	private void drawShadowCalcBuilding(GL2 gl, Building building) {
 		for (ShadowTriangle t : building.getShadowTriangles()) {
 			gl.glBegin(GL2.GL_TRIANGLES);
-			if (t.getShadowSet().get(ray)) {
-				gl.glColor3f(1, 0, 0);
-			} else {
+			gl.glColor3f(1, 0, 0);
+			if (ray != -1 && !t.getShadowSet().get(ray)) {
 				gl.glColor3f(0, 1, 0);
 			}
 			for (Vertex v : t.getVertices()) {
@@ -448,6 +452,9 @@ public class CityMap3D extends JFrame implements GLEventListener {
 
 
 	private void drawCentersOfHemisphere(GL2 gl) {
+		if (ray == -1) {
+			return;
+		}
 		gl.glColor3f(1f, 1f, 0);
 		float dv = (float) (Math.PI / 12);
 		float dh = (float) (2 * Math.PI / 12);
@@ -608,6 +615,15 @@ public class CityMap3D extends JFrame implements GLEventListener {
 		if (animator != null) {
 			animator.resume();
 		}
+	}
+	
+	
+	public void info(){
+		System.out.println("Horizontal angle: "+ camera.horizontalAngle);
+		System.out.println("Vertical angle: "+camera.verticalAngle);
+		System.out.println("Pos x: "+camera.positionX);
+		System.out.println("Pos y: "+camera.positionY);
+		System.out.println("Pos z: "+camera.positionZ);
 	}
 
 }

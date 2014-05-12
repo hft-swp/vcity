@@ -7,7 +7,7 @@ import javax.swing.text.JTextComponent;
 
 public class Selection implements FocusListener{
 	
-	private JTextComponent textKomponente;
+	public JTextComponent textKomponente;
 	
 	public Selection(JTextComponent text) {
 		textKomponente = text;
