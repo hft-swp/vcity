@@ -10,7 +10,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.io.File;
-import java.lang.Thread.State;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 
@@ -42,6 +42,7 @@ public class PanelSettings extends JPanel{
 	private String[] strChooseSource = { "Filesystem", "Datenbank"};
 	private final JComboBox<String> cmbChooseSource = new JComboBox<String>(strChooseSource);
 	private Thread threadStartParsing;
+	private Runnable StartParserRunnable;
 	
 	//Elements of panelFile
 	private JPanel panelFile;
@@ -62,15 +63,35 @@ public class PanelSettings extends JPanel{
 	JCheckBox cbVolume = new JCheckBox("Volumen berechnen");
 	JCheckBox cbShadow = new JCheckBox("Schatten berechnen");
 	JXDatePicker jxDatePicker = new JXDatePicker(new Date());
+	GregorianCalendar gc = new GregorianCalendar();
 	private JButton btnStart;
+	public int hours;
+	public int minutes;
 	
-	public void setTime(){
+	public void setHours(int hours){
+		this.hours = hours;
+		setTime(userDate, hours, minutes);
+	}
+	
+	public void setMinutes(int minutes){
+		this.minutes = minutes;
+		setTime(userDate, hours, minutes);
+	}
+	
+	
+	/**
+	 * 
+	 * @param userDate
+	 * @param hours
+	 * @param minutes
+	 */
+	public void setTime(Date userDate, int hours, int minutes){
+		this.userDate = userDate;
+		this.hours = hours;
+		this.minutes = minutes;
 		if (userDate != null) {
-			GregorianCalendar gc = new GregorianCalendar();
 			gc.setTime(userDate);
 			try{
-				int hours = getHours();
-				int minutes = getMinutes();
 				gc.set(gc.get(GregorianCalendar.YEAR), gc.get(GregorianCalendar.MONTH), 
 						gc.get(GregorianCalendar.DAY_OF_MONTH), hours, minutes);
 			}catch(Exception e1){
@@ -82,11 +103,8 @@ public class PanelSettings extends JPanel{
 
 	public Date getTime(){
 		if(userDate != null){
-			GregorianCalendar gc = new GregorianCalendar();
 			gc.setTime(userDate);
 			try{
-				int hours = getHours();
-				int minutes = getMinutes();
 				gc.set(gc.get(GregorianCalendar.YEAR), gc.get(GregorianCalendar.MONTH), 
 						gc.get(GregorianCalendar.DAY_OF_MONTH), hours, minutes);
 				return gc.getTime();
@@ -94,8 +112,22 @@ public class PanelSettings extends JPanel{
 				gc.set(gc.get(GregorianCalendar.YEAR), gc.get(GregorianCalendar.MONTH), 
 						gc.get(GregorianCalendar.DAY_OF_MONTH), 12, 0, 0);
 			};
+			return gc.getTime();
+		}else{
+			Date now = new Date();
+			gc.setTime(now);
+			try{
+				gc.set(gc.get(Calendar.YEAR), gc.get(GregorianCalendar.MONTH), 
+						gc.get(Calendar.DAY_OF_MONTH), getHours(), 
+						getMinutes(), 0);
+			}catch(Exception e1){
+				gc.set(gc.get(Calendar.YEAR), gc.get(GregorianCalendar.MONTH), 
+						gc.get(Calendar.DAY_OF_MONTH), 12, 
+						0, 0);
+			}
+			return gc.getTime();
 		}
-		return new Date();
+
 	}
 
 
@@ -106,6 +138,8 @@ public class PanelSettings extends JPanel{
 	private int getHours() {
 		return Integer.parseInt(txtHours.getText());
 	}
+	
+	
 
 	public JButton getBtnStartParse() {
 		return btnStart;
@@ -246,7 +280,9 @@ public class PanelSettings extends JPanel{
 		jxDatePicker.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				userDate = jxDatePicker.getDate();
-				setTime();
+				hours = getHours();
+				minutes = getMinutes();
+				setTime(userDate, hours, minutes);
 			}
 		});
 		
@@ -262,8 +298,9 @@ public class PanelSettings extends JPanel{
 		
 		panelTime.add(lblHours);
 		panelTime.add(lblMin);
-
-		txtHours.addFocusListener(new SelectionHours(txtHours));
+		SelectionHours selectionHours = new SelectionHours(txtHours);
+		txtHours.addFocusListener(selectionHours);
+		txtHours.getDocument().addDocumentListener(selectionHours);
 		txtMin.addFocusListener(new SelectionMinutes(txtMin));
 		panelTime.add(txtHours);
 		panelTime.add(txtMin);
@@ -280,16 +317,10 @@ public class PanelSettings extends JPanel{
 				try{
 					if(!gmlFile.getPath().isEmpty()){
 						lblPath.setForeground(Color.black);
-						Runnable StartParserRunnable = new StartParserRunnable(gmlFile.getPath());
+						StartParserRunnable = new StartParserRunnable(gmlFile.getPath());
+						Main.getCityMap3D().setOldPath(gmlFile.getPath());
 						threadStartParsing = new Thread(StartParserRunnable);
 						threadStartParsing.start();
-						if(threadStartParsing.getState()==Thread.State.TERMINATED){ 
-							try {
-								threadStartParsing.join();
-							} catch (InterruptedException e1) {
-								e1.printStackTrace();
-							}
-						}
 					}else{
 						lblPath.setText("Kein gültiger Pfad");
 						lblPath.setForeground(Color.RED);
@@ -428,9 +459,6 @@ public class PanelSettings extends JPanel{
             	}else{
             		panelShadowOptions.setVisible(false);
             	}
-            	panelShadowOptions.revalidate();
-            	optionPanel.revalidate();
-            	optionPanel.repaint();
             } 
 
         }

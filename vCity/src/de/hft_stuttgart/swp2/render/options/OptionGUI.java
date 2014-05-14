@@ -57,10 +57,17 @@ public class OptionGUI extends JFrame implements Refreshable{
 		return panelSettings.getTime();
 	}
 	
-	public void setTime(){
-		panelSettings.setTime();
+	public void setTime(Date userDate, int hours, int minutes){
+		panelSettings.setTime(userDate, hours, minutes);
 	}
 	
+	public void setHours(int hours){
+		panelSettings.setHours(hours);
+	}
+	
+	public void setMinutes(int minutes){
+		panelSettings.setMinutes(minutes);
+	}
 
 	private JPanel panelCityInfo = new PanelCityInfo();
 	private JPanel panelNavigation = new PanelNavigation();

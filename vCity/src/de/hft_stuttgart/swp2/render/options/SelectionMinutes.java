@@ -1,14 +1,15 @@
 package de.hft_stuttgart.swp2.render.options;
 
 import java.awt.event.FocusEvent;
-import java.util.Calendar;
-import java.util.GregorianCalendar;
 
+
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.text.JTextComponent;
 
 import de.hft_stuttgart.swp2.render.Main;
 
-public class SelectionMinutes extends Selection{
+public class SelectionMinutes extends Selection implements DocumentListener{
 
 	private JTextComponent textKomponente;
 	
@@ -21,21 +22,40 @@ public class SelectionMinutes extends Selection{
 	@Override
 	public void focusGained(FocusEvent arg0) {
 		textKomponente.selectAll();
+		setMinutes();
+
+	}
+
+	private void setMinutes() {
+		int minutes;
 		try{
-			Main.getOptionGUI().setTime();
-			//int  = Integer.parseInt(textKomponente.getText());
+			minutes = Integer.parseInt(textKomponente.getText());
+			Main.getOptionGUI().setMinutes(minutes);
 		}catch(Exception e){
 			//TODO Ausgabe Fehler
-			Calendar cal = new GregorianCalendar();
-			cal.setTime(Main.getCurrentTime());
-			Main.getOptionGUI().setTime();
-			//Main.getCityMap3D().month = cal.get(Calendar.);
+			Main.getOptionGUI().setMinutes(0);
 		}
-
 	}
 
 	@Override
 	public void focusLost(FocusEvent arg0) {
+	}
+
+	@Override
+	public void insertUpdate(DocumentEvent e) {
+		setMinutes();
+		System.out.println(Integer.parseInt(textKomponente.getText()));
+	}
+
+	@Override
+	public void removeUpdate(DocumentEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void changedUpdate(DocumentEvent e) {
+		setMinutes();
 	}
 
 }
