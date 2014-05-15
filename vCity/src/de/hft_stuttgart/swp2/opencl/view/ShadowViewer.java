@@ -134,9 +134,13 @@ public class ShadowViewer extends JFrame implements GLEventListener,
 //		ShadowCalculatorJavaBackend calc = new ShadowCalculatorJavaBackend();
 		System.out.println("Starting shadow calculation...");
 		long start = System.currentTimeMillis(); 
-		calc.calculateShadow(ShadowPrecision.MID); //VERY_LOW(5f), LOW(2.5f), MID(1.25f), HIGH(0.75f), ULTRA(0.375f), HYPER(0.1f), AWESOME(0.01f)
+		calc.calculateShadow(ShadowPrecision.HYPER); //VERY_LOW(5f), LOW(2.5f), MID(1.25f), HIGH(0.75f), ULTRA(0.375f), HYPER(0.1f), AWESOME(0.01f)
 		long end = System.currentTimeMillis();
-		System.out.printf("calculate shadow took %d milliseconds\n", (end - start));
+		long milli = end - start;
+		
+		System.out.printf("\n\n"
+				+ "calculate shadow took : %7d milliseconds %s\n"
+				+ "average per building  : %5.2f milliseconds (%d buildings)\n", milli, milliseconds2string(milli), (double)milli/City.getInstance().getBuildings().size(), City.getInstance().getBuildings().size());
 		
 		
 		halfScreenHeight = Toolkit.getDefaultToolkit().getScreenSize().height / 2;
@@ -166,6 +170,21 @@ public class ShadowViewer extends JFrame implements GLEventListener,
 		pack();
 		this.setLocationRelativeTo(null);
 		robot.mouseMove(halfScreenWidth, halfScreenHeight);
+	}
+
+	private String milliseconds2string(long milli) {
+		String mytime = "( ";
+		if(milli > 86400000) {
+			mytime += String.format("%d hours ",(int) ((milli / (1000*60*60)) % 24));
+		}
+		if(milli > 3600000) {
+			mytime += String.format("%d minutes ", (int) ((milli / (1000*60)) % 60));
+		}
+		if(milli > 1000) {
+			mytime += String.format("%d seconds ", (int) (milli / 1000) % 60);
+		}
+		mytime +=  String.format("%d milliseconds )", (int) (milli % 1000));
+		return mytime;
 	}
 
 	@Override
