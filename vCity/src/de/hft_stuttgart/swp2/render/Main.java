@@ -2,7 +2,9 @@ package de.hft_stuttgart.swp2.render;
 
 import java.awt.HeadlessException;
 import java.awt.Toolkit;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -27,7 +29,6 @@ public class Main {
 	private static Boolean isParserSuccess = false;
 	private static Date currentDate = new Date();
 	private static CalculatorInterface backend = new CalculatorImpl();
-	private static String currentPath;
 	public static ExecutorService executor = Executors.newFixedThreadPool(1);
 	/**
 	 * @param args
@@ -51,6 +52,13 @@ public class Main {
 
 	public static Date getTimeForSunPosition(){
 		return optionGUI.getTime();
+	}
+	
+	public static void setTimeForSunPosition(Date date){
+		Calendar calendar = new GregorianCalendar();
+		calendar.setTime(date);
+		optionGUI.setTime(calendar.getTime(), 
+				calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE));
 	}
 	
 	public static Date getCurrentTime(){
@@ -100,6 +108,7 @@ public class Main {
 					(end - start));
 		}
 	}
+	
 	
 	public static void calculateShadow(ShadowPrecision shadowPrecision){
 		if (Main.isParserSuccess()) {
@@ -176,17 +185,9 @@ public class Main {
 		return isParserSuccess;
 	}
 
-	public static String getCurrentPath() {
-		return currentPath;
+	public static String getPath() {
+		return optionGUI.getPath();
 	}
-
-	public static void setCurrentPath(String currentPath) {
-		Main.currentPath = currentPath;
-	}
-
-
-
-
 
 
 }

@@ -217,6 +217,10 @@ public class OptionGUI extends JFrame implements Refreshable{
 		});
 	}
 	
+	public String getPath() {
+		return panelSettings.getPath();
+	}
+	
 	@Override
 	public void refresh(){
 		boolean allClosed = true;

@@ -9,8 +9,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.TimeZone;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import javax.media.opengl.GL;
 import javax.media.opengl.GL2;
@@ -52,13 +50,14 @@ public class CityMap3D extends JFrame implements GLEventListener {
 	private boolean isVolumeCalc = true;
 	private int minGroundSize = 0;
 	private int maxGroundSize = 10000;
-	private String oldPath;
+	ShadowPrecision defaultShadowPrecision = ShadowPrecision.VERY_LOW;
+
 	private FPSAnimator animator;
 
 	Runnable startVolumeCalculationRunnable = 
 			new StartVolumeCalculationRunnable();
 	Runnable startShadowCalculationRunnable = 
-			new StartShadowCalculationRunnable(ShadowPrecision.VERY_LOW);
+			new StartShadowCalculationRunnable(defaultShadowPrecision);
 
 	private SunPositionCalculator[][] sunPositions;
 	//Sunposition vars
@@ -214,8 +213,8 @@ public class CityMap3D extends JFrame implements GLEventListener {
 	@Override
 	public void display(GLAutoDrawable drawable) {
 //		info();
-		isShadowCalc = Main.getOptionGUI().isCalculateShadow();
-		isVolumeCalc = Main.getOptionGUI().isCalculateVolume();
+		isShadowCalc = Main.isCalculateShadow();
+		isVolumeCalc = Main.isCalculateVolume();
 
 		GL2 gl = drawable.getGL().getGL2();
 		gl.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT);
@@ -233,6 +232,7 @@ public class CityMap3D extends JFrame implements GLEventListener {
 		if (City.getInstance().getBuildings() != null) {
 			if(isVolumeCalc && isShadowCalc){
 				setSunPosition(Main.getTimeForSunPosition());
+				//System.out.println(Main.getTimeForSunPosition());
 				for (Building b : City.getInstance().getBuildings()) {
 					drawShadowBuildingsWithVolume(gl, b);
 					if(isShowVolumeAmount){
@@ -594,13 +594,6 @@ public class CityMap3D extends JFrame implements GLEventListener {
 		System.out.println("Pos x: "+camera.positionX);
 		System.out.println("Pos y: "+camera.positionY);
 		System.out.println("Pos z: "+camera.positionZ);
-	}
-
-
-
-
-	public void setOldPath(String oldPath) {
-		this.oldPath = oldPath;
 	}
 
 }
