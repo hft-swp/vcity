@@ -2,9 +2,10 @@ package de.hft_stuttgart.swp2.parser.test;
 
 import static org.junit.Assert.*;
 
+import java.io.File;
 import java.util.ArrayList;
 
-import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import de.hft_stuttgart.swp2.model.Building;
@@ -12,7 +13,9 @@ import de.hft_stuttgart.swp2.model.City;
 import de.hft_stuttgart.swp2.model.Triangle;
 import de.hft_stuttgart.swp2.model.Vertex;
 import de.hft_stuttgart.swp2.parser.CGMLParser;
+import de.hft_stuttgart.swp2.parser.ParserException;
 import de.hft_stuttgart.swp2.parser.PolygonTranslate;
+import de.hft_stuttgart.swp2.parser.PolygonTriangulator;
 
 /**
  * Parser JUnit Test
@@ -21,23 +24,16 @@ import de.hft_stuttgart.swp2.parser.PolygonTranslate;
  */
 public class ParserTest {
 
-	String fileName = "einHaus.gml";
-	
-	@Before
-	public void setUp() throws Exception {
-
-	}
-
 	@Test
-	public void testParseCity() {
+	public void testReadAndParseAndValidateCity() {
 		try {
 
 			CGMLParser parser = CGMLParser.getInstance();
 			assertNotNull(parser);
-
-			City city = parser.parse(fileName);
+			
+			City city = parser.parse("einHaus.gml");
 			assertNotNull(city);
-		
+			
 			ArrayList<Building> bs = city.getBuildings();
 			assertNotNull(bs);
 			assertTrue(bs.size() == 1);
@@ -84,6 +80,44 @@ public class ParserTest {
 	}
 	
 	@Test
+	public void testFileNotFoundException() {
+		try {
+			CGMLParser.getInstance().parse("gibtsNicht.gml");
+			fail();
+		} catch (ParserException expected) {
+			String errorMessage = expected.getMessage();
+			if (!errorMessage.contains("FileNotFoundException")){
+				fail();
+			}
+		}
+	}
+	
+	@Ignore
+	@Test
+	public void testParseException() {
+		try {
+			File f = new File(System.getProperty("java.class.path"));
+			File dir = f.getAbsoluteFile().getParentFile();
+			
+			/**
+			 * Die IL Rechner schmieren hier mit bluescreen ab :)
+			 */
+			
+			String path = dir.toString();
+			String testFile = path + "/src/de/hft_stuttgart/swp2/parser/test/brokenHaus.gml";
+			System.out.println(testFile);
+			CGMLParser.getInstance().parse(testFile);
+			fail();
+		} catch (ParserException expected) {
+			String errorMessage = expected.getMessage();
+			System.out.println(errorMessage);
+//			if (!errorMessage.contains("FileNotFoundException")){
+//				fail();
+//			}
+		}
+	}
+	
+	@Test
 	public void testTranslate() {
 		
 		double[] reference = new double[]{1,1,1};
@@ -91,8 +125,10 @@ public class ParserTest {
 		poly.add(new Vertex(7.0f, 7.0f, 7.0f));
 		
 		ArrayList<Vertex> poly2 = PolygonTranslate.translateToOrigin(poly, reference);
+		assertTrue(poly2.size() == 1);
 		
 		float[] poly3 = poly2.get(0).getCoordinates();
+		assertTrue(poly3.length == 3);
 //		System.out.println("Coords: " + poly3[0] + "" + poly3[1] + "" + poly3[2]);
 		
 		assertEquals(6.0f, poly3[0], 0.1f);
@@ -100,6 +136,49 @@ public class ParserTest {
 		assertEquals(-6.0f, poly3[2], 0.1f);
 		
 	}
-
 	
+	@Test
+	public void testTriangulate() {
+		
+		ArrayList<Vertex> poly = new ArrayList<Vertex>();
+		poly.add(new Vertex(1.0f, 1.0f, 0.0f));
+		poly.add(new Vertex(5.0f, 1.0f, 0.0f));
+		poly.add(new Vertex(1.0f, 5.0f, 0.0f));
+		poly.add(new Vertex(5.0f, 5.0f, 0.0f));
+		
+		ArrayList<Triangle> tri = PolygonTriangulator.triangulate(poly);
+		assertTrue(tri.size() == 2);
+
+		Vertex[] v = tri.get(0).getVertices();
+		assertTrue(v.length == 3);
+
+		assertEquals(v[0].getX(), 5.0f, 0.01f);
+		assertEquals(v[0].getY(), 5.0f, 0.01f);
+		assertEquals(v[0].getZ(), 0.0f, 0.01f);
+		
+		assertEquals(v[1].getX(), 3.0f, 0.01f);
+		assertEquals(v[1].getY(), 3.0f, 0.01f);
+		assertEquals(v[1].getZ(), 0.0f, 0.01f);
+		
+		assertEquals(v[2].getX(), 1.0f, 0.01f);
+		assertEquals(v[2].getY(), 5.0f, 0.01f);
+		assertEquals(v[2].getZ(), 0.0f, 0.01f);
+		
+		v = tri.get(1).getVertices();
+		assertTrue(v.length == 3);
+		
+		assertEquals(v[0].getX(), 5.0f, 0.01f);
+		assertEquals(v[0].getY(), 1.0f, 0.01f);
+		assertEquals(v[0].getZ(), 0.0f, 0.01f);
+		
+		assertEquals(v[1].getX(), 1.0f, 0.01f);
+		assertEquals(v[1].getY(), 1.0f, 0.01f);
+		assertEquals(v[1].getZ(), 0.0f, 0.01f);
+		
+		assertEquals(v[2].getX(), 3.0f, 0.01f);
+		assertEquals(v[2].getY(), 3.0f, 0.01f);
+		assertEquals(v[2].getZ(), 0.0f, 0.01f);
+		
+	}
+
 }

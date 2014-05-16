@@ -21,7 +21,7 @@ public class PolygonTriangulator {
 	 * @param poly The Polygon, as list of vertices, to be triangulated
 	 * @return List of Triangles
 	 */
-	protected static ArrayList<Triangle> triangulate(ArrayList<Vertex> poly) {
+	public static ArrayList<Triangle> triangulate(ArrayList<Vertex> poly) {
 			
 		GLU glu = new GLU();
 		PolygonTriangulatorCollector collector = new PolygonTriangulatorCollector();

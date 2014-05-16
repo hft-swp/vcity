@@ -90,9 +90,9 @@ public class CGMLParser implements ParserInterface {
 		InputStream input = classLoader.getResourceAsStream(InputFileName);
 		reader = in.createCityGMLReader(InputFileName, input);
 	} catch (CityGMLReadException e) {
-			throw new ParserException(e.getMessage());
+			throw new ParserException(e.getCause().getMessage());
 	} catch (JAXBException e) {
-			throw new ParserException(e.getMessage());
+			throw new ParserException(e.getCause().getMessage());
 	} 
 	
 	// Create a city object which we will fill with Buildings
@@ -111,7 +111,7 @@ public class CGMLParser implements ParserInterface {
 		}
 		reader.close();
 	} catch (CityGMLReadException e) {
-		throw new ParserException(e.getMessage());
+		throw new ParserException(e.getCause().getMessage());
 	}
 	
 	return city;
@@ -302,7 +302,7 @@ public class CGMLParser implements ParserInterface {
 	    writer.flush();
 	    writer.close();
 	} catch (IOException e) {
-		throw new ParserException(e.getMessage());
+		throw new ParserException(e.getCause().getMessage());
 	}
 
 	return true;
@@ -356,9 +356,9 @@ public class CGMLParser implements ParserInterface {
 	    writer.write(cityModel);
 	    writer.close();
 	} catch (CityGMLWriteException e) {
-		throw new ParserException(e.getMessage());
+		throw new ParserException(e.getCause().getMessage());
 	} catch (JAXBException e) {
-		throw new ParserException(e.getMessage());
+		throw new ParserException(e.getCause().getMessage());
 	}
 
 	return true;
