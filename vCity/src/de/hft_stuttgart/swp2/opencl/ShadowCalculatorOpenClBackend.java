@@ -364,26 +364,24 @@ public class ShadowCalculatorOpenClBackend extends ShadowCalculatorInterface {
 	}
 
 	private void calculateCenterOfBuildingsAndCity() {
-		float xCity = 0, yCity = 0, zCity = 0;
+		float xCity = 0, zCity = 0;
 		for (Building b : City.getInstance().getBuildings()) {
-			float x = 0, y = 0, z = 0;
+			float x = 0, z = 0;
 			int count = 0;
 			for (Triangle t : b.getTriangles()) {
 				for (Vertex v : t.getVertices()) {
 					x += v.getX();
-					y += v.getY();
 					z += v.getZ();
 					count++;
 				}
 			}
 			xCity += x / count;
-			yCity += y / count;
 			zCity += z / count;
-			b.setCenter(new Vertex(x / count, y / count, z / count));
+			b.setCenter(new Vertex(x / count, 0, z / count));
 		}
 		int buildingCount = City.getInstance().getBuildings().size();
 		City.getInstance().setCenter(
-				new Vertex(xCity / buildingCount, yCity / buildingCount, zCity
+				new Vertex(xCity / buildingCount, 0, zCity
 						/ buildingCount));
 	}
 
