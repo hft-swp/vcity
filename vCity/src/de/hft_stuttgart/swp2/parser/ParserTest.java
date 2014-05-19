@@ -6,9 +6,9 @@ import de.hft_stuttgart.swp2.model.Building;
 import de.hft_stuttgart.swp2.model.City;
 import de.hft_stuttgart.swp2.model.Triangle;
 import de.hft_stuttgart.swp2.model.Vertex;
-import de.hft_stuttgart.swp2.opencl.CalculatorImpl;
-import de.hft_stuttgart.swp2.opencl.OpenClException;
+import de.hft_stuttgart.swp2.opencl.ShadowCalculatorJavaBackend;
 import de.hft_stuttgart.swp2.opencl.ShadowPrecision;
+import de.hft_stuttgart.swp2.opencl.VolumeCalculatorJavaBackend;
 
 /**
  * Simple testing, no JUnit yet.
@@ -23,18 +23,18 @@ public class ParserTest {
 		
 		long id = System.currentTimeMillis();
 		
-	String inputFileName = "Gruenbuehl_LOD2.gml";
-//	String inputFileName = "einHaus.gml";
+//	String inputFileName = "Gruenbuehl_LOD2.gml";
+	String inputFileName = "einHaus.gml";
 		
 //		String outputFileNameCsv = "testCSV_" + Long.toString(id) + ".csv";
 		String outputFileNameCgml = "C:\\temp\\testCGML_" + Long.toString(id) + ".gml";
-		String outputFileNameWtf = "C:\\temp\\testWtf_" + Long.toString(id) + ".xml";
+		String outputFileNameXml = "C:\\temp\\testXml_" + Long.toString(id) + ".xml";
 		
 		// Tests
 		testParse(inputFileName);
 		
 //		testExportToGml(outputFileNameCgml);
-		testExportToWtf(outputFileNameWtf);
+		testExportToXml(outputFileNameXml);
 
 	}
 	
@@ -102,14 +102,20 @@ public class ParserTest {
 	}
 	
 	@SuppressWarnings("all")
-	private static void testExportToWtf(String outputFileName) {
+	private static void testExportToXml(String outputFileName) {
 		try {
-			CalculatorImpl ci = new CalculatorImpl();
-			ci.calculateShadow(ShadowPrecision.HIGH);
+			
+			// Note: Do not run this with Gruenbuehl, else calculation will take forever.
+			
+			ShadowCalculatorJavaBackend scjb = new ShadowCalculatorJavaBackend();
+			scjb.calculateShadow(ShadowPrecision.HIGH);
+			
+			VolumeCalculatorJavaBackend vcjb = new VolumeCalculatorJavaBackend();
+			vcjb.calculateVolume();
+			
 			CGMLParser.getInstance().exportToXml(city, outputFileName);
 		} catch (ParserException e) {
-		} catch (OpenClException e) {
-		}
+		} 
 	}
 	
 }

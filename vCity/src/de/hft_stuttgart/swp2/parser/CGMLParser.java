@@ -428,6 +428,10 @@ public class CGMLParser implements ParserInterface {
     			buildID.setValue(b.getId());
     			building.setAttributeNode(buildID);
     			
+    			Attr buildVol = doc.createAttribute("volume");
+    			buildVol.setValue(Double.toString(b.getVolume()));
+    			building.setAttributeNode(buildVol);
+    			
     			for (ShadowTriangle t : b.getShadowTriangles()) {
     				
     				Element triangle = doc.createElement("Triangle");

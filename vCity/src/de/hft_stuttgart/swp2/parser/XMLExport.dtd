@@ -1,0 +1,16 @@
+<!ELEMENT City (SkyModel?, Building+)>
+
+<!ELEMENT SkyModel EMPTY>
+<!ATTLIST SkyModel 
+  name CDATA #REQUIRED
+  >
+  
+<!ELEMENT Building (Triangle)+>
+<!ATTLIST Building 
+  id CDATA #REQUIRED
+  volume CDATA #IMPLIED
+  >
+  
+<!ELEMENT Triangle (ShadowSet, Vertex, Vertex, Vertex)>
+<!ELEMENT ShadowSet (#PCDATA)>
+<!ELEMENT Vertex (#PCDATA)>
