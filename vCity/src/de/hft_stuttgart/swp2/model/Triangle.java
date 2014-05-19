@@ -41,6 +41,12 @@ public class Triangle {
 		this.vertices = vertices;
 	}
 	
+	/**
+	 * Creates a Triangle from the given vertices
+	 * @param v0
+	 * @param v1
+	 * @param v2
+	 */
 	public Triangle(Vertex v0, Vertex v1, Vertex v2) {
 		vertices = new Vertex[3];
 		vertices[0] = v0;
