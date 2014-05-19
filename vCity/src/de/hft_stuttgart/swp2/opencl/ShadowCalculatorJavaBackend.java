@@ -11,12 +11,10 @@ public class ShadowCalculatorJavaBackend extends ShadowCalculatorInterface {
 	
 	
 	/**
-	 * Angenommen koordianten in meter
+	 * The java implementation of the calculation for shadow values
 	 */
 	public void calculateShadow(ShadowPrecision precision) {
 		Vertex[] directions = calcDirections();
-		int tru = 0;
-		int fals = 0;
 		recalculateShadowTriangles(precision);
 		for (Building b : City.getInstance().getBuildings()) {
 			for (ShadowTriangle t : b.getShadowTriangles()) {
@@ -24,54 +22,20 @@ public class ShadowCalculatorJavaBackend extends ShadowCalculatorInterface {
 					Vertex himmelV = directions[i];
 					boolean hasShadow = false;
 					for (Building b2 : City.getInstance().getBuildings()) {
-//						if (b == b2) {
-//							continue;
-//						}
 						for (Triangle t2 : b2.getTriangles()) {
 							if(rayIntersectTriangle(t.getCenter(), himmelV, t2.getVertices()[0], t2.getVertices()[1], t2.getVertices()[2])) {
 								t.getShadowSet().set(i);
 								hasShadow = true;
-								tru++;
 								break;
 							}
 						}
 						if(hasShadow)
 							break;
 					}
-					if (!hasShadow)
-						fals++;
 				}
 			}
 		}
-		System.out.println("True: " + tru);
-		System.out.println("False: " + fals);
 	}
-
-//	public static void main(String[] args) {
-////		VolumeTest.testCity1();
-////		Building b = City.getInstance().getBuildings().get(0);
-////		addTriangles(b, b.getTriangles().get(0));
-//		
-////		Vertex v0 = new Vertex(1, 0, 0);
-////		Vertex v1 = new Vertex(0, 1, 0);
-////		Vertex v2 = new Vertex(0, 0, 1);
-////		
-////		Vertex p = new Vertex (0, 0, 0);
-////		Vertex d = new Vertex (1, 1, 1);
-////		
-////		System.out.println(rayIntersectTriangle(p, d, v0, v1, v2));
-//		
-//		VolumeTest.testCity2();
-//		VolumeTest.testCity2();
-//		VolumeTest.testCity2();
-//		City.getInstance().getBuildings().get(1).translate(0, 0, 5);
-//		City.getInstance().getBuildings().get(2).translate(5, 0, 5);
-//		City.getInstance().getBuildings().get(2).scale(1, 5, 1);
-//
-//		
-//		calculateShadow(ShadowPrecision.HIGH);
-//	}
-
 
 	private static Vertex cross(Vertex v0, Vertex v1) {
 		float upX = v0.getY() * v1.getZ() - v0.getZ() * v1.getY();
@@ -84,12 +48,6 @@ public class ShadowCalculatorJavaBackend extends ShadowCalculatorInterface {
 		return v0.getX() * v1.getX() + v0.getY() * v1.getY() + v0.getZ()
 				* v1.getZ();
 	}
-
-	// private static boolean rayIntersectTriangle(Vertex l1, Vertex l2,
-	// Triangle t) {
-	//
-	// return false;
-	// }
 
 	private static boolean rayIntersectTriangle(Vertex p, Vertex d, Vertex v0,
 			Vertex v1, Vertex v2) {

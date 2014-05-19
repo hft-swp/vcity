@@ -1,5 +1,12 @@
 package de.hft_stuttgart.swp2.opencl;
 
+/**
+ * This class implements the CalculatorInterface if the context creation of the
+ * openCL fails it falls back to a java implementation which is slow.
+ * 
+ * @author group 3/4
+ *
+ */
 public class CalculatorImpl implements CalculatorInterface {
 
 	@Override
@@ -11,12 +18,12 @@ public class CalculatorImpl implements CalculatorInterface {
 			System.out.println("Using Java Backend");
 			vc = new VolumeCalculatorJavaBackend();
 		}
-		
 		vc.calculateVolume();
 	}
 
 	@Override
-	public void calculateShadow(ShadowPrecision precision) throws OpenClException {
+	public void calculateShadow(ShadowPrecision precision)
+			throws OpenClException {
 		ShadowCalculatorInterface backend;
 		try {
 			backend = new ShadowCalculatorOpenClBackend();

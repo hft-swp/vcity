@@ -24,10 +24,18 @@ public enum ShadowPrecision {
 		this.area = area;
 	}
 	
+	/**
+	 * 
+	 * @return the area
+	 */
 	public float getArea() {
 		return area;
 	}
 	
+	/**
+	 * 
+	 * @return a readable expression of the enum
+	 */
 	public String getName() {
 		return name;
 	}

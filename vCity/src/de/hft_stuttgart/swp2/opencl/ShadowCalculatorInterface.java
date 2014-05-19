@@ -7,6 +7,12 @@ import de.hft_stuttgart.swp2.model.Triangle;
 import de.hft_stuttgart.swp2.model.Vertex;
 
 public abstract class ShadowCalculatorInterface {
+	
+	/**
+	 * Calculates the shadow with the given precision
+	 * @param precision
+	 * @throws OpenClException an error has occured while creating the OpenCL context
+	 */
 	public abstract void calculateShadow(ShadowPrecision precision) throws OpenClException;
 	
 	private static void splitTriangles(Vertex v0, Vertex v1, Vertex v2,
@@ -38,6 +44,12 @@ public abstract class ShadowCalculatorInterface {
 		return (float) Math.sqrt(x * x + y * y + z * z);
 	}
 	
+	/**
+	 * 
+	 * @param v1
+	 * @param v0
+	 * @return v1 - v0
+	 */
 	public static Vertex vertexDiff(Vertex v1, Vertex v0) {
 		return new Vertex(v1.getX() - v0.getX(), v1.getY() - v0.getY(),
 				v1.getZ() - v0.getZ());

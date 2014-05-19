@@ -31,11 +31,17 @@ import org.jocl.cl_program;
  *
  */
 public class OpenClContext {
+	
 	private cl_context context;
 	private cl_command_queue commandQueue;
 	private cl_device_id device;
 	private static OpenClContext instance;
 
+	/**
+	 * Singleton instance of the OpenCL context
+	 * @return the only OpenCLContext instance
+	 * @throws OpenClException
+	 */
 	public static OpenClContext getInstance() throws OpenClException {
 		if(instance == null)
 			instance = new OpenClContext();
@@ -113,22 +119,42 @@ public class OpenClContext {
 		return kernel;
 	}
 
+	/**
+	 * this destroys the given kernel
+	 * @param kernel
+	 */
 	public void finalizeKernel(cl_kernel kernel) {
 		clReleaseKernel(kernel);
 	}
 
+	/**
+	 * 
+	 * @return the first graphic device capable of OpenCL
+	 */
 	public cl_device_id getDevice() {
 		return device;
 	}
 	
+	/**
+	 * use with caution
+	 * @return the opencl context
+	 */
 	public cl_context getClContext() {
 		return context;
 	}
 
+	/**
+	 * use with caution
+	 * @return the command queue
+	 */
 	public cl_command_queue getClCommandQueue() {
 		return commandQueue;
 	}
 
+	/**
+	 * prints some timing values of the kernel
+	 * @param kernelEvent
+	 */
 	public void profile(cl_event kernelEvent) {
 		long submitTime[] = new long[1];
 		long queuedTime[] = new long[1];
@@ -160,37 +186,6 @@ public class OpenClContext {
 				+ " ms");
 
 	}
-
-	// @SuppressWarnings("unused")
-	// private void debugProgram(cl_device_id[] devices) {
-	// long[] logSize = new long[1];
-	// CL.clGetProgramBuildInfo(program, devices[0], CL.CL_PROGRAM_BUILD_STATUS,
-	// 0, null, logSize);
-	// System.out.println("build status: " + logSize[0] + "");
-	// byte[] logData = new byte[(int) logSize[0]];
-	// CL.clGetProgramBuildInfo(program, devices[0], CL.CL_PROGRAM_BUILD_STATUS,
-	// logSize[0],
-	// Pointer.to(logData), null);
-	// System.out.println("Obtained status data:");
-	// System.out.println(">" + new String(logData, 0, logData.length - 1) +
-	// "<");
-	// logSize = new long[1];
-	// CL.clGetProgramBuildInfo(program, devices[0],
-	// CL.CL_PROGRAM_BUILD_OPTIONS, 0, null, logSize);
-	// System.out.println("build options: " + logSize[0] + "");
-	// logData = new byte[(int) logSize[0]];
-	// CL.clGetProgramBuildInfo(program, devices[0],
-	// CL.CL_PROGRAM_BUILD_OPTIONS, logSize[0],
-	// Pointer.to(logData), null);
-	// System.out.println("Obtained build options data:");
-	// System.out.println(">" + new String(logData, 0, logData.length - 1) +
-	// "<");
-	//
-	// logSize = new long[1];
-	// CL.clGetProgramBuildInfo(program, devices[0], CL.CL_PROGRAM_BUILD_LOG, 0,
-	// null, logSize);
-	//
-	// }
 
 	private static String loadProgramText(String fileName) {
 		Scanner sc = null;

@@ -2,9 +2,9 @@ package de.hft_stuttgart.swp2.model;
   
 /**
  * 
- * simple container class for a vertex in a 3D-space
+ * simple container class for a vertex in a 3D-space with double values
  * 
- * @author 12bema1bif, 12tost1bif, 12riju1bif
+ * @author 
  * 
  */
 public class VertexDouble {

@@ -7,6 +7,11 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.TimeZone;
 
+/**
+ * 
+ * @author 12bema1bif, 12riju1bif
+ *
+ */
 public class SunPositionCalculator {
 
 	private double azimut;
@@ -22,20 +27,17 @@ public class SunPositionCalculator {
 
 	/**
 	 * http://de.wikipedia.org/wiki/Julianisches_Datum#Berechnung
+	 * calculates two angles to determine the position of the sun. This considers the location too.
 	 * 
-	 * @param d
-	 * @param longitude
+	 * @param d the time of which the sun position is to be calculated
+	 * @param longitude 
 	 * @param latitude
 	 */
-	public SunPositionCalculator(Date d, double xCoord, double yCoord) {
+	public SunPositionCalculator(Date d, double longitude, double latitude) {
 		GregorianCalendar cal = new GregorianCalendar();
 		cal.setTimeZone(TimeZone.getTimeZone("UTC"));
 		cal.setTimeInMillis(d.getTime());
 		// System.out.println(d);
-
-		// TODO calc, example for munich
-		double longitude = 11.6;
-		double latitude = 48.1;
 
 		// Julianische Tage
 		double jdn = getJulianDate(cal);
@@ -114,10 +116,18 @@ public class SunPositionCalculator {
 		// System.out.printf("SunPosition: x=%f, y=%f, z=%f%n", x, y, z);
 	}
 
+	/**
+	 * 
+	 * @return the azimut angle of the sun (horizontal)
+	 */
 	public double getAzimutAngle() {
 		return azimut;
 	}
 
+	/**
+	 * 
+	 * @return the vertical angle of the sun
+	 */
 	public double getAltitude() {
 		return hr;
 	}
@@ -141,8 +151,6 @@ public class SunPositionCalculator {
 	 * @return value between -1 and 144
 	 */
 	public int getSunPosition() {
-//		System.out.println("Azimut= " + (azimut + 180));
-//		System.out.println("Höhe= " + hr);
 		if (hr < 0) {
 			System.out.println("RayIndex= -1");
 			return -1;
@@ -150,7 +158,6 @@ public class SunPositionCalculator {
 		int result = 0;
 		result += (int) (hr / 15) * 12;
 		result += (-1 * azimut + 270) / 30;
-//		System.out.println("RayIndex= " + result);
 		return result;
 	}
 

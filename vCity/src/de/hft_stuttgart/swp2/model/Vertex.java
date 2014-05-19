@@ -90,20 +90,36 @@ public class Vertex {
 		coords[2] += z;
 	}
 	
+	/**
+	 * this scales the vertex with the given values
+	 * @param x
+	 * @param y
+	 * @param z
+	 */
 	public void scale(float x, float y, float z) {
 		coords[0] *= x;
 		coords[1] *= y;
 		coords[2] *= z;
 	}
 	
+	/**
+	 * this is used internally, do not use
+	 * @return
+	 */
 	public boolean wasVisited() {
 		return visited;
 	}
 	
+	/**
+	 * this is used internally, do not use
+	 */
 	public void visit() {
 		visited = true;
 	}
 	
+	/**
+	 * this is used internally, do not use
+	 */
 	public void resetVisit() {
 		visited = false;
 	}
