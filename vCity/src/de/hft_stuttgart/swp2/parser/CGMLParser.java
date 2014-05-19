@@ -247,19 +247,47 @@ public class CGMLParser implements ParserInterface {
                     // Triangulate
                     ArrayList<Triangle> tri = PolygonTriangulator.triangulate(pp);
   
+                    // Norm vector
+                    for (Triangle t : tri){
+                    	
+                    	Vertex[] nvert = t.getVertices();
+
+                    	Vertex v1 = new Vertex(
+                    			(nvert[1].getX() - nvert[0].getX()),
+                    			(nvert[1].getY() - nvert[0].getY()),
+                    			(nvert[1].getZ() - nvert[0].getZ())
+                    			);
+
+                    	Vertex v2 = new Vertex(
+                    			(nvert[2].getX() - nvert[0].getX()),
+                    			(nvert[2].getY() - nvert[0].getY()),
+                    			(nvert[2].getZ() - nvert[0].getZ())
+                    			);
+
+                    	Vertex kreuz = new Vertex(
+                    			(v1.getY() * v2.getZ() - v1.getZ() * v2.getY()),
+                    			(v1.getZ() * v2.getX() - v1.getX() * v2.getZ()),
+                    			(v1.getX() * v2.getY() - v1.getY() * v2.getX())
+                    			);
+                    	
+                    	float n = (float) Math.sqrt(kreuz.getX() * kreuz.getX() + kreuz.getY() * kreuz.getY() + kreuz.getZ() * kreuz.getZ());
+                    	Vertex norm = new Vertex(kreuz.getX()/n, kreuz.getY()/n, kreuz.getZ()/n);
+                    	t.setNormalVector(norm);
+                    }
+                    
+                    // Round
                     ArrayList<Triangle> triNew = new ArrayList<Triangle>();
                     ArrayList<Vertex> vertNew = new ArrayList<Vertex>();
-  
-                    // Round
+                    
                     for (Triangle t : tri) {
-                    vertNew.clear();
-                    for (Vertex ve : t.getVertices()) {
-                        float newx = (float) ((Math.round(ve.getX() * 1000.0)) / 1000.0);
-                        float newy = (float) ((Math.round(ve.getY() * 1000.0)) / 1000.0);
-                        float newz = (float) ((Math.round(ve.getZ() * 1000.0)) / 1000.0);
-                        vertNew.add(new Vertex(newx, newy, newz));
-                    }
-                    triNew.add(new Triangle(vertNew.get(0), vertNew.get(1), vertNew.get(2)));
+	                    vertNew.clear();
+	                    for (Vertex ve : t.getVertices()) {
+	                        float newx = (float) ((Math.round(ve.getX() * 1000.0)) / 1000.0);
+	                        float newy = (float) ((Math.round(ve.getY() * 1000.0)) / 1000.0);
+	                        float newz = (float) ((Math.round(ve.getZ() * 1000.0)) / 1000.0);
+	                        vertNew.add(new Vertex(newx, newy, newz));
+	                    }
+	                    triNew.add(new Triangle(vertNew.get(0), vertNew.get(1), vertNew.get(2)));
                     }
   
                     polyTriangles.addAll(triNew);
@@ -453,8 +481,7 @@ public class CGMLParser implements ParserInterface {
     					
     					Element vertex = doc.createElement("Vertex");
     					
-//    					VertexDouble trv = PolygonTranslate.translateBack(v, reference);
-    					Vertex trv = v;
+    					VertexDouble trv = PolygonTranslate.translateBack(v, reference);
     					
     					vertex.appendChild(doc.createTextNode(trv.getX() + "," + trv.getY() + "," + trv.getZ()));
     					triangle.appendChild(vertex);

@@ -83,7 +83,7 @@ public class PolygonTranslate {
             double[] vals = new double[] { x, y, z, 1 };
             Matrix v = new Matrix(vals, 1);
               
-            Matrix trans = rotate.times(translate);
+            Matrix trans = translate.times(rotate);
             double[] newVals = trans.times(v.transpose()).toColumnPackedArray();
   
         return new VertexDouble(newVals[0], newVals[1], newVals[2]);
