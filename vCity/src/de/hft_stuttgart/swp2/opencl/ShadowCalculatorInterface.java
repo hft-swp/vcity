@@ -38,7 +38,7 @@ public abstract class ShadowCalculatorInterface {
 		return (float) Math.sqrt(x * x + y * y + z * z);
 	}
 	
-	protected static Vertex vertexDiff(Vertex v1, Vertex v0) {
+	public static Vertex vertexDiff(Vertex v1, Vertex v0) {
 		return new Vertex(v1.getX() - v0.getX(), v1.getY() - v0.getY(),
 				v1.getZ() - v0.getZ());
 	}

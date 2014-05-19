@@ -42,6 +42,7 @@ void calc(__global float* cityVertices,
 				   __global float* shadowVerticeCenters,
 				   __global int* shadowVerticeCentersCount,
 				   __const int shadowBuildingsCount,
+				   __global float* shadowTriangleNormals,
 				   __global float* sunDirections,
 				   __global char* hasShadow, // (144/8)*shadowTrianglesCount char
 				   __const int workSize) 
@@ -73,7 +74,14 @@ void calc(__global float* cityVertices,
 	 
 	for (int i = 0; i < 144; i++) {
 		sunDirection = (float3)(sunDirections[i*3], sunDirections[i*3+1], sunDirections[i*3+2]);
-		// skalarprodukt < 0 rausschmeißen
+		float3 n = (float3)(shadowTriangleNormals[gid3], shadowTriangleNormals[gid3+1], shadowTriangleNormals[gid3+2]);
+		float l0 = fast_length(sunDirection);
+		float l1 = fast_length(n);
+		float c = dot(sunDirection, n) / (l0 * l1);
+		if (c < 0) {
+			hasShadow[gid*18+i/8] |= (1 << (7-i%8));
+			continue;
+		}
 		
 		int breakInt = 0;
 		for (int neighbourIdx = neighbourOffset; neighbourIdx < neighbourOffset + neighboursCount[buildingIdx]; ++neighbourIdx) {

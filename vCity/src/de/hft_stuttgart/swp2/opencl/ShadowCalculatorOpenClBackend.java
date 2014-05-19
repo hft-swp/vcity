@@ -9,7 +9,6 @@ import static org.jocl.CL.clReleaseMemObject;
 import static org.jocl.CL.clSetKernelArg;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.BitSet;
 import java.util.HashMap;
 import java.util.Map.Entry;
@@ -32,9 +31,9 @@ import de.hft_stuttgart.swp2.model.Vertex;
 
 public class ShadowCalculatorOpenClBackend extends ShadowCalculatorInterface {
 
-	private static final int TRIANGLE_COUNT = 10000;
+	private static final int TRIANGLE_COUNT = 1000;
 
-	private static final float MAX_DISTANCE = 100;
+	private static final float MAX_DISTANCE = 80;
 
 	private static final String filename = "shadowCalculation.cl";
 	private OpenClContext occ;
@@ -84,6 +83,7 @@ public class ShadowCalculatorOpenClBackend extends ShadowCalculatorInterface {
 			int[] numNeighbours = new int[calcBuildings.size()];
 
 			float[] shadowVerticeCenters = new float[triangleCount * 3];
+			float[] shadowTriangleNormals = new float[triangleCount * 3];
 			int[] shadowVerticeCentersCount = new int[calcBuildings.size()];
 
 			int shadowVerticeCenterIdx = 0;
@@ -107,6 +107,9 @@ public class ShadowCalculatorOpenClBackend extends ShadowCalculatorInterface {
 				numNeighbours[calculateBuildingIdx] = numNeighbour;
 
 				for (ShadowTriangle st : b.getShadowTriangles()) {
+					shadowTriangleNormals[shadowVerticeCenterIdx + 0] = st.getNormalVector().getX();
+					shadowTriangleNormals[shadowVerticeCenterIdx + 1] = st.getNormalVector().getY();
+					shadowTriangleNormals[shadowVerticeCenterIdx + 2] = st.getNormalVector().getZ();
 					for (float p : st.getCenter().getCoordinates()) {
 						shadowVerticeCenters[shadowVerticeCenterIdx] = p;
 						shadowVerticeCenterIdx++;
@@ -145,7 +148,8 @@ public class ShadowCalculatorOpenClBackend extends ShadowCalculatorInterface {
 			cl_mem buildingNeighboursCountMem = storeOnGPUAsReadOnly(context, numNeighbours);
 			cl_mem shadowVerticesMem = storeOnGPUAsReadOnly(context, shadowVerticeCenters);
 			cl_mem shadowTriangleCountMem = storeOnGPUAsReadOnly(context, shadowVerticeCentersCount);
-
+			cl_mem shadowTriangleNormalsMem = storeOnGPUAsReadOnly(context, shadowTriangleNormals);
+			
 			byte[] hasShadow = new byte[18 * triangleCount];
 
 			Pointer hasShadowPointer = Pointer.to(hasShadow);
@@ -169,15 +173,18 @@ public class ShadowCalculatorOpenClBackend extends ShadowCalculatorInterface {
 			clSetKernelArg(kernel, 5, Sizeof.cl_mem, Pointer.to(shadowTriangleCountMem));
 			// Anzahl der der zu rechneden Gebäude
 			clSetKernelArg(kernel, 6, Sizeof.cl_int, Pointer.to(new int[] { calcBuildings.size() }));
+			
+			// Normalenvektoren der dreiecke
+			clSetKernelArg(kernel, 7, Sizeof.cl_mem, Pointer.to(shadowTriangleNormalsMem));
 
 			// Sonnenrichtungs vektoren
-			clSetKernelArg(kernel, 7, Sizeof.cl_mem, Pointer.to(sunDirectionsMem));
+			clSetKernelArg(kernel, 8, Sizeof.cl_mem, Pointer.to(sunDirectionsMem));
 
 			// Ergebnis array
-			clSetKernelArg(kernel, 8, Sizeof.cl_mem, Pointer.to(hasShadowMem));
+			clSetKernelArg(kernel, 9, Sizeof.cl_mem, Pointer.to(hasShadowMem));
 
 			// actual work size
-			clSetKernelArg(kernel, 9, Sizeof.cl_int,
+			clSetKernelArg(kernel, 10, Sizeof.cl_int,
 					Pointer.to(new int[] { shadowVerticeCenters.length / 3 }));
 
 			cl_device_id device = occ.getDevice();
@@ -215,6 +222,7 @@ public class ShadowCalculatorOpenClBackend extends ShadowCalculatorInterface {
 			clReleaseMemObject(buildingNeighboursCountMem);
 			clReleaseMemObject(cityVerticesCountMem);
 			clReleaseMemObject(cityVerticesMem);
+			clReleaseMemObject(shadowTriangleNormalsMem);
 		}
 
 		// Release kernel, program, and memory objects
