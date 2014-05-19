@@ -28,6 +28,7 @@ import com.jogamp.opengl.util.FPSAnimator;
 import de.hft_stuttgart.swp2.model.Building;
 import de.hft_stuttgart.swp2.model.City;
 import de.hft_stuttgart.swp2.model.ShadowTriangle;
+import de.hft_stuttgart.swp2.model.Triangle;
 import de.hft_stuttgart.swp2.model.Vertex;
 import de.hft_stuttgart.swp2.opencl.CalculatorImpl;
 import de.hft_stuttgart.swp2.opencl.CalculatorInterface;
@@ -119,6 +120,12 @@ public class ShadowViewer extends JFrame implements GLEventListener,
 		} catch (Exception e1) {
 			e1.printStackTrace();
 		}
+		
+		for (Building b : City.getInstance().getBuildings()) {
+			for (Triangle t : b.getTriangles()) {
+				t.setNormalVector(cross(t.getVertices()[0], t.getVertices()[1]));
+			}
+		}
 
 		sunPositions = new SunPositionCalculator[12][24];
 		for (int j = 1; j < 13; ++j) {
@@ -170,6 +177,13 @@ public class ShadowViewer extends JFrame implements GLEventListener,
 		pack();
 		this.setLocationRelativeTo(null);
 		robot.mouseMove(halfScreenWidth, halfScreenHeight);
+	}
+
+	private Vertex cross(Vertex v0, Vertex v1) {
+		float x = v0.getY() * v1.getZ() - v0.getZ() * v1.getY();
+		float y = v0.getZ() * v1.getX() - v0.getX() * v1.getZ();
+		float z = v0.getX() * v1.getY() - v0.getY() * v1.getX();
+		return new Vertex(x, y, z);
 	}
 
 	private String milliseconds2string(long milli) {

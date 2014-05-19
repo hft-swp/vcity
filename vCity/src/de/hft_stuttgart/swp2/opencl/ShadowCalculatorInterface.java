@@ -10,13 +10,15 @@ public abstract class ShadowCalculatorInterface {
 	public abstract void calculateShadow(ShadowPrecision precision) throws OpenClException;
 	
 	private static void splitTriangles(Vertex v0, Vertex v1, Vertex v2,
-			Building b, ShadowPrecision precision) {
+			Building b, ShadowPrecision precision, Vertex norm) {
 		float x = 0.5f * (v0.getX() + v1.getX());
 		float y = 0.5f * (v0.getY() + v1.getY());
 		float z = 0.5f * (v0.getZ() + v1.getZ());
 		Vertex vNeu = new Vertex(x, y, z);
 		Triangle tNeu1 = new Triangle(v0, vNeu, v2);
 		Triangle tNeu2 = new Triangle(v2, vNeu, v1);
+		tNeu1.setNormalVector(norm);
+		tNeu2.setNormalVector(norm);
 		addTriangles(b, tNeu1, precision);
 		addTriangles(b, tNeu2, precision);
 	}
@@ -49,21 +51,23 @@ public abstract class ShadowCalculatorInterface {
 			float dis3 = getDistance(t.getVertices()[0], t.getVertices()[2]);
 			if (dis1 >= dis2 && dis1 >= dis3) {
 				splitTriangles(t.getVertices()[0], t.getVertices()[1],
-						t.getVertices()[2], b, precision);
+						t.getVertices()[2], b, precision, t.getNormalVector());
 				return;
 			}
 			if (dis2 >= dis1 && dis2 >= dis3) {
 				splitTriangles(t.getVertices()[1], t.getVertices()[2],
-						t.getVertices()[0], b, precision);
+						t.getVertices()[0], b, precision, t.getNormalVector());
 				return;
 			}
 			if (dis3 >= dis2 && dis3 >= dis1) {
 				splitTriangles(t.getVertices()[2], t.getVertices()[0],
-						t.getVertices()[1], b, precision);
+						t.getVertices()[1], b, precision, t.getNormalVector());
 				return;
 			}
 		} else {
-			b.addShadowTriangle(new ShadowTriangle(t.getVertices()));
+			ShadowTriangle st = new ShadowTriangle(t.getVertices());
+			st.setNormalVector(t.getNormalVector());
+			b.addShadowTriangle(st);
 		}
 	}
 	
