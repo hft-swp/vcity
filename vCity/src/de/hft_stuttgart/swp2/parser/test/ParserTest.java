@@ -12,6 +12,7 @@ import de.hft_stuttgart.swp2.model.Building;
 import de.hft_stuttgart.swp2.model.City;
 import de.hft_stuttgart.swp2.model.Triangle;
 import de.hft_stuttgart.swp2.model.Vertex;
+import de.hft_stuttgart.swp2.model.VertexDouble;
 import de.hft_stuttgart.swp2.parser.CGMLParser;
 import de.hft_stuttgart.swp2.parser.ParserException;
 import de.hft_stuttgart.swp2.parser.PolygonTranslate;
@@ -121,8 +122,8 @@ public class ParserTest {
 	public void testTranslate() {
 		
 		double[] reference = new double[]{1,1,1};
-		ArrayList<Vertex> poly = new ArrayList<Vertex>();
-		poly.add(new Vertex(7.0f, 7.0f, 7.0f));
+		ArrayList<VertexDouble> poly = new ArrayList<VertexDouble>();
+		poly.add(new VertexDouble(7.0d, 7.0d, 7.0d));
 		
 		ArrayList<Vertex> poly2 = PolygonTranslate.translateToOrigin(poly, reference);
 		assertTrue(poly2.size() == 1);
