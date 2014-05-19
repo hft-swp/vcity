@@ -174,10 +174,10 @@ public class ShadowViewer extends JFrame implements GLEventListener,
 
 	private String milliseconds2string(long milli) {
 		String mytime = "( ";
-		if(milli > 86400000) {
+		if(milli > 3600000) {
 			mytime += String.format("%d hours ",(int) ((milli / (1000*60*60)) % 24));
 		}
-		if(milli > 3600000) {
+		if(milli > 60000) {
 			mytime += String.format("%d minutes ", (int) ((milli / (1000*60)) % 60));
 		}
 		if(milli > 1000) {
