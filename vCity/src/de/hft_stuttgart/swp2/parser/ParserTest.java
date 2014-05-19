@@ -6,6 +6,9 @@ import de.hft_stuttgart.swp2.model.Building;
 import de.hft_stuttgart.swp2.model.City;
 import de.hft_stuttgart.swp2.model.Triangle;
 import de.hft_stuttgart.swp2.model.Vertex;
+import de.hft_stuttgart.swp2.opencl.CalculatorImpl;
+import de.hft_stuttgart.swp2.opencl.OpenClException;
+import de.hft_stuttgart.swp2.opencl.ShadowPrecision;
 
 /**
  * Simple testing, no JUnit yet.
@@ -15,6 +18,7 @@ public class ParserTest {
 	
 	private static City city = null;
 
+	@SuppressWarnings("all")
 	public static void main(String[] args) throws NullPointerException {
 		
 		long id = System.currentTimeMillis();
@@ -24,11 +28,13 @@ public class ParserTest {
 		
 //		String outputFileNameCsv = "testCSV_" + Long.toString(id) + ".csv";
 		String outputFileNameCgml = "C:\\temp\\testCGML_" + Long.toString(id) + ".gml";
+		String outputFileNameWtf = "C:\\temp\\testWtf_" + Long.toString(id) + ".xml";
 		
 		// Tests
 		testParse(inputFileName);
 		
-		testExportToGml(outputFileNameCgml);
+//		testExportToGml(outputFileNameCgml);
+		testExportToWtf(outputFileNameWtf);
 
 	}
 	
@@ -87,10 +93,22 @@ public class ParserTest {
 		}
 	}
 
+	@SuppressWarnings("all")
 	private static void testExportToGml(String outputFileName) {
 		try {
 			CGMLParser.getInstance().exportToCGML(city, outputFileName);
 		} catch (ParserException e) {
+		}
+	}
+	
+	@SuppressWarnings("all")
+	private static void testExportToWtf(String outputFileName) {
+		try {
+			CalculatorImpl ci = new CalculatorImpl();
+			ci.calculateShadow(ShadowPrecision.HIGH);
+			CGMLParser.getInstance().exportToXml(city, outputFileName);
+		} catch (ParserException e) {
+		} catch (OpenClException e) {
 		}
 	}
 	

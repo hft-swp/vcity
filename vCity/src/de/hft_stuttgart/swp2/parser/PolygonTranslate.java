@@ -55,23 +55,22 @@ public class PolygonTranslate {
         return polynew;
   
     }
-    public static ArrayList<Vertex> translateBack(ArrayList<VertexDouble> poly,double[] reference) {
+    
+    
+    public static VertexDouble translateBack(Vertex vert, double[] reference) {
     	   
         double rotateBy;
         Matrix translate;
         Matrix rotate;
-        ArrayList<Vertex> polynew = new ArrayList<>();
   
-        for (int i = 0; i < poly.size(); i++) {
-  
-            double x = poly.get(i).getX();
-            double y = poly.get(i).getY();
-            double z = poly.get(i).getZ();
+            double x = vert.getX();
+            double y = vert.getY();
+            double z = vert.getZ();
               
             translate = new Matrix(new double[][] {
-                    { 1, 0, 0, (reference[0])  },
-                    { 0, 1, 0, (reference[1])  },
-                    { 0, 0, 1, (reference[2])  }, 
+                    { 1, 0, 0, (reference[0]) },
+                    { 0, 1, 0, (reference[1]) },
+                    { 0, 0, 1, (reference[2]) }, 
                     { 0, 0, 0, 1 } });
               
             rotateBy = Math.toRadians(90);
@@ -87,10 +86,6 @@ public class PolygonTranslate {
             Matrix trans = rotate.times(translate);
             double[] newVals = trans.times(v.transpose()).toColumnPackedArray();
   
-            polynew.add(new Vertex((float) newVals[0], (float) newVals[1], (float) newVals[2]));
-  
-        }
-  
-        return polynew;
+        return new VertexDouble(newVals[0], newVals[1], newVals[2]);
     
 }}

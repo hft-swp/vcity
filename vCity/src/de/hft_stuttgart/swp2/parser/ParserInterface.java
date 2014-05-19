@@ -42,6 +42,15 @@ public interface ParserInterface {
 	public boolean exportToCGML(City city, String outputFileName) throws ParserException;
 	
 	/**
+     * Exports the Shadow calculations to an XML file "INSEL" will can read.
+     * 
+     * @param city List of Buildings
+     * @param OutputFileName Output file name
+     * @return true if the export was successful
+     */
+	public boolean exportToXml(City city, String outputFileName) throws ParserException;
+	
+	/**
 	 * Returns the reference value used for the coordinate translation
 	 * @return reference value
 	 */

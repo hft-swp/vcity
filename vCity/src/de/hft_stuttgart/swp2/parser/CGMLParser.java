@@ -5,10 +5,20 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.BitSet;
 import java.util.List;
-  
+
 import javax.xml.bind.JAXBException;
-  
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+
 import org.citygml4j.CityGMLContext;
 import org.citygml4j.builder.CityGMLBuilder;
 import org.citygml4j.model.citygml.CityGML;
@@ -37,8 +47,13 @@ import org.citygml4j.xml.io.reader.CityGMLReader;
 import org.citygml4j.xml.io.writer.CityGMLWriteException;
 import org.citygml4j.xml.io.writer.CityGMLWriter;
   
+import org.w3c.dom.Attr;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+
 import de.hft_stuttgart.swp2.model.Building;
 import de.hft_stuttgart.swp2.model.City;
+import de.hft_stuttgart.swp2.model.ShadowTriangle;
 import de.hft_stuttgart.swp2.model.Triangle;
 import de.hft_stuttgart.swp2.model.Vertex;
 import de.hft_stuttgart.swp2.model.VertexDouble;
@@ -365,6 +380,107 @@ public class CGMLParser implements ParserInterface {
     return true;
     }
   
+    /**
+     * Exports the Shadow calculations to an XML file "INSEL" will can read.
+     * 
+     * @param city List of Buildings
+     * @param OutputFileName Output file name
+     * @return true if the export was successful
+     */
+    public boolean exportToXml(City city, String outputFileName) throws ParserException {
+    	
+    	/**
+    	 * <SkyModel> .... </SkyModel>
+    	 * <Building>
+			<id>
+    	 *  <BoundarySurface>
+    	 *   <Polygon>
+    	 *    <Triangle>					// ShadowTriangle
+    	 *     <x>
+    	 *     <y>
+    	 *     <z>
+    	 *    <Shadows> T, F, T, T, ....  	// Schtten pro SkyPatch
+    	 *    </Shadows>
+    	 *    </Triangle>
+    	 *    <Triangle> ....
+    	 */    	
+    	
+    	try {
+    		 
+    		DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
+    		DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
+    		Document doc = docBuilder.newDocument();
+    		
+    		Element rootCity = doc.createElement("City");
+    		doc.appendChild(rootCity);
+    		
+    		Element skyModel = doc.createElement("SkyModel");
+    		Attr modelName = doc.createAttribute("name");
+    		modelName.setValue(epsg);
+    		skyModel.setAttributeNode(modelName);
+    		rootCity.appendChild(skyModel);
+    		
+    		for (Building b : city.getBuildings()) {
+    			
+    			Element building = doc.createElement("Building");
+    			
+    			Attr buildID = doc.createAttribute("id");
+    			buildID.setValue(b.getId());
+    			building.setAttributeNode(buildID);
+    			
+    			for (ShadowTriangle t : b.getShadowTriangles()) {
+    				
+    				Element triangle = doc.createElement("Triangle");
+    				
+    				Element bitset = doc.createElement("ShadowSet");
+    				BitSet bs = t.getShadowSet();
+    				StringBuilder sb = new StringBuilder();
+    				
+    				for (int i = 0; i < 144; i++) {
+						sb.append( (boolean) bs.get(i) == true ? "T" : "F");
+						if (i != 143) sb.append(",");
+					}
+    				
+    				bitset.appendChild(doc.createTextNode(sb.toString()));
+    				
+    				triangle.appendChild(bitset);
+    				
+    				for (Vertex v : t.getVertices()) {
+    					
+    					Element vertex = doc.createElement("Vertex");
+    					
+//    					VertexDouble trv = PolygonTranslate.translateBack(v, reference);
+    					Vertex trv = v;
+    					
+    					vertex.appendChild(doc.createTextNode(trv.getX() + "," + trv.getY() + "," + trv.getZ()));
+    					triangle.appendChild(vertex);
+    					
+    				}
+    				
+    				building.appendChild(triangle);
+    			}
+    			
+    			rootCity.appendChild(building);
+    		}
+    		
+    		TransformerFactory transformerFactory = TransformerFactory.newInstance();
+    		Transformer transformer = transformerFactory.newTransformer();
+    		transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+    		transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
+    		DOMSource source = new DOMSource(doc);
+    		StreamResult result = new StreamResult(new File(outputFileName));
+
+    		transformer.transform(source, result);
+    		
+    	  } catch (ParserConfigurationException e) {
+    		  throw new ParserException(e.getCause().getMessage());
+    	  } catch (TransformerException e) {
+    		  throw new ParserException(e.getCause().getMessage());
+    	}
+    	return true;
+    }
+    
+    
     public double[] getReference() {
         return reference;
     }
