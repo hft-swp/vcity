@@ -2,8 +2,10 @@ package de.hft_stuttgart.swp2.parser;
 
 import java.util.ArrayList;
 
+import de.hft_stuttgart.swp2.model.BoundarySurface;
 import de.hft_stuttgart.swp2.model.Building;
 import de.hft_stuttgart.swp2.model.City;
+import de.hft_stuttgart.swp2.model.Polygon;
 import de.hft_stuttgart.swp2.model.Triangle;
 import de.hft_stuttgart.swp2.model.Vertex;
 import de.hft_stuttgart.swp2.opencl.ShadowCalculatorJavaBackend;
@@ -12,6 +14,7 @@ import de.hft_stuttgart.swp2.opencl.VolumeCalculatorJavaBackend;
 
 /**
  * Simple testing, no JUnit yet.
+ * 
  * @author 02grst1bif
  */
 public class ParserTest {
@@ -24,6 +27,7 @@ public class ParserTest {
 		long id = System.currentTimeMillis();
 		
 //	String inputFileName = "Gruenbuehl_LOD2.gml";
+//	String inputFileName = "LB_MITTE_CITYGML_LB_3513294_5416846_GML.gml";
 	String inputFileName = "einHaus.gml";
 		
 //		String outputFileNameCsv = "testCSV_" + Long.toString(id) + ".csv";
@@ -34,14 +38,18 @@ public class ParserTest {
 		testParse(inputFileName);
 		
 //		testExportToGml(outputFileNameCgml);
-		testExportToXml(outputFileNameXml);
+		
+		/**
+		 *  Note: Do not run this with anything else than einHaus, else calculation will take forever.
+		 */
+//		testExportToXml(outputFileNameXml);
 
 	}
 	
 	private static void testParse(String fileName) {
 		try {
 			System.out.println("Creating parser Instance");
-			CGMLParser parser = CGMLParser.getInstance();
+			Parser parser = Parser.getInstance();
 			if (parser != null)
 				System.out.println("CGMLParser OK.");
 			else
@@ -62,7 +70,19 @@ public class ParserTest {
 			else
 				System.err.println("Building FAILED.");
 			
-			ArrayList<Triangle> tri = b.getTriangles();
+			ArrayList<BoundarySurface> bs = b.getBoundarySurfaces();
+			if (bs != null && bs.size() != 0)
+				System.out.println("BoundarySurface OK.");
+			else
+				System.err.println("BoundarySurface FAILED.");
+			
+			ArrayList<Polygon> p = bs.get(0).getPolygons();
+			if (p != null && p.size() != 0)
+				System.out.println("Polygon OK.");
+			else
+				System.err.println("Polygon FAILED.");
+			
+			ArrayList<Triangle> tri = p.get(0).getTriangles();
 			if (tri != null && tri.size() != 0)
 				System.out.println("ArrayList<Triangle> OK.");
 			else
@@ -96,7 +116,8 @@ public class ParserTest {
 	@SuppressWarnings("all")
 	private static void testExportToGml(String outputFileName) {
 		try {
-			CGMLParser.getInstance().exportToCGML(city, outputFileName);
+			ParserExport pe = new ParserExport();
+			pe.exportToCGML(outputFileName);
 		} catch (ParserException e) {
 		}
 	}
@@ -104,16 +125,18 @@ public class ParserTest {
 	@SuppressWarnings("all")
 	private static void testExportToXml(String outputFileName) {
 		try {
-			
-			// Note: Do not run this with Gruenbuehl, else calculation will take forever.
-			
+					
+			System.out.println("Schattenberechnung...");
 			ShadowCalculatorJavaBackend scjb = new ShadowCalculatorJavaBackend();
 			scjb.calculateShadow(ShadowPrecision.HIGH);
 			
+			System.out.println("Volumenberechnug...");
 			VolumeCalculatorJavaBackend vcjb = new VolumeCalculatorJavaBackend();
 			vcjb.calculateVolume();
 			
-			CGMLParser.getInstance().exportToXml(city, outputFileName);
+			System.out.println("Export...");
+			ParserExport pe = new ParserExport();
+			pe.exportToXml(outputFileName);
 		} catch (ParserException e) {
 		} 
 	}

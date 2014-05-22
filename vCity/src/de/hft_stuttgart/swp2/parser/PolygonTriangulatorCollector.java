@@ -9,11 +9,9 @@ import de.hft_stuttgart.swp2.model.Vertex;
  * Collects generated vertices and creates triangles that can be used later.
  * 
  * @author 12alsi1bif, 02grst1bif
- * 
  */
 public class PolygonTriangulatorCollector {
 
-	private static final int GL_LINE_LOOP = 2;
 	private static final int GL_TRIANGLES = 4;
 	private static final int GL_TRIANGLE_STRIP = 5;
 	private static final int GL_TRIANGLE_FAN = 6;
@@ -42,42 +40,51 @@ public class PolygonTriangulatorCollector {
 
 		ArrayList<Vertex> vertexcoll = new ArrayList<Vertex>();
 
-		if (type == GL_LINE_LOOP) {
-
-			System.err.println("GL_LINE LOOP ERROR");
-
-		} else if (type == GL_TRIANGLES) {
+		if (type == GL_TRIANGLES) {
 
 			for (int i = 0; i < collection.size(); i += 3) {
-				Vertex v = new Vertex(collection.get(i).floatValue(),
-						collection.get(i + 1).floatValue(), collection.get(
-								i + 2).floatValue());
+				Vertex v = new Vertex(
+						collection.get(i).floatValue(),
+						collection.get(i + 1).floatValue(),
+						collection.get(i + 2).floatValue()
+						);
 				vertexcoll.add(v);
 			}
 
 			for (int j = 0; j < vertexcoll.size(); j += 3) {
-				Triangle t = new Triangle(vertexcoll.get(j),
-						vertexcoll.get(j + 1), vertexcoll.get(j + 2));
+				Triangle t = new Triangle(
+						vertexcoll.get(j),
+						vertexcoll.get(j + 1),
+						vertexcoll.get(j + 2)
+						);
 				result.add(t);
 
 			}
 
 		} else if (type == GL_TRIANGLE_STRIP) {
 			for (int i = 0; i < collection.size(); i += 3) {
-				Vertex v = new Vertex(collection.get(i).floatValue(),
-						collection.get(i + 1).floatValue(), collection.get(
-								i + 2).floatValue());
+				Vertex v = new Vertex(
+						collection.get(i).floatValue(),
+						collection.get(i + 1).floatValue(),
+						collection.get(i + 2).floatValue()
+						);
 				vertexcoll.add(v);
 			}
 
 			for (int j = 0; j < vertexcoll.size() - 2; j++) {
 				if (j % 2 == 0) {
-					Triangle t = new Triangle(vertexcoll.get(j),
-							vertexcoll.get(j + 1), vertexcoll.get(j + 2));
+					Triangle t = new Triangle(
+							vertexcoll.get(j),
+							vertexcoll.get(j + 1),
+							vertexcoll.get(j + 2)
+							);
 					result.add(t);
 				} else if (j % 2 == 1) {
-					Triangle t = new Triangle(vertexcoll.get(j + 1),
-							vertexcoll.get(j), vertexcoll.get(j + 2));
+					Triangle t = new Triangle(
+							vertexcoll.get(j + 1),
+							vertexcoll.get(j),
+							vertexcoll.get(j + 2)
+							);
 					result.add(t);
 				}
 
@@ -86,20 +93,23 @@ public class PolygonTriangulatorCollector {
 		} else if (type == GL_TRIANGLE_FAN) {
 
 			for (int i = 0; i < collection.size(); i += 3) {
-				Vertex v = new Vertex(collection.get(i).floatValue(),
-						collection.get(i + 1).floatValue(), collection.get(
-								i + 2).floatValue());
+				Vertex v = new Vertex(
+						collection.get(i).floatValue(),
+						collection.get(i + 1).floatValue(),
+						collection.get(i + 2).floatValue()
+						);
 				vertexcoll.add(v);
 			}
 
 			for (int j = 0; j < vertexcoll.size() - 2; j++) {
-				Triangle t = new Triangle(vertexcoll.get(0),
-						vertexcoll.get(j + 1), vertexcoll.get(j + 2));
+				Triangle t = new Triangle(
+						vertexcoll.get(0),
+						vertexcoll.get(j + 1),
+						vertexcoll.get(j + 2)
+						);
 				result.add(t);
 			}
-
 		}
-
 	}
 
 	public ArrayList<Triangle> getResult() {

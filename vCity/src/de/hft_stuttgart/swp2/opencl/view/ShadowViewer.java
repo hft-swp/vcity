@@ -34,7 +34,7 @@ import de.hft_stuttgart.swp2.opencl.CalculatorInterface;
 import de.hft_stuttgart.swp2.opencl.OpenClException;
 import de.hft_stuttgart.swp2.opencl.ShadowPrecision;
 import de.hft_stuttgart.swp2.opencl.SunPositionCalculator;
-import de.hft_stuttgart.swp2.parser.CGMLParser;
+import de.hft_stuttgart.swp2.parser.Parser;
 import de.hft_stuttgart.swp2.parser.ParserInterface;
 
 public class ShadowViewer extends JFrame implements GLEventListener,
@@ -112,7 +112,7 @@ public class ShadowViewer extends JFrame implements GLEventListener,
 //			}
 //		}
 		
-		ParserInterface parser = new CGMLParser();
+		ParserInterface parser = Parser.getInstance();
 		try {
 			parser.parse("Gruenbuehl_LOD2.gml");
 //			parser.parse("einHaus.gml");

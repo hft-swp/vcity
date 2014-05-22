@@ -1,16 +1,28 @@
-<!ELEMENT City (SkyModel?, Building+)>
+<!ELEMENT City (SkyModel, Building+)>
 
-<!ELEMENT SkyModel EMPTY>
-<!ATTLIST SkyModel 
-  name CDATA #REQUIRED
-  >
+	<!ELEMENT SkyModel (azimuthwinkel, hoehenwinkel)>
+		<!ELEMENT azimuthwinkel (#PCDATA)>
+		<!ELEMENT hoehenwinkel (#PCDATA)>
+
+	<!ELEMENT Building (BoundarySurface)+>
+	<!ATTLIST Building 
+	  id CDATA #REQUIRED
+	  >
   
-<!ELEMENT Building (Triangle)+>
-<!ATTLIST Building 
-  id CDATA #REQUIRED
-  volume CDATA #IMPLIED
-  >
+		<!ELEMENT Volumen (#PCDATA)>
+		<!ATTLIST Volumen 
+		  uom CDATA #REQUIRED
+		  >
   
-<!ELEMENT Triangle (ShadowSet, Vertex, Vertex, Vertex)>
-<!ELEMENT ShadowSet (#PCDATA)>
-<!ELEMENT Vertex (#PCDATA)>
+		<!ELEMENT BoundarySurface (Polygon)+>
+
+			<!ELEMENT Polygon (area, shadow, Triangle)+>
+
+			<!ELEMENT area (#PCDATA)>
+			<!ATTLIST area 
+			  uom CDATA #REQUIRED
+			  >
+			<!ELEMENT shadow (#PCDATA)>
+			<!ELEMENT Triangle (Vertex, Vertex, Vertex)>
+			
+				<!ELEMENT Vertex (#PCDATA)>

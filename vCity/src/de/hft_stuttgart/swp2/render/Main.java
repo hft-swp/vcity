@@ -17,7 +17,9 @@ import de.hft_stuttgart.swp2.opencl.CalculatorImpl;
 import de.hft_stuttgart.swp2.opencl.CalculatorInterface;
 import de.hft_stuttgart.swp2.opencl.OpenClException;
 import de.hft_stuttgart.swp2.opencl.ShadowPrecision;
-import de.hft_stuttgart.swp2.parser.CGMLParser;
+import de.hft_stuttgart.swp2.parser.Parser;
+import de.hft_stuttgart.swp2.parser.ParserException;
+import de.hft_stuttgart.swp2.parser.ParserInterface;
 import de.hft_stuttgart.swp2.render.city3d.CityMap3D;
 import de.hft_stuttgart.swp2.render.options.OptionGUI;
 
@@ -148,11 +150,12 @@ public class Main {
 
 	public static void startParser(String path) {
 		try {
+			ParserInterface parser = Parser.getInstance();
 			City.getInstance().getBuildings().clear();
-			city = CGMLParser.getInstance().parse(path);
+			city = parser.parse(path);
 			isParserSuccess = true;
 			Main.cityMap3D.setIsStartCalculation(true);
-		} catch (Exception e) {
+		} catch (ParserException e) {
 			// TODO Auto-generated catch block
 			if(City.getInstance().getBuildings().size() > 1){
 				isParserSuccess = true;

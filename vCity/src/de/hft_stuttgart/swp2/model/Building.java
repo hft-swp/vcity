@@ -1,12 +1,11 @@
 package de.hft_stuttgart.swp2.model;
 
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * This class contains meta data for buildings. It is mostly filled by the parser.
  * 
- * @author many
+ * @author vCity team
  *
  */
 public class Building extends MeshInterface {
@@ -15,7 +14,8 @@ public class Building extends MeshInterface {
 	private String city;
 	private String street;
 	private double volume;
-	private List<Vertex> polygon;
+	private ArrayList<BoundarySurface> boundarySurface = new ArrayList<>();
+	@Deprecated
 	private ArrayList<ShadowTriangle> shadowTriangles = new ArrayList<>();
 	private Vertex center;
 
@@ -23,28 +23,15 @@ public class Building extends MeshInterface {
 	 * Creates an empty building.
 	 */
 	public Building() {
+		// Empty constructor
 	}
 
 	/**
-	 * This creates a building with the given id and a polygonlist.
-	 * @param id
-	 * @param polygon
-	 */
-	public Building(String id, List<Vertex> polygon) {
-		this.id = id;
-		this.polygon = polygon;
-	}
-
-	/**
-	 * This creates a building with the given id and a list of triangles
+	 * This creates a building with the given id
 	 * @param bid
-	 * @param polyTriangles
 	 */
-	public Building(String bid, ArrayList<Triangle> polyTriangles) {
+	public Building(String bid) {
 		this.id = bid;
-		for (int i=0; i<polyTriangles.size();i++) {
-			this.addTriangle(polyTriangles.get(i));
-		}
 	}
 
 	/**
@@ -56,15 +43,36 @@ public class Building extends MeshInterface {
 	}
 
 	/**
-	 * 
 	 * @return the volume
 	 */
 	public double getVolume() {
 		return volume;
 	}
+	
+	/**
+	 * adds {@link BoundarySurface}
+	 * @param bs the boundary surface
+	 */
+	public void addBoundarySurface(BoundarySurface bs) {
+		boundarySurface.add(bs);
+	}
+	
+	/**
+	 * adds {@link BoundarySurface}
+	 * @param bs the boundary surface
+	 */
+	public void addBoundarySurface(ArrayList<BoundarySurface> bs) {
+		boundarySurface.addAll(bs);
+	}
 
 	/**
-	 * 
+	 * @return the boundarySurface
+	 */
+	public ArrayList<BoundarySurface> getBoundarySurfaces() {
+		return boundarySurface;
+	}
+
+	/**
 	 * @return the id
 	 */
 	public String getId() {
@@ -72,24 +80,20 @@ public class Building extends MeshInterface {
 	}
 
 	/**
-	 * 
-	 * @return the polygon
-	 */
-	public List<Vertex> getPolygon() {
-		return polygon;
-	}
-
-	/**
 	 * Adds a ShadowTriangle to the triangles stored.
 	 * @param t the triangle which is added
+	 * @deprecated Please use {@link Polygon#addShadowTriangle(ShadowTriangle)}
 	 */
+	@Deprecated
 	public void addShadowTriangle(ShadowTriangle t) {
 		shadowTriangles.add(t);
 	}
 
 	/**
 	 * @return the list of ShadowTriangles
+	 * @deprecated Please use {@link Polygon#getShadowTriangles()}
 	 */
+	@Deprecated
 	public ArrayList<ShadowTriangle> getShadowTriangles() {
 		return shadowTriangles;
 	}
@@ -101,24 +105,36 @@ public class Building extends MeshInterface {
 	 * @param z translation in z
 	 */
 	public void translate(float x, float y, float z) {
-		for (Triangle t : getTriangles()) {
-			for (Vertex v : t.getVertices()) {
-				v.resetVisit();
-			}
-		}
-		for (Triangle t : getTriangles()) {
-			for (Vertex v : t.getVertices()) {
-				if (!v.wasVisited()) {
-					v.visit();
-					v.translate(x, y, z);
+		for (BoundarySurface bs : getBoundarySurfaces()) {
+			for (Polygon p : bs.getPolygons()) {
+				for (Triangle t : p.getTriangles()) {
+					for (Vertex v : t.getVertices()) {
+						v.resetVisit();
+					}
 				}
 			}
 		}
-		for (ShadowTriangle t : shadowTriangles) {
-			for (Vertex v : t.getVertices()) {
-				if (!v.wasVisited()) {
-					v.visit();
-					v.translate(x, y, z);
+		for (BoundarySurface bs : getBoundarySurfaces()) {
+			for (Polygon p : bs.getPolygons()) {
+				for (Triangle t : p.getTriangles()) {
+					for (Vertex v : t.getVertices()) {
+						if (!v.wasVisited()) {
+							v.visit();
+							v.translate(x, y, z);
+						}
+					}
+				}
+			}
+		}
+		for (BoundarySurface bs : getBoundarySurfaces()) {
+			for (Polygon p : bs.getPolygons()) {
+				for (ShadowTriangle t : p.getShadowTriangles()) {
+					for (Vertex v : t.getVertices()) {
+						if (!v.wasVisited()) {
+							v.visit();
+							v.translate(x, y, z);
+						}
+					}
 				}
 			}
 		}
@@ -135,23 +151,30 @@ public class Building extends MeshInterface {
 	 * @param z scaling in z
 	 */
 	public void scale(float x, float y, float z) {
-		for (Triangle t : getTriangles()) {
-			for (Vertex v : t.getVertices()) {
-				v.resetVisit();
+		for (BoundarySurface bs : getBoundarySurfaces()) {
+			for (Polygon p : bs.getPolygons()) {
+				for (Triangle t : p.getTriangles()) {
+					for (Vertex v : t.getVertices()) {
+						v.resetVisit();
+					}
+				}
 			}
 		}
-		for (Triangle t : getTriangles()) {
-			for (Vertex v : t.getVertices()) {
-				if (!v.wasVisited()) {
-					v.visit();
-					v.scale(x, y, z);
+		for (BoundarySurface bs : getBoundarySurfaces()) {
+			for (Polygon p : bs.getPolygons()) {
+				for (Triangle t : p.getTriangles()) {
+					for (Vertex v : t.getVertices()) {
+						if (!v.wasVisited()) {
+							v.visit();
+							v.scale(x, y, z);
+						}
+					}
 				}
 			}
 		}
 	}
 
 	/**
-	 * 
 	 * @return the center of the building
 	 */
 	public Vertex getCenter() {
@@ -167,7 +190,6 @@ public class Building extends MeshInterface {
 	}
 	
 	/**
-	 * 
 	 * @return the name of the city
 	 */
 	public String getCityName() {
@@ -183,7 +205,6 @@ public class Building extends MeshInterface {
 	}
 
 	/**
-	 * 
 	 * @return the street name in which the building is located
 	 */
 	public String getStreetName() {
