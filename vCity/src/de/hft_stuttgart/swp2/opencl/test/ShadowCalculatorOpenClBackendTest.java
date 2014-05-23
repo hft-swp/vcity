@@ -1,9 +1,8 @@
 package de.hft_stuttgart.swp2.opencl.test;
 
-import static org.junit.Assert.fail;
+import java.util.BitSet;
 
-import java.util.Arrays;
-
+import org.junit.Assert;
 import org.junit.Test;
 
 import de.hft_stuttgart.swp2.model.BoundarySurface;
@@ -20,10 +19,40 @@ import de.hft_stuttgart.swp2.opencl.ShadowPrecision;
 import de.hft_stuttgart.swp2.opencl.VolumeTest;
 
 public class ShadowCalculatorOpenClBackendTest {
+	
 
 	@Test
 	public void testCalculateShadow() throws OpenClException {
+		BitSet set1 = BitSet.valueOf(new byte[] {-8, -127, 31, -8, -127, 31, -8, -127, 31, 7, 126, -32, 7, 126, -32, 7, 126, -32});
+		BitSet set2 = BitSet.valueOf(new byte[] {-8, -127, 31, -8, -127, 31, -8, -127, 31, 7, 126, -32, 7, 126, -32, 7, 126, -32});
+		BitSet set3 = BitSet.valueOf(new byte[] {63, -16, 3, 63, -16, 3, 63, -16, 3, -64, 15, -4, -64, 15, -4, -64, 15, -4});
+		BitSet set4 = BitSet.valueOf(new byte[] {63, -16, 3, 63, -16, 3, 63, -16, 3, -64, 15, -4, -64, 15, -4, -64, 15, -4});
+		BitSet set5 = BitSet.valueOf(new byte[] {28, -64, 1, 28, -64, 0, 0, 0, 0, 0, 0, 0, 0, 3, 48, 0, 7, 48});
+		BitSet set6 = BitSet.valueOf(new byte[] {30, -32, 1, 30, -32, 1, 12, 0, 0, 0, 0, 48, -128, 7, 120, -128, 3, 120});
+		BitSet set7 = BitSet.valueOf(new byte[] {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1});
+		BitSet set8 = BitSet.valueOf(new byte[] {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1});
+		BitSet set9 = BitSet.valueOf(new byte[] {7, 126, -32, 7, 126, -32, 7, 126, -32, -8, -127, 31, -8, -127, 31, -8, -127, 31});
+		BitSet set10 = BitSet.valueOf(new byte[] {7, 126, -32, 7, 126, -32, 7, 126, -32, -8, -127, 31, -8, -127, 31, -8, -127, 31});
+		BitSet set11 = BitSet.valueOf(new byte[] {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1});
+		BitSet set12 = BitSet.valueOf(new byte[] {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1});
+		BitSet set13 = BitSet.valueOf(new byte[] {-8, -127, 31, -8, -127, 31, -8, -127, 31, 7, 126, -32, 7, 126, -32, 7, 126, -32});
+		BitSet set14 = BitSet.valueOf(new byte[] {-8, -127, 31, -8, -127, 31, -8, -127, 31, 7, 126, -32, 7, 126, -32, 7, 126, -32});
+		BitSet set15 = BitSet.valueOf(new byte[] {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1});
+		BitSet set16 = BitSet.valueOf(new byte[] {63, -16, 3, 63, -16, 3, 63, -16, 3, -64, 15, -4, -64, 15, -4, -64, 15, -4});
+		BitSet set17 = BitSet.valueOf(new byte[] {});
+		BitSet set18 = BitSet.valueOf(new byte[] {});
+		BitSet set19 = BitSet.valueOf(new byte[] {-64, 15, -4, -64, 15, -4, -64, 15, -4, 63, -16, 3, 63, -16, 3, 63, -16, 3});
+		BitSet set20 = BitSet.valueOf(new byte[] {-64, 15, -4, -64, 15, -4, -64, 15, -4, 63, -16, 3, 63, -16, 3, 63, -16, 3});
+		BitSet set21 = BitSet.valueOf(new byte[] {7, 126, -32, 7, 126, -32, 7, 126, -32, -8, -127, 31, -8, -127, 31, -8, -127, 31});
+		BitSet set22 = BitSet.valueOf(new byte[] {7, 126, -32, 7, 126, -32, 7, 126, -32, -8, -127, 31, -8, -127, 31, -8, -127, 31});
+		BitSet set23 = BitSet.valueOf(new byte[] {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1});
+		BitSet set24 = BitSet.valueOf(new byte[] {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1});
+		BitSet[] Bitarray = new BitSet[] {set1, set2, set3, set4, set5, set6, set7, set8, set9, set10, set11, set12, set13, set14, set15, set16, set17, set18, set19, set20, set21, set22, set23, set24};
+		
 		VolumeTest.testCity2();
+		VolumeTest.testCity2();
+		City.getInstance().getBuildings().get(0).translate(2, 0, 0);
+		City.getInstance().getBuildings().get(1).scale(1, 2, 1);
 		
 		for (Building b2 : City.getInstance().getBuildings()) {
 			for (BoundarySurface surface2 : b2.getBoundarySurfaces()) {
@@ -40,11 +69,15 @@ public class ShadowCalculatorOpenClBackendTest {
 		ShadowCalculatorOpenClBackend calc = new ShadowCalculatorOpenClBackend();
 		calc.calculateShadow(ShadowPrecision.VERY_LOW);
 		
-		
+		int bitIdx = 0;
 		for (ShadowTriangle t : City.getInstance().getBuildings().get(0).getBoundarySurfaces().get(0).getPolygons().get(0).getShadowTriangles()) {
-			System.out.println(Arrays.toString(t.getShadowSet().toByteArray()) + " " + t.getShadowSet().toByteArray().length);
+			Assert.assertEquals(Bitarray[bitIdx], t.getShadowSet());
+			bitIdx++;
 		}
-		fail("because");
+		for (ShadowTriangle t : City.getInstance().getBuildings().get(1).getBoundarySurfaces().get(0).getPolygons().get(0).getShadowTriangles()) {
+			Assert.assertEquals(Bitarray[bitIdx], t.getShadowSet());
+			bitIdx++;
+		}
 	}
 	
 	

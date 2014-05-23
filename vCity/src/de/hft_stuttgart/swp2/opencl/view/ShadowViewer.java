@@ -87,29 +87,29 @@ public class ShadowViewer extends JFrame implements GLEventListener,
 		
 		// test values
 		VolumeTest.testCity2();
-		VolumeTest.testCity2();
-		VolumeTest.testCity2();
-		City.getInstance().getBuildings().get(1).translate(0, 0, 5);
-		City.getInstance().getBuildings().get(2).translate(5, 0, 5);
-		City.getInstance().getBuildings().get(2).scale(1, 5, 1);
-		
-		int size = 20;
-		Vertex v0 = new Vertex(-size, 0, -size);
-		Vertex v1 = new Vertex(-size, 0, size);
-		Vertex v2 = new Vertex(size, 0, size);
-		Vertex v3 = new Vertex(size, 0, -size);
-		
-		Triangle t1 = new Triangle(v0, v1, v2);
-		Triangle t2 = new Triangle(v0, v2, v3);
-		
-		Building b = new Building();
-		BoundarySurface surface = new BoundarySurface("sur");
-		Polygon p = new Polygon("poly");
-		surface.addPolygon(p);
-		p.addTriangle(t1);
-		p.addTriangle(t2);
-		b.addBoundarySurface(surface);
-		City.getInstance().addBuilding(b);
+//		VolumeTest.testCity2();
+//		VolumeTest.testCity2();
+//		City.getInstance().getBuildings().get(1).translate(0, 0, 5);
+//		City.getInstance().getBuildings().get(2).translate(5, 0, 5);
+//		City.getInstance().getBuildings().get(2).scale(1, 5, 1);
+//		
+//		int size = 20;
+//		Vertex v0 = new Vertex(-size, 0, -size);
+//		Vertex v1 = new Vertex(-size, 0, size);
+//		Vertex v2 = new Vertex(size, 0, size);
+//		Vertex v3 = new Vertex(size, 0, -size);
+//		
+//		Triangle t1 = new Triangle(v0, v1, v2);
+//		Triangle t2 = new Triangle(v0, v2, v3);
+//		
+//		Building b = new Building();
+//		BoundarySurface surface = new BoundarySurface("sur");
+//		Polygon p = new Polygon("poly");
+//		surface.addPolygon(p);
+//		p.addTriangle(t1);
+//		p.addTriangle(t2);
+//		b.addBoundarySurface(surface);
+//		City.getInstance().addBuilding(b);
 		
 //		for (int i = 0; i < 10; i++) {
 //			for (int j = 0; j < 10; j++) {
@@ -126,6 +126,8 @@ public class ShadowViewer extends JFrame implements GLEventListener,
 //		} catch (Exception e1) {
 //			e1.printStackTrace();
 //		}
+//		System.out.println(Parser.getInstance().getEPSG());
+//		System.exit(0);
 		
 		for (Building b2 : City.getInstance().getBuildings()) {
 			for (BoundarySurface surface2 : b2.getBoundarySurfaces()) {
