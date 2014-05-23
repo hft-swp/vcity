@@ -23,8 +23,10 @@ import org.jocl.cl_event;
 import org.jocl.cl_kernel;
 import org.jocl.cl_mem;
 
+import de.hft_stuttgart.swp2.model.BoundarySurface;
 import de.hft_stuttgart.swp2.model.Building;
 import de.hft_stuttgart.swp2.model.City;
+import de.hft_stuttgart.swp2.model.Polygon;
 import de.hft_stuttgart.swp2.model.ShadowTriangle;
 import de.hft_stuttgart.swp2.model.Triangle;
 import de.hft_stuttgart.swp2.model.Vertex;
@@ -54,7 +56,7 @@ public class ShadowCalculatorOpenClBackend extends ShadowCalculatorInterface {
 	public ShadowCalculatorOpenClBackend() throws OpenClException {
 		occ = OpenClContext.getInstance();
 	}
-
+	
 	/**
 	 * 
 	 * This method calculates the shadow of each triangle on the gpu.
@@ -96,8 +98,12 @@ public class ShadowCalculatorOpenClBackend extends ShadowCalculatorInterface {
 			while (triangleCount < TRIANGLE_COUNT
 					&& currentBuilding < city.getBuildings().size()) {
 				Building b = city.getBuildings().get(currentBuilding);
+				for (BoundarySurface surface : b.getBoundarySurfaces()) {
+					for (Polygon p : surface.getPolygons()) {
+						triangleCount += p.getShadowTriangles().size();
+					}
+				}
 				calcBuildings.add(b);
-				triangleCount += b.getShadowTriangles().size();
 				currentBuilding++;
 			}
 
@@ -130,20 +136,26 @@ public class ShadowCalculatorOpenClBackend extends ShadowCalculatorInterface {
 				}
 				numNeighbours[calculateBuildingIdx] = numNeighbour;
 
-				for (ShadowTriangle st : b.getShadowTriangles()) {
-					shadowTriangleNormals[shadowVerticeCenterIdx + 0] = st
-							.getNormalVector().getX();
-					shadowTriangleNormals[shadowVerticeCenterIdx + 1] = st
-							.getNormalVector().getY();
-					shadowTriangleNormals[shadowVerticeCenterIdx + 2] = st
-							.getNormalVector().getZ();
-					for (float p : st.getCenter().getCoordinates()) {
-						shadowVerticeCenters[shadowVerticeCenterIdx] = p;
-						shadowVerticeCenterIdx++;
+				int shadowTriangleCount = 0;
+				for (BoundarySurface surface : b.getBoundarySurfaces()) {
+					for (Polygon p : surface.getPolygons()) {
+						for (ShadowTriangle st : p.getShadowTriangles()) {
+							shadowTriangleNormals[shadowVerticeCenterIdx + 0] = st
+									.getNormalVector().getX();
+							shadowTriangleNormals[shadowVerticeCenterIdx + 1] = st
+									.getNormalVector().getY();
+							shadowTriangleNormals[shadowVerticeCenterIdx + 2] = st
+									.getNormalVector().getZ();
+							for (float coordinate : st.getCenter()
+									.getCoordinates()) {
+								shadowVerticeCenters[shadowVerticeCenterIdx] = coordinate;
+								shadowVerticeCenterIdx++;
+							}
+							shadowTriangleCount++;
+						}
 					}
 				}
-				shadowVerticeCentersCount[calculateBuildingIdx] = b
-						.getShadowTriangles().size();
+				shadowVerticeCentersCount[calculateBuildingIdx] = shadowTriangleCount;
 			}
 			HashMap<Integer, Integer> indexMap = new HashMap<Integer, Integer>();
 			ArrayList<Building> shadowCaster = new ArrayList<Building>();
@@ -154,8 +166,8 @@ public class ShadowCalculatorOpenClBackend extends ShadowCalculatorInterface {
 				indexMap.put(e.getKey(), toIndex);
 			}
 
-			float[] cityVertices = getCityVerticesArray(shadowCaster);
 			int[] cityVerticesCount = getCityVerticesCountArray(shadowCaster);
+			float[] cityVertices = getCityVerticesArray(shadowCaster, cityVerticesCount);
 
 			cl_mem cityVerticesMem = storeOnGPUAsReadOnly(context, cityVertices);
 			cl_mem cityVerticesCountMem = storeOnGPUAsReadOnly(context,
@@ -283,18 +295,22 @@ public class ShadowCalculatorOpenClBackend extends ShadowCalculatorInterface {
 		int count = 0;
 		// BitSet bs = BitSet.valueOf(hasShadow);
 		for (Building b : calcBuildings) {
-			for (ShadowTriangle st : b.getShadowTriangles()) {
-				// BitSet new_bs = bs.get(count*144, (count+1)*144);
-				BitSet new_bs = new BitSet(144);
-				for (int i = 0; i < 144; i++) {
-					if ((hasShadow[count * 18 + i / 8] & (1 << 7 - i % 8)) > 0) {
-						new_bs.set(i, true);
-					} else {
-						new_bs.set(i, false);
+			for (BoundarySurface surface : b.getBoundarySurfaces()) {
+				for (Polygon p : surface.getPolygons()) {
+					for (ShadowTriangle st : p.getShadowTriangles()) {
+						// BitSet new_bs = bs.get(count*144, (count+1)*144);
+						BitSet new_bs = new BitSet(144);
+						for (int i = 0; i < 144; i++) {
+							if ((hasShadow[count * 18 + i / 8] & (1 << 7 - i % 8)) > 0) {
+								new_bs.set(i, true);
+							} else {
+								new_bs.set(i, false);
+							}
+						}
+						st.setShadowSet(new_bs);
+						count++;
 					}
 				}
-				st.setShadowSet(new_bs);
-				count++;
 			}
 		}
 	}
@@ -314,32 +330,43 @@ public class ShadowCalculatorOpenClBackend extends ShadowCalculatorInterface {
 	private int[] getCityVerticesCountArray(ArrayList<Building> buildings) {
 		int[] cityVerticesCount = new int[buildings.size()];
 		for (int i = 0; i < cityVerticesCount.length; ++i) {
-			cityVerticesCount[i] = buildings.get(i).getTriangles().size() * 9;
+			int triangleCount = 0;
+			Building b = buildings.get(i);
+			for (BoundarySurface surface : b.getBoundarySurfaces()) {
+				for (Polygon p : surface.getPolygons()) {
+					triangleCount += p.getTriangles().size();
+				}
+			}
+			cityVerticesCount[i] = triangleCount * 9;
 		}
 		return cityVerticesCount;
 	}
 
-	private float[] getCityVerticesArray(ArrayList<Building> buildings) {
+	private float[] getCityVerticesArray(ArrayList<Building> buildings, int[] cityVerticesCount) {
 		int verticesSize = 0;
-		for (Building b : buildings) {
-			verticesSize += b.getTriangles().size() * 9;
+		for (int i = 0; i < cityVerticesCount.length; ++i) {
+			verticesSize += cityVerticesCount[i];
 		}
 		float[] cityVertices = new float[verticesSize];
 		int offset = 0;
 		for (Building b : buildings) {
-			for (int j = 0; j < b.getTriangles().size(); j++) {
-				Triangle t = b.getTriangles().get(j);
-				cityVertices[offset + j * 9 + 0] = t.getVertices()[0].getX();
-				cityVertices[offset + j * 9 + 1] = t.getVertices()[0].getY();
-				cityVertices[offset + j * 9 + 2] = t.getVertices()[0].getZ();
-				cityVertices[offset + j * 9 + 3] = t.getVertices()[1].getX();
-				cityVertices[offset + j * 9 + 4] = t.getVertices()[1].getY();
-				cityVertices[offset + j * 9 + 5] = t.getVertices()[1].getZ();
-				cityVertices[offset + j * 9 + 6] = t.getVertices()[2].getX();
-				cityVertices[offset + j * 9 + 7] = t.getVertices()[2].getY();
-				cityVertices[offset + j * 9 + 8] = t.getVertices()[2].getZ();
+			for (BoundarySurface surface : b.getBoundarySurfaces()) {
+				for (Polygon p : surface.getPolygons()) {
+					for (int j = 0; j < p.getTriangles().size(); j++) {
+						Triangle t = p.getTriangles().get(j);
+						cityVertices[offset + j * 9 + 0] = t.getVertices()[0].getX();
+						cityVertices[offset + j * 9 + 1] = t.getVertices()[0].getY();
+						cityVertices[offset + j * 9 + 2] = t.getVertices()[0].getZ();
+						cityVertices[offset + j * 9 + 3] = t.getVertices()[1].getX();
+						cityVertices[offset + j * 9 + 4] = t.getVertices()[1].getY();
+						cityVertices[offset + j * 9 + 5] = t.getVertices()[1].getZ();
+						cityVertices[offset + j * 9 + 6] = t.getVertices()[2].getX();
+						cityVertices[offset + j * 9 + 7] = t.getVertices()[2].getY();
+						cityVertices[offset + j * 9 + 8] = t.getVertices()[2].getZ();
+					}
+					offset += p.getTriangles().size() * 9;
+				}
 			}
-			offset = offset + b.getTriangles().size() * 9;
 		}
 		return cityVertices;
 	}
@@ -368,11 +395,15 @@ public class ShadowCalculatorOpenClBackend extends ShadowCalculatorInterface {
 		for (Building b : City.getInstance().getBuildings()) {
 			float x = 0, z = 0;
 			int count = 0;
-			for (Triangle t : b.getTriangles()) {
-				for (Vertex v : t.getVertices()) {
-					x += v.getX();
-					z += v.getZ();
-					count++;
+			for (BoundarySurface surface : b.getBoundarySurfaces()) {
+				for (Polygon p : surface.getPolygons()) {
+					for (Triangle t : p.getTriangles()) {
+						for (Vertex v : t.getVertices()) {
+							x += v.getX();
+							z += v.getZ();
+							count++;
+						}
+					}
 				}
 			}
 			xCity += x / count;
@@ -381,8 +412,7 @@ public class ShadowCalculatorOpenClBackend extends ShadowCalculatorInterface {
 		}
 		int buildingCount = City.getInstance().getBuildings().size();
 		City.getInstance().setCenter(
-				new Vertex(xCity / buildingCount, 0, zCity
-						/ buildingCount));
+				new Vertex(xCity / buildingCount, 0, zCity / buildingCount));
 	}
 
 }

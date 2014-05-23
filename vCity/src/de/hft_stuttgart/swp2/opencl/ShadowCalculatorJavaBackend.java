@@ -1,7 +1,9 @@
 package de.hft_stuttgart.swp2.opencl;
 
+import de.hft_stuttgart.swp2.model.BoundarySurface;
 import de.hft_stuttgart.swp2.model.Building;
 import de.hft_stuttgart.swp2.model.City;
+import de.hft_stuttgart.swp2.model.Polygon;
 import de.hft_stuttgart.swp2.model.ShadowTriangle;
 import de.hft_stuttgart.swp2.model.Triangle;
 import de.hft_stuttgart.swp2.model.Vertex;
@@ -17,20 +19,28 @@ public class ShadowCalculatorJavaBackend extends ShadowCalculatorInterface {
 		Vertex[] directions = calcDirections();
 		recalculateShadowTriangles(precision);
 		for (Building b : City.getInstance().getBuildings()) {
-			for (ShadowTriangle t : b.getShadowTriangles()) {
-				for (int i = 0; i < 144; i++) {
-					Vertex himmelV = directions[i];
-					boolean hasShadow = false;
-					for (Building b2 : City.getInstance().getBuildings()) {
-						for (Triangle t2 : b2.getTriangles()) {
-							if(rayIntersectTriangle(t.getCenter(), himmelV, t2.getVertices()[0], t2.getVertices()[1], t2.getVertices()[2])) {
-								t.getShadowSet().set(i);
-								hasShadow = true;
-								break;
+			for (BoundarySurface surface : b.getBoundarySurfaces()) {
+				for (Polygon p : surface.getPolygons()) {
+					for (ShadowTriangle t : p.getShadowTriangles()) {
+						for (int i = 0; i < 144; i++) {
+							Vertex himmelV = directions[i];
+							boolean hasShadow = false;
+							for (Building b2 : City.getInstance().getBuildings()) {
+								for (BoundarySurface surface2 : b2.getBoundarySurfaces()) {
+									for (Polygon p2 : surface2.getPolygons()) {
+										for (Triangle t2 : p2.getTriangles()) {
+											if(rayIntersectTriangle(t.getCenter(), himmelV, t2.getVertices()[0], t2.getVertices()[1], t2.getVertices()[2])) {
+												t.getShadowSet().set(i);
+												hasShadow = true;
+												break;
+											}
+										}
+										if(hasShadow)
+											break;
+									}
+								}
 							}
 						}
-						if(hasShadow)
-							break;
 					}
 				}
 			}

@@ -111,7 +111,8 @@ public class OpenClContext {
 				new String[] { programSource }, null, null);
 
 		// Build the program
-		clBuildProgram(program, 0, null, null, null, null);
+		String options = "-Werror -cl-fast-relaxed-math";
+		clBuildProgram(program, 0, null, options, null, null);
 
 		// Create the kernel
 		cl_kernel kernel = clCreateKernel(program, "calc", null);

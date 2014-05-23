@@ -18,8 +18,10 @@ import org.jocl.cl_event;
 import org.jocl.cl_kernel;
 import org.jocl.cl_mem;
 
+import de.hft_stuttgart.swp2.model.BoundarySurface;
 import de.hft_stuttgart.swp2.model.Building;
 import de.hft_stuttgart.swp2.model.City;
+import de.hft_stuttgart.swp2.model.Polygon;
 import de.hft_stuttgart.swp2.model.Triangle;
 
 /**
@@ -51,29 +53,41 @@ public class VolumeCalculatorOpenClBackend implements VolumeCalculatorInterface 
 		int n = City.getInstance().getBuildings().size();
 
 		int verticesSize = 0;
+		int[] triangleCount = new int[n];
+		int triangleCountIdx = 0;
 		for (Building b : City.getInstance().getBuildings()) {
-			verticesSize += b.getTriangles().size() * 9;
+			int buildingTriangleCount = 0;
+			for (BoundarySurface surface : b.getBoundarySurfaces()) {
+				for (Polygon p : surface.getPolygons()) {
+					verticesSize += p.getTriangles().size() * 9;
+					buildingTriangleCount += p.getTriangles().size();
+				}
+			}
+			triangleCount[triangleCountIdx] = buildingTriangleCount;
+			triangleCountIdx++;
 		}
 		float[] vertices = new float[verticesSize];
-		int[] triangleCount = new int[n];
 		float[] volumeArray = new float[n];
 		int offset = 0;
 		for (int i = 0; i < n; i++) {
 			Building b = City.getInstance().getBuildings().get(i);
-			triangleCount[i] = b.getTriangles().size();
-			for (int j = 0; j < triangleCount[i]; j++) {
-				Triangle t = b.getTriangles().get(j);
-				vertices[offset + j * 9 + 0] = t.getVertices()[0].getX();
-				vertices[offset + j * 9 + 1] = t.getVertices()[0].getY();
-				vertices[offset + j * 9 + 2] = t.getVertices()[0].getZ();
-				vertices[offset + j * 9 + 3] = t.getVertices()[1].getX();
-				vertices[offset + j * 9 + 4] = t.getVertices()[1].getY();
-				vertices[offset + j * 9 + 5] = t.getVertices()[1].getZ();
-				vertices[offset + j * 9 + 6] = t.getVertices()[2].getX();
-				vertices[offset + j * 9 + 7] = t.getVertices()[2].getY();
-				vertices[offset + j * 9 + 8] = t.getVertices()[2].getZ();
+			for (BoundarySurface surface : b.getBoundarySurfaces()) {
+				for (Polygon p : surface.getPolygons()) {
+					for (int j = 0; j < triangleCount[i]; j++) {
+						Triangle t = p.getTriangles().get(j);
+						vertices[offset + j * 9 + 0] = t.getVertices()[0].getX();
+						vertices[offset + j * 9 + 1] = t.getVertices()[0].getY();
+						vertices[offset + j * 9 + 2] = t.getVertices()[0].getZ();
+						vertices[offset + j * 9 + 3] = t.getVertices()[1].getX();
+						vertices[offset + j * 9 + 4] = t.getVertices()[1].getY();
+						vertices[offset + j * 9 + 5] = t.getVertices()[1].getZ();
+						vertices[offset + j * 9 + 6] = t.getVertices()[2].getX();
+						vertices[offset + j * 9 + 7] = t.getVertices()[2].getY();
+						vertices[offset + j * 9 + 8] = t.getVertices()[2].getZ();
+					}
+					offset = offset + triangleCount[i] * 9;
+				}
 			}
-			offset = offset + triangleCount[i] * 9;
 		}
 
 		// System.out.println("Size of vertices array as float: " +

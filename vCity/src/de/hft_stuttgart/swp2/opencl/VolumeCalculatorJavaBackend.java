@@ -1,7 +1,9 @@
 package de.hft_stuttgart.swp2.opencl;
 
+import de.hft_stuttgart.swp2.model.BoundarySurface;
 import de.hft_stuttgart.swp2.model.Building;
 import de.hft_stuttgart.swp2.model.City;
+import de.hft_stuttgart.swp2.model.Polygon;
 import de.hft_stuttgart.swp2.model.Triangle;
 import de.hft_stuttgart.swp2.model.Vertex;
 
@@ -11,10 +13,14 @@ public class VolumeCalculatorJavaBackend implements VolumeCalculatorInterface {
 	public void calculateVolume() {
 		for(Building b: City.getInstance().getBuildings()) {
 			float sum = 0f;
-			for(Triangle t: b.getTriangles()) {
-				sum += det(t.getVertices()[0], t.getVertices()[1], t.getVertices()[2]);
+			for (BoundarySurface surface : b.getBoundarySurfaces()) {
+				for (Polygon p : surface.getPolygons()) {
+					for(Triangle t: p.getTriangles()) {
+						sum += det(t.getVertices()[0], t.getVertices()[1], t.getVertices()[2]);
+					}
+					b.setVolume(Math.abs(sum/6));
+				}
 			}
-			b.setVolume(Math.abs(sum/6));
 		}
 
 	}

@@ -1,7 +1,9 @@
 package de.hft_stuttgart.swp2.opencl;
 
+import de.hft_stuttgart.swp2.model.BoundarySurface;
 import de.hft_stuttgart.swp2.model.Building;
 import de.hft_stuttgart.swp2.model.City;
+import de.hft_stuttgart.swp2.model.Polygon;
 import de.hft_stuttgart.swp2.model.ShadowTriangle;
 import de.hft_stuttgart.swp2.model.Triangle;
 import de.hft_stuttgart.swp2.model.Vertex;
@@ -16,7 +18,7 @@ public abstract class ShadowCalculatorInterface {
 	public abstract void calculateShadow(ShadowPrecision precision) throws OpenClException;
 	
 	private static void splitTriangles(Vertex v0, Vertex v1, Vertex v2,
-			Building b, ShadowPrecision precision, Vertex norm) {
+			Polygon p, ShadowPrecision precision, Vertex norm) {
 		float x = 0.5f * (v0.getX() + v1.getX());
 		float y = 0.5f * (v0.getY() + v1.getY());
 		float z = 0.5f * (v0.getZ() + v1.getZ());
@@ -25,8 +27,8 @@ public abstract class ShadowCalculatorInterface {
 		Triangle tNeu2 = new Triangle(v2, vNeu, v1);
 		tNeu1.setNormalVector(norm);
 		tNeu2.setNormalVector(norm);
-		addTriangles(b, tNeu1, precision);
-		addTriangles(b, tNeu2, precision);
+		addTriangles(p, tNeu1, precision);
+		addTriangles(p, tNeu2, precision);
 	}
 
 	private static float getArea(Triangle t) {
@@ -55,7 +57,7 @@ public abstract class ShadowCalculatorInterface {
 				v1.getZ() - v0.getZ());
 	}
 	
-	private static void addTriangles(Building b, Triangle t, ShadowPrecision precision) {
+	private static void addTriangles(Polygon p, Triangle t, ShadowPrecision precision) {
 		float area = getArea(t);
 		if (area > precision.getArea()) {
 			float dis1 = getDistance(t.getVertices()[0], t.getVertices()[1]);
@@ -63,31 +65,35 @@ public abstract class ShadowCalculatorInterface {
 			float dis3 = getDistance(t.getVertices()[0], t.getVertices()[2]);
 			if (dis1 >= dis2 && dis1 >= dis3) {
 				splitTriangles(t.getVertices()[0], t.getVertices()[1],
-						t.getVertices()[2], b, precision, t.getNormalVector());
+						t.getVertices()[2], p, precision, t.getNormalVector());
 				return;
 			}
 			if (dis2 >= dis1 && dis2 >= dis3) {
 				splitTriangles(t.getVertices()[1], t.getVertices()[2],
-						t.getVertices()[0], b, precision, t.getNormalVector());
+						t.getVertices()[0], p, precision, t.getNormalVector());
 				return;
 			}
 			if (dis3 >= dis2 && dis3 >= dis1) {
 				splitTriangles(t.getVertices()[2], t.getVertices()[0],
-						t.getVertices()[1], b, precision, t.getNormalVector());
+						t.getVertices()[1], p, precision, t.getNormalVector());
 				return;
 			}
 		} else {
 			ShadowTriangle st = new ShadowTriangle(t.getVertices());
 			st.setNormalVector(t.getNormalVector());
-			b.addShadowTriangle(st);
+			p.addShadowTriangle(st);
 		}
 	}
 	
 	protected void recalculateShadowTriangles(ShadowPrecision precision) {
 		for (Building b : City.getInstance().getBuildings()) {
-			b.getShadowTriangles().clear();
-			for (Triangle t : b.getTriangles()) {
-				addTriangles(b, t, precision);
+			for (BoundarySurface surface : b.getBoundarySurfaces()) {
+				for (Polygon p : surface.getPolygons()) {
+					p.getShadowTriangles().clear();
+					for (Triangle t : p.getTriangles()) {
+						addTriangles(p, t, precision);
+					}
+				}
 			}
 		}
 	}

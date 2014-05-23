@@ -6,7 +6,7 @@ inline char rayIntersectsTriangle(float3 p, float3 sunDirection, float3 v0, floa
 			
 	float a = dot(e1, h);
 			
-	if ((a > -0.00001) && (a < 0.00001)) {
+	if ((a > -0.00001f) && (a < 0.00001f)) {
 		return 0;
 	}
 			
@@ -16,18 +16,18 @@ inline char rayIntersectsTriangle(float3 p, float3 sunDirection, float3 v0, floa
 	
 	float u = f * dot(s2, h);
 	
-	if ((u < 0.0) || (u > 1.0)) {
+	if ((u < 0.0f) || (u > 1.0f)) {
 		return 0;
 	}
 	
 	float3 q = cross(s2, e1);
 	
 	float v = f * dot(sunDirection, q);
-	if (!((v < 0.0) || ((u + v) > 1.0))) {
+	if (!((v < 0.0f) || ((u + v) > 1.0f))) {
 		float3 uv = v0 + e1 * u + e2 * v;
 		float3 s = uv - p;
 			
-		if (dot(s, sunDirection) > 0.01) {
+		if (dot(s, sunDirection) > 0.01f) {
 			return 1;
 		}
 	}
@@ -35,15 +35,15 @@ inline char rayIntersectsTriangle(float3 p, float3 sunDirection, float3 v0, floa
 }
 
 __kernel  
-void calc(__global float* cityVertices,
-				   __global int* cityVerticesCount,
-				   __global int* neighbours,
-				   __global int* neighboursCount,
-				   __global float* shadowVerticeCenters,
-				   __global int* shadowVerticeCentersCount,
+void calc(__global const float* cityVertices,
+				   __global const int* cityVerticesCount,
+				   __global const int* neighbours,
+				   __global const int* neighboursCount,
+				   __global const float* shadowVerticeCenters,
+				   __global const int* shadowVerticeCentersCount,
 				   __const int shadowBuildingsCount,
-				   __global float* shadowTriangleNormals,
-				   __global float* sunDirections,
+				   __global const float* shadowTriangleNormals,
+				   __global const float* sunDirections,
 				   __global char* hasShadow, // (144/8)*shadowTrianglesCount char
 				   __const int workSize) 
 {
