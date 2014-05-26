@@ -32,10 +32,9 @@ import de.hft_stuttgart.swp2.model.Polygon;
 import de.hft_stuttgart.swp2.model.ShadowTriangle;
 import de.hft_stuttgart.swp2.model.Triangle;
 import de.hft_stuttgart.swp2.model.Vertex;
-import de.hft_stuttgart.swp2.opencl.CalculatorImpl;
-import de.hft_stuttgart.swp2.opencl.CalculatorInterface;
 import de.hft_stuttgart.swp2.opencl.OpenClException;
 import de.hft_stuttgart.swp2.opencl.ShadowCalculatorInterface;
+import de.hft_stuttgart.swp2.opencl.ShadowCalculatorJavaBackend;
 import de.hft_stuttgart.swp2.opencl.ShadowPrecision;
 import de.hft_stuttgart.swp2.opencl.SunPositionCalculator;
 import de.hft_stuttgart.swp2.opencl.VolumeTest;
@@ -89,38 +88,38 @@ public class ShadowViewer extends JFrame implements GLEventListener,
 		super("Shadow view");
 		
 		// test values
-		VolumeTest.testCity2();
-		VolumeTest.testCity2();
-		VolumeTest.testCity2();
-		City.getInstance().getBuildings().get(1).translate(0, 0, 5);
-		City.getInstance().getBuildings().get(2).translate(5, 0, 5);
-		City.getInstance().getBuildings().get(2).scale(1, 5, 1);
+//		VolumeTest.testCity2();
+//		VolumeTest.testCity2();
+//		VolumeTest.testCity2();
+//		City.getInstance().getBuildings().get(1).translate(0, 0, 5);
+//		City.getInstance().getBuildings().get(2).translate(5, 0, 5);
+//		City.getInstance().getBuildings().get(2).scale(1, 5, 1);
+//		
+//		int size = 20;
+//		Vertex v0 = new Vertex(-size, 0, -size);
+//		Vertex v1 = new Vertex(-size, 0, size);
+//		Vertex v2 = new Vertex(size, 0, size);
+//		Vertex v3 = new Vertex(size, 0, -size);
+//		
+//		Triangle t1 = new Triangle(v0, v1, v2);
+//		Triangle t2 = new Triangle(v0, v2, v3);
+//		
+//		Building b = new Building();
+//		BoundarySurface surface = new BoundarySurface("sur");
+//		Polygon p = new Polygon("poly");
+//		surface.addPolygon(p);
+//		p.addTriangle(t1);
+//		p.addTriangle(t2);
+//		b.addBoundarySurface(surface);
+//		City.getInstance().addBuilding(b);
 		
-		int size = 20;
-		Vertex v0 = new Vertex(-size, 0, -size);
-		Vertex v1 = new Vertex(-size, 0, size);
-		Vertex v2 = new Vertex(size, 0, size);
-		Vertex v3 = new Vertex(size, 0, -size);
-		
-		Triangle t1 = new Triangle(v0, v1, v2);
-		Triangle t2 = new Triangle(v0, v2, v3);
-		
-		Building b = new Building();
-		BoundarySurface surface = new BoundarySurface("sur");
-		Polygon p = new Polygon("poly");
-		surface.addPolygon(p);
-		p.addTriangle(t1);
-		p.addTriangle(t2);
-		b.addBoundarySurface(surface);
-		City.getInstance().addBuilding(b);
-		
-//		for (int i = 0; i < 10; i++) {
-//			for (int j = 0; j < 10; j++) {
-//				VolumeTest.testCity2();
-//				Building b = City.getInstance().getBuildings().get(i * 10 + j);
-//				b.translate(20 * i, 0, 20 * j);
-//			}
-//		}
+		for (int i = 0; i < 5; i++) {
+			for (int j = 0; j < 5; j++) {
+				VolumeTest.testCity2();
+				Building b = City.getInstance().getBuildings().get(i * 5 + j);
+				b.translate(3 * i, 0, 3 * j);
+			}
+		}
 		
 		for (Building b2 : City.getInstance().getBuildings()) {
 		for (BoundarySurface surface2 : b2.getBoundarySurfaces()) {
@@ -136,8 +135,8 @@ public class ShadowViewer extends JFrame implements GLEventListener,
 		
 //		ParserInterface parser = Parser.getInstance();
 //		try {
-//			parser.parse("Gruenbuehl_LOD2.gml");
-////			parser.parse("einHaus.gml");
+////			parser.parse("Gruenbuehl_LOD2.gml");
+//			parser.parse("einHaus.gml");
 //		} catch (Exception e1) {
 //			e1.printStackTrace();
 //		}
@@ -156,8 +155,8 @@ public class ShadowViewer extends JFrame implements GLEventListener,
 		utcCal.set(2014, month + 1, 1, hour, 0, 0);
 		sunPos = new SunPositionCalculator(utcCal.getTime(), 11.6, 48.1);
 		
-		CalculatorInterface calc = new CalculatorImpl();
-//		ShadowCalculatorJavaBackend calc = new ShadowCalculatorJavaBackend();
+//		CalculatorInterface calc = new CalculatorImpl();
+		ShadowCalculatorJavaBackend calc = new ShadowCalculatorJavaBackend();
 		System.out.println("Starting shadow calculation...");
 		long start = System.currentTimeMillis(); 
 		calc.calculateShadow(ShadowPrecision.HIGH, splitAzimuth, splitHeight); //VERY_LOW(5f), LOW(2.5f), MID(1.25f), HIGH(0.75f), ULTRA(0.375f), HYPER(0.1f), AWESOME(0.01f)
@@ -234,13 +233,19 @@ public class ShadowViewer extends JFrame implements GLEventListener,
 				BoundarySurface surface = b.getBoundarySurfaces().get(i);
 				for (int j = 0; j < surface.getPolygons().size(); ++j) {
 					Polygon p = surface.getPolygons().get(j);
+					Double grey = 0.1;
+					if (ray != -1) {
+						grey = 1.0 - p.getPercentageShadow()[ray];
+					}
+//					System.out.println("polygon: " + j + " grey: " +grey);
 					for (ShadowTriangle t : p.getShadowTriangles()) {
 //						gl.glBegin(GL2.GL_LINE_LOOP);
 						gl.glBegin(GL2.GL_TRIANGLES);
-						gl.glColor3f(1, 0, 0);
+						gl.glColor3d(grey, 0.0, 0.0);
 						if (ray != -1 && !t.getShadowSet().get(ray)) {
-							gl.glColor3f(0, 1, 0);
+							gl.glColor3d(0.0, grey, 0.0);
 						}
+						
 						for (Vertex v : t.getVertices()) {
 							gl.glVertex3fv(v.getCoordinates(), 0);
 						}

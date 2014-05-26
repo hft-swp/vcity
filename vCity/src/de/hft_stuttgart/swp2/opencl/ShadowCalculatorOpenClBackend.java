@@ -57,6 +57,9 @@ public class ShadowCalculatorOpenClBackend extends ShadowCalculatorInterface {
 		occ = OpenClContext.getInstance();
 	}
 	
+	/**
+	 * @deprecated Please use {@link ShadowCalculatorOpenClBackend#calculateShadow(ShadowPrecision, int, int)}
+	 */
 	public void calculateShadow(ShadowPrecision precision) {
 		calculateShadow(precision, 12, 12);
 	}
@@ -68,6 +71,8 @@ public class ShadowCalculatorOpenClBackend extends ShadowCalculatorInterface {
 	 * @param precicion
 	 *            the precicsion which determins the maximum area a shadow
 	 *            triangle may have
+	 * @param splitAzimuth split the Azimuth angle in given parts
+	 * @param splitHeight split the Height angle in given parts
 	 */
 	@Override
 	public void calculateShadow(ShadowPrecision precision, int splitAzimuth, int splitHeight) {
@@ -306,12 +311,15 @@ public class ShadowCalculatorOpenClBackend extends ShadowCalculatorInterface {
 		for (Building b : calcBuildings) {
 			for (BoundarySurface surface : b.getBoundarySurfaces()) {
 				for (Polygon p : surface.getPolygons()) {
+					double [] percentageShadow = new double[skymodel];
+					double shadow = 1.0/p.getShadowTriangles().size();
 					for (ShadowTriangle st : p.getShadowTriangles()) {
 						// BitSet new_bs = bs.get(count*144, (count+1)*144);
 						BitSet new_bs = new BitSet(skymodel);
 						for (int i = 0; i < skymodel; i++) {
 							if ((hasShadow[count * (int)Math.ceil(skymodel / 8) + i / 8] & (1 << 7 - i % 8)) > 0) {
 								new_bs.set(i, true);
+								percentageShadow[i]+= shadow;
 							} else {
 								new_bs.set(i, false);
 							}
@@ -319,6 +327,7 @@ public class ShadowCalculatorOpenClBackend extends ShadowCalculatorInterface {
 						st.setShadowSet(new_bs);
 						count++;
 					}
+					p.setPercentageShadow(percentageShadow);
 				}
 			}
 		}

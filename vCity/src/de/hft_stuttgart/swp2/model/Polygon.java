@@ -13,6 +13,22 @@ public class Polygon {
 	private ArrayList<ShadowTriangle> shadowTriangles = new ArrayList<>();
 	private String id;
 	private double area;
+	private double[] percentageShadow;
+
+	/**
+	 * @param percentageShadow the shadow percentage of the polygon
+	 */
+	public void setPercentageShadow(double[] percentageShadow) {
+		this.percentageShadow = percentageShadow;
+	}
+
+	/** 
+	 * @return the shadow percentage of polygon
+	 */
+	public double[] getPercentageShadow() {
+		return percentageShadow;
+	}
+	
 
 	/**
 	 * Creates a Polygon
@@ -22,6 +38,7 @@ public class Polygon {
 		this.id = id;
 	}
 	
+
 	/**
 	 * @return ID of the Polygon
 	 */

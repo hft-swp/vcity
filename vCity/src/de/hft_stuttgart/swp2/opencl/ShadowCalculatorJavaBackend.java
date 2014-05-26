@@ -23,6 +23,8 @@ public class ShadowCalculatorJavaBackend extends ShadowCalculatorInterface {
 		for (Building b : City.getInstance().getBuildings()) {
 			for (BoundarySurface surface : b.getBoundarySurfaces()) {
 				for (Polygon p : surface.getPolygons()) {
+					double [] percentageShadow = new double[splitAzimuth * splitHeight];
+					double shadow = 1.0/p.getShadowTriangles().size();
 					for (ShadowTriangle t : p.getShadowTriangles()) {
 						for (int i = 0; i < (splitAzimuth * splitHeight); i++) {
 							Vertex himmelV = directions[i];
@@ -42,8 +44,12 @@ public class ShadowCalculatorJavaBackend extends ShadowCalculatorInterface {
 									}
 								}
 							}
+							if (hasShadow) {
+								percentageShadow[i]+= shadow;
+							}
 						}
 					}
+					p.setPercentageShadow(percentageShadow);
 				}
 			}
 		}
