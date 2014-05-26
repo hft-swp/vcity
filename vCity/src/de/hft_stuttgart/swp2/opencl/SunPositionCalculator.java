@@ -149,7 +149,9 @@ public class SunPositionCalculator {
 	 * sun is positioned.
 	 * 
 	 * @return value between -1 and 144
+	 * @deprecated Please use {@link SunPositionCalculator#getSunPosition(int splitAzimuth, int splitHeight)}
 	 */
+	@Deprecated
 	public int getSunPosition() {
 		return getSunPosition(12, 12);
 	}
@@ -157,7 +159,9 @@ public class SunPositionCalculator {
 	 * returns -1 if sun is beneath horizon, else the square number in which the
 	 * sun is positioned.
 	 * 
-	 * @return value between -1 and 144
+	 * @param splitAzimuth split the Azimuth angle in given parts
+	 * @param splitHeight split the Height angle in given parts
+	 * @return value between -1 and (splitAzimuth * splitHeight)
 	 */
 	public int getSunPosition(int splitAzimuth, int splitHeight) {
 		if (hr < 0) {
