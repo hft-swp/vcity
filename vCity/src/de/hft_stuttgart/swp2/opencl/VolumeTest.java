@@ -36,14 +36,14 @@ public class VolumeTest {
 
 		Vertex p0 = new Vertex(0, 0, 0);
 		Vertex p1 = new Vertex(2, 0, 0);
-		Vertex p2 = new Vertex(2, 0, 4);
-		Vertex p3 = new Vertex(1, 0, 6);
-		Vertex p4 = new Vertex(0, 0, 4);
-		Vertex p5 = new Vertex(0, 10, 0);
-		Vertex p6 = new Vertex(2, 10, 0);
-		Vertex p7 = new Vertex(2, 10, 4);
-		Vertex p8 = new Vertex(1, 10, 6);
-		Vertex p9 = new Vertex(0, 10, 4);
+		Vertex p2 = new Vertex(2, 4, 0);
+		Vertex p3 = new Vertex(1, 6, 0);
+		Vertex p4 = new Vertex(0, 4, 0);
+		Vertex p5 = new Vertex(0, 0, 10);
+		Vertex p6 = new Vertex(2, 0, 10);
+		Vertex p7 = new Vertex(2, 4, 10);
+		Vertex p8 = new Vertex(1, 6, 10);
+		Vertex p9 = new Vertex(0, 4, 10);
 		Triangle t = new Triangle(new Vertex[] {p0, p1, p4});
 		p.addTriangle(t);
 		t = new Triangle(new Vertex[] {p1, p2, p4});
@@ -72,9 +72,11 @@ public class VolumeTest {
 		p.addTriangle(t);
 		t = new Triangle(new Vertex[] {p4, p8, p9});
 		p.addTriangle(t);
-		t = new Triangle(new Vertex[] {p9, p4, p0});
+		t = new Triangle(new Vertex[] {p1, p4, p0});
 		p.addTriangle(t);
 		t = new Triangle(new Vertex[] {p0, p9, p5});
+		p.addTriangle(t);
+		t = new Triangle(new Vertex[] {p0, p5, p1});
 		p.addTriangle(t);
 	}
 	

@@ -89,6 +89,7 @@ public class ShadowViewer extends JFrame implements GLEventListener,
 		super("Shadow view");
 		
 		// test values
+//		VolumeTest.testCity1();
 //		VolumeTest.testCity2();
 //		VolumeTest.testCity2();
 //		VolumeTest.testCity2();
@@ -123,16 +124,16 @@ public class ShadowViewer extends JFrame implements GLEventListener,
 		}
 		
 		for (Building b2 : City.getInstance().getBuildings()) {
-		for (BoundarySurface surface2 : b2.getBoundarySurfaces()) {
-			for (Polygon p2 : surface2.getPolygons()) {
-				for (Triangle t : p2.getTriangles()) {
-					Vertex d0 = ShadowCalculatorInterface.vertexDiff(t.getVertices()[1], t.getVertices()[0]);
-					Vertex d1 = ShadowCalculatorInterface.vertexDiff(t.getVertices()[2], t.getVertices()[0]);
-					t.setNormalVector(cross(d0, d1));
+			for (BoundarySurface surface2 : b2.getBoundarySurfaces()) {
+				for (Polygon p2 : surface2.getPolygons()) {
+					for (Triangle t : p2.getTriangles()) {
+						Vertex d0 = ShadowCalculatorInterface.vertexDiff(t.getVertices()[1], t.getVertices()[0]);
+						Vertex d1 = ShadowCalculatorInterface.vertexDiff(t.getVertices()[2], t.getVertices()[0]);
+						t.setNormalVector(cross(d0, d1));
+					}
 				}
 			}
 		}
-	}
 		
 //		ParserInterface parser = Parser.getInstance();
 //		try {
@@ -143,8 +144,6 @@ public class ShadowViewer extends JFrame implements GLEventListener,
 //		}
 //		System.out.println(Parser.getInstance().getEPSG());
 //		System.exit(0);
-		
-
 
 		sunPositions = new SunPositionCalculator[12][24];
 		for (int j = 1; j < 13; ++j) {
