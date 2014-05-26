@@ -19,7 +19,7 @@ import de.hft_stuttgart.swp2.opencl.ShadowCalculatorOpenClBackend;
 import de.hft_stuttgart.swp2.opencl.ShadowPrecision;
 import de.hft_stuttgart.swp2.opencl.VolumeTest;
 
-public class ShadowCalculatorOpenClBackendTest {
+public class ShadowCalculatorTest {
 	
 	BitSet set1 = BitSet.valueOf(new byte[] {-8, -127, 31, -8, -127, 31, -8, -127, 31, 7, 126, -32, 7, 126, -32, 7, 126, -32});
 	BitSet set2 = BitSet.valueOf(new byte[] {-8, -127, 31, -8, -127, 31, -8, -127, 31, 7, 126, -32, 7, 126, -32, 7, 126, -32});
@@ -67,7 +67,7 @@ public class ShadowCalculatorOpenClBackendTest {
 		}
 		
 		ShadowCalculatorOpenClBackend calc = new ShadowCalculatorOpenClBackend();
-		calc.calculateShadow(ShadowPrecision.VERY_LOW);
+		calc.calculateShadow(ShadowPrecision.VERY_LOW, 12, 12);
 		
 		int bitIdx = 0;
 		for (ShadowTriangle t : City.getInstance().getBuildings().get(0).getBoundarySurfaces().get(0).getPolygons().get(0).getShadowTriangles()) {
@@ -100,7 +100,7 @@ public class ShadowCalculatorOpenClBackendTest {
 		}
 		
 		ShadowCalculatorJavaBackend calc = new ShadowCalculatorJavaBackend();
-		calc.calculateShadow(ShadowPrecision.VERY_LOW);
+		calc.calculateShadow(ShadowPrecision.VERY_LOW, 12, 12);
 		
 		int bitIdx = 0;
 		for (ShadowTriangle t : City.getInstance().getBuildings().get(0).getBoundarySurfaces().get(0).getPolygons().get(0).getShadowTriangles()) {

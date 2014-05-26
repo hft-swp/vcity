@@ -9,7 +9,9 @@ import de.hft_stuttgart.swp2.model.Triangle;
 import de.hft_stuttgart.swp2.model.Vertex;
 
 public class ShadowCalculatorJavaBackend extends ShadowCalculatorInterface {
-	
+	/**
+	 * @deprecated Please use {@link ShadowCalculatorJavaBackend#calculateShadow(ShadowPrecision, int, int)}
+	 */
 	public void calculateShadow(ShadowPrecision precision) {
 		calculateShadow(precision, 12, 12);
 	}

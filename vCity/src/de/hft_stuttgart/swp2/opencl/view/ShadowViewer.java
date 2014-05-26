@@ -32,9 +32,10 @@ import de.hft_stuttgart.swp2.model.Polygon;
 import de.hft_stuttgart.swp2.model.ShadowTriangle;
 import de.hft_stuttgart.swp2.model.Triangle;
 import de.hft_stuttgart.swp2.model.Vertex;
+import de.hft_stuttgart.swp2.opencl.CalculatorImpl;
+import de.hft_stuttgart.swp2.opencl.CalculatorInterface;
 import de.hft_stuttgart.swp2.opencl.OpenClException;
 import de.hft_stuttgart.swp2.opencl.ShadowCalculatorInterface;
-import de.hft_stuttgart.swp2.opencl.ShadowCalculatorJavaBackend;
 import de.hft_stuttgart.swp2.opencl.ShadowPrecision;
 import de.hft_stuttgart.swp2.opencl.SunPositionCalculator;
 import de.hft_stuttgart.swp2.opencl.VolumeTest;
@@ -155,8 +156,8 @@ public class ShadowViewer extends JFrame implements GLEventListener,
 		utcCal.set(2014, month + 1, 1, hour, 0, 0);
 		sunPos = new SunPositionCalculator(utcCal.getTime(), 11.6, 48.1);
 		
-//		CalculatorInterface calc = new CalculatorImpl();
-		ShadowCalculatorJavaBackend calc = new ShadowCalculatorJavaBackend();
+		CalculatorInterface calc = new CalculatorImpl();
+//		ShadowCalculatorJavaBackend calc = new ShadowCalculatorJavaBackend();
 		System.out.println("Starting shadow calculation...");
 		long start = System.currentTimeMillis(); 
 		calc.calculateShadow(ShadowPrecision.HIGH, splitAzimuth, splitHeight); //VERY_LOW(5f), LOW(2.5f), MID(1.25f), HIGH(0.75f), ULTRA(0.375f), HYPER(0.1f), AWESOME(0.01f)
