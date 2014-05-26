@@ -15,14 +15,17 @@
 		  >
   
 		<!ELEMENT BoundarySurface (Polygon)+>
+		<!ATTLIST BoundarySurface 
+		  id CDATA #REQUIRED
+		  >
 
-			<!ELEMENT Polygon (area, shadow, Triangle)+>
+			<!ELEMENT Polygon (area, shadow)>
+			<!ATTLIST Polygon 
+		 		id CDATA #REQUIRED
+		  		>
 
 			<!ELEMENT area (#PCDATA)>
 			<!ATTLIST area 
 			  uom CDATA #REQUIRED
 			  >
 			<!ELEMENT shadow (#PCDATA)>
-			<!ELEMENT Triangle (Vertex, Vertex, Vertex)>
-			
-				<!ELEMENT Vertex (#PCDATA)>

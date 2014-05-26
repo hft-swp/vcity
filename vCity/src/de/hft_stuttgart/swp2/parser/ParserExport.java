@@ -37,9 +37,6 @@ import de.hft_stuttgart.swp2.model.BoundarySurface;
 import de.hft_stuttgart.swp2.model.Building;
 import de.hft_stuttgart.swp2.model.City;
 import de.hft_stuttgart.swp2.model.Polygon;
-import de.hft_stuttgart.swp2.model.Triangle;
-import de.hft_stuttgart.swp2.model.Vertex;
-import de.hft_stuttgart.swp2.model.VertexDouble;
 
 /**
  * Export class of the CityGML Parser
@@ -203,11 +200,11 @@ public class ParserExport implements ParserExportInterface {
 			Element skyModel = doc.createElement("SkyModel");
 			
 				Element azimuthwinkel = doc.createElement("azimuthwinkel");
-				azimuthwinkel.appendChild(doc.createTextNode(""));						 // TODO
+				azimuthwinkel.appendChild(doc.createTextNode("12"));					 // TODO
 				skyModel.appendChild(azimuthwinkel);
 				
 				Element hoehenwinkel = doc.createElement("hoehenwinkel");
-				hoehenwinkel.appendChild(doc.createTextNode(""));						 // TODO
+				hoehenwinkel.appendChild(doc.createTextNode("12"));						 // TODO
 				skyModel.appendChild(hoehenwinkel);
 			
 			rootCity.appendChild(skyModel);
@@ -229,24 +226,18 @@ public class ParserExport implements ParserExportInterface {
 
 				for (BoundarySurface bs : b.getBoundarySurfaces()) {
 					Element bounds = doc.createElement("BoundarySurface");
+					
+					Attr bid = doc.createAttribute("id");
+					bid.setValue(bs.getId());
+					bounds.setAttributeNode(bid);
 
 					for (Polygon p : bs.getPolygons()) {
 						Element poly = doc.createElement("Polygon");
-
-						for (Triangle t : p.getTriangles()) {
-
-							Element triangle = doc.createElement("Triangle");
-
-							for (Vertex v : t.getVertices()) {
-								Element vertex = doc.createElement("Vertex");
-								VertexDouble trv = PolygonTranslate.translateBack(v, Parser.getInstance().getReference());
-								vertex.appendChild(doc.createTextNode(trv.getX() + "," + trv.getY() + "," + trv.getZ()));
-								triangle.appendChild(vertex);
-
-							}
-							poly.appendChild(triangle);
-						}
 						
+						Attr pid = doc.createAttribute("id");
+						pid.setValue(p.getId());
+						poly.setAttributeNode(pid);
+
 						Element area = doc.createElement("area");
 						Attr uarea = doc.createAttribute("uom");
 						uarea.setValue("m2");
@@ -254,10 +245,10 @@ public class ParserExport implements ParserExportInterface {
 						area.appendChild(doc.createTextNode(Double.toString(p.getArea())));
 						bounds.appendChild(area);
 						
-						Element shadow = doc.createElement("shadow");						// TODO
+//						Element shadow = doc.createElement("shadow");						// TODO
 //						BitSet bs = t.getShadowSet();
-						StringBuilder sb = new StringBuilder();
-
+//						StringBuilder sb = new StringBuilder();
+//
 //						for (int i = 0; i < 144; i++) {
 //							sb.append((boolean) bs.get(i) == true ? "T" : "F");
 //							
@@ -265,12 +256,13 @@ public class ParserExport implements ParserExportInterface {
 //								sb.append(",");
 //							}
 //						}
-
-						shadow.appendChild(doc.createTextNode(sb.toString()));
-						poly.appendChild(shadow);
+//
+//						shadow.appendChild(doc.createTextNode(sb.toString()));
+//						poly.appendChild(shadow);
 
 						bounds.appendChild(poly);
 					}
+					building.appendChild(bounds);
 				}
 				rootCity.appendChild(building);
 			}
