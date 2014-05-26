@@ -91,11 +91,13 @@ public class SunPositionCalculator {
 			azimut += 180;
 		}
 		// Bringe azimut in bereich von -180° bis 180°
-		if (azimut > 180d) {
-			azimut -= 360d;
-		} else if (azimut < -180d) {
-			azimut += 360d;
-		}
+//		if (azimut > 180d) {
+//			azimut -= 360d;
+//		} else if (azimut < -180d) {
+//			azimut += 360d;
+//		}
+		// azimut soll von Noren aus gezählt werden
+		azimut += 180;
 
 		// Höhenwinkel
 		double h = asin(cos(delta) * cos(stundenWinkel) * cos(latitude) + sin(delta)
@@ -168,7 +170,7 @@ public class SunPositionCalculator {
 			return -1;
 		}
 		int result = 0;
-		result += (int) (hr / (90.0/splitHeight)) * splitHeight;
+		result += (int) (hr / (90.0/splitHeight)) * splitAzimuth;
 		result += (-1 * azimut + 270) / (360.0/splitAzimuth);
 		return result;
 	}

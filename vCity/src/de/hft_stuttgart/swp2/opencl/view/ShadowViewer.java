@@ -464,7 +464,7 @@ public class ShadowViewer extends JFrame implements GLEventListener,
 			}
 			utcCal.set(2014, month + 1, 1, hour, 0, 0);
 			sunPos = new SunPositionCalculator(utcCal.getTime(), 11.6, 48.1);
-			ray = sunPos.getSunPosition();
+			ray = sunPos.getSunPosition(splitAzimuth, splitHeight);
 		}
 		if (e.getKeyCode() == KeyEvent.VK_K) {
 			month--;
@@ -473,7 +473,7 @@ public class ShadowViewer extends JFrame implements GLEventListener,
 			}
 			utcCal.set(2014, month + 1, 1, hour, 0, 0);
 			sunPos = new SunPositionCalculator(utcCal.getTime(), 11.6, 48.1);
-			ray = sunPos.getSunPosition();
+			ray = sunPos.getSunPosition(splitAzimuth, splitHeight);
 		}
 		if (e.getKeyCode() == KeyEvent.VK_U) {
 			hour++;
@@ -482,7 +482,7 @@ public class ShadowViewer extends JFrame implements GLEventListener,
 			}
 			utcCal.set(2014, month + 1, 1, hour, 0, 0);
 			sunPos = new SunPositionCalculator(utcCal.getTime(), 11.6, 48.1);
-			ray = sunPos.getSunPosition();
+			ray = sunPos.getSunPosition(splitAzimuth, splitHeight);
 
 		}
 		if (e.getKeyCode() == KeyEvent.VK_J) {
@@ -492,7 +492,7 @@ public class ShadowViewer extends JFrame implements GLEventListener,
 			}
 			utcCal.set(2014, month + 1, 1, hour, 0, 0);
 			sunPos = new SunPositionCalculator(utcCal.getTime(), 11.6, 48.1);
-			ray = sunPos.getSunPosition();
+			ray = sunPos.getSunPosition(splitAzimuth, splitHeight);
 		}
 	}
 
