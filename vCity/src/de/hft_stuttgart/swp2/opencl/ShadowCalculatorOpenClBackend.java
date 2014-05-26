@@ -57,6 +57,10 @@ public class ShadowCalculatorOpenClBackend extends ShadowCalculatorInterface {
 		occ = OpenClContext.getInstance();
 	}
 	
+	public void calculateShadow(ShadowPrecision precision) {
+		calculateShadow(precision, 12, 12);
+	}
+	
 	/**
 	 * 
 	 * This method calculates the shadow of each triangle on the gpu.
@@ -66,7 +70,7 @@ public class ShadowCalculatorOpenClBackend extends ShadowCalculatorInterface {
 	 *            triangle may have
 	 */
 	@Override
-	public void calculateShadow(ShadowPrecision precision) {
+	public void calculateShadow(ShadowPrecision precision, int splitAzimuth, int splitHeight) {
 		City city = City.getInstance();
 		// if no buildings are available, abort
 		if (city.getBuildings().size() == 0) {
@@ -86,7 +90,7 @@ public class ShadowCalculatorOpenClBackend extends ShadowCalculatorInterface {
 		// cl_mem cityVerticesCountMem = storeOnGPUAsReadOnly(context,
 		// cityVerticesCount);
 
-		float[] sunDirections = getSunDirections();
+		float[] sunDirections = getSunDirections(splitAzimuth, splitHeight);
 		cl_mem sunDirectionsMem = storeOnGPUAsReadOnly(context, sunDirections);
 
 		int currentBuilding = 0;
@@ -195,7 +199,7 @@ public class ShadowCalculatorOpenClBackend extends ShadowCalculatorInterface {
 			cl_mem shadowTriangleNormalsMem = storeOnGPUAsReadOnly(context,
 					shadowTriangleNormals);
 
-			byte[] hasShadow = new byte[18 * triangleCount];
+			byte[] hasShadow = new byte[(int) (Math.ceil(splitAzimuth * splitHeight / 8.0) * triangleCount)];
 
 			Pointer hasShadowPointer = Pointer.to(hasShadow);
 			cl_mem hasShadowMem = clCreateBuffer(context, CL_MEM_READ_WRITE,
@@ -241,6 +245,10 @@ public class ShadowCalculatorOpenClBackend extends ShadowCalculatorInterface {
 			clSetKernelArg(kernel, 10, Sizeof.cl_int,
 					Pointer.to(new int[] { shadowVerticeCenters.length / 3 }));
 
+			// Azimuthwinkel * Höhenwinkel
+			clSetKernelArg(kernel, 11, Sizeof.cl_int,
+					Pointer.to(new int[] { splitAzimuth * splitHeight }));
+
 			cl_device_id device = occ.getDevice();
 			long[] kernelWorkSize = new long[1];
 			CL.clGetKernelWorkGroupInfo(kernel, device,
@@ -270,7 +278,7 @@ public class ShadowCalculatorOpenClBackend extends ShadowCalculatorInterface {
 
 			occ.profile(kernelEvent);
 
-			writeShadowDataIntoTriangles(calcBuildings, hasShadow);
+			writeShadowDataIntoTriangles(calcBuildings, hasShadow, splitAzimuth, splitHeight);
 			// System.out.println(Arrays.toString(cityVerticesCount));
 
 			clReleaseMemObject(shadowVerticesMem);
@@ -291,17 +299,18 @@ public class ShadowCalculatorOpenClBackend extends ShadowCalculatorInterface {
 	}
 
 	private void writeShadowDataIntoTriangles(
-			ArrayList<Building> calcBuildings, byte[] hasShadow) {
+			ArrayList<Building> calcBuildings, byte[] hasShadow, int splitAzimuth, int splitHeight) {
 		int count = 0;
+		int skymodel = splitAzimuth * splitHeight;
 		// BitSet bs = BitSet.valueOf(hasShadow);
 		for (Building b : calcBuildings) {
 			for (BoundarySurface surface : b.getBoundarySurfaces()) {
 				for (Polygon p : surface.getPolygons()) {
 					for (ShadowTriangle st : p.getShadowTriangles()) {
 						// BitSet new_bs = bs.get(count*144, (count+1)*144);
-						BitSet new_bs = new BitSet(144);
-						for (int i = 0; i < 144; i++) {
-							if ((hasShadow[count * 18 + i / 8] & (1 << 7 - i % 8)) > 0) {
+						BitSet new_bs = new BitSet(skymodel);
+						for (int i = 0; i < skymodel; i++) {
+							if ((hasShadow[count * (int)Math.ceil(skymodel / 8) + i / 8] & (1 << 7 - i % 8)) > 0) {
 								new_bs.set(i, true);
 							} else {
 								new_bs.set(i, false);
@@ -371,10 +380,10 @@ public class ShadowCalculatorOpenClBackend extends ShadowCalculatorInterface {
 		return cityVertices;
 	}
 
-	private float[] getSunDirections() {
-		float[] sunDirections = new float[144 * 3];
+	private float[] getSunDirections(int splitAzimuth, int splitHeight) {
+		float[] sunDirections = new float[(splitAzimuth* splitHeight) * 3];
 		int sunDirectionsCount = 0;
-		Vertex[] sunDirectionsV = calcDirections();
+		Vertex[] sunDirectionsV = calcDirections(splitAzimuth, splitHeight);
 		for (int sunDirectionIdx = 0; sunDirectionIdx < sunDirectionsV.length; ++sunDirectionIdx) {
 			Vertex v = sunDirectionsV[sunDirectionIdx];
 			for (float p : v.getCoordinates()) {

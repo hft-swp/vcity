@@ -10,19 +10,21 @@ import de.hft_stuttgart.swp2.model.Vertex;
 
 public class ShadowCalculatorJavaBackend extends ShadowCalculatorInterface {
 	
-	
+	public void calculateShadow(ShadowPrecision precision) {
+		calculateShadow(precision, 12, 12);
+	}
 	
 	/**
 	 * The java implementation of the calculation for shadow values
 	 */
-	public void calculateShadow(ShadowPrecision precision) {
-		Vertex[] directions = calcDirections();
+	public void calculateShadow(ShadowPrecision precision, int splitAzimuth, int splitHeight) {
+		Vertex[] directions = calcDirections(splitAzimuth, splitHeight);
 		recalculateShadowTriangles(precision);
 		for (Building b : City.getInstance().getBuildings()) {
 			for (BoundarySurface surface : b.getBoundarySurfaces()) {
 				for (Polygon p : surface.getPolygons()) {
 					for (ShadowTriangle t : p.getShadowTriangles()) {
-						for (int i = 0; i < 144; i++) {
+						for (int i = 0; i < (splitAzimuth * splitHeight); i++) {
 							Vertex himmelV = directions[i];
 							boolean hasShadow = false;
 							for (Building b2 : City.getInstance().getBuildings()) {

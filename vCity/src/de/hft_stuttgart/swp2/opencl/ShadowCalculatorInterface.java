@@ -16,6 +16,7 @@ public abstract class ShadowCalculatorInterface {
 	 * @throws OpenClException an error has occured while creating the OpenCL context
 	 */
 	public abstract void calculateShadow(ShadowPrecision precision) throws OpenClException;
+	public abstract void calculateShadow(ShadowPrecision precision, int splitAzimuth, int splitHeight) throws OpenClException;
 	
 	private static void splitTriangles(Vertex v0, Vertex v1, Vertex v2,
 			Polygon p, ShadowPrecision precision, Vertex norm) {
@@ -98,15 +99,15 @@ public abstract class ShadowCalculatorInterface {
 		}
 	}
 	
-	protected Vertex[] calcDirections() {
-		Vertex[] result = new Vertex[144];
-		float dv = (float) (Math.PI / 12);
-		float dh = (float) (2 * Math.PI / 12);
+	protected Vertex[] calcDirections(int splitAzimuth, int splitHeight) {
+		Vertex[] result = new Vertex[splitAzimuth * splitHeight];
+		float dv = (float) (Math.PI / splitHeight / 2);
+		float dh = (float) (2 * Math.PI / splitAzimuth);
 		int count = 0;
-		for (int i = 0; i < 12; i++) {
-			for (int j = 0; j < 12; j++) {
+		for (int i = 0; i < splitHeight; i++) {
+			for (int j = 0; j < splitAzimuth; j++) {
 				float v = dv * i + dv / 2;
-				float h = dh * (j - 6) + dh / 2;
+				float h = dh * (j - (splitAzimuth / 2f)) + dh / 2;
 				double sinH = Math.sin(h);
 				double sinV = Math.sin(v);
 				double cosH = Math.cos(h);

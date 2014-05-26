@@ -12,6 +12,8 @@ public interface CalculatorInterface {
 	public void calculateVolume() throws OpenClException;
 
 	/**
+	 * use {@link CalculatorInterface#calculateShadow(ShadowPrecision, int, int)} instead <br>
+	 * 
 	 * This method calculates the shadows of all buildings stored in the city
 	 * singleton. The triangles are therefore split into smaller triangles
 	 * called ShadowTriangles to ensure a certain amount of precision for the
@@ -23,8 +25,11 @@ public interface CalculatorInterface {
 	 * @throws OpenClException
 	 *             if the initialization of the OpenCL context creation fails.
 	 */
+	@Deprecated
 	public void calculateShadow(ShadowPrecision precision)
 			throws OpenClException;
+	
+	public void calculateShadow(ShadowPrecision precision, int splitAzimuth, int splitHeight) throws OpenClException;
 	
 	
 

@@ -151,13 +151,21 @@ public class SunPositionCalculator {
 	 * @return value between -1 and 144
 	 */
 	public int getSunPosition() {
+		return getSunPosition(12, 12);
+	}
+	/**
+	 * returns -1 if sun is beneath horizon, else the square number in which the
+	 * sun is positioned.
+	 * 
+	 * @return value between -1 and 144
+	 */
+	public int getSunPosition(int splitAzimuth, int splitHeight) {
 		if (hr < 0) {
-			System.out.println("RayIndex= -1");
 			return -1;
 		}
 		int result = 0;
-		result += (int) (hr / 15) * 12;
-		result += (-1 * azimut + 270) / 30;
+		result += (int) (hr / (90.0/splitHeight)) * splitHeight;
+		result += (-1 * azimut + 270) / (360.0/splitAzimuth);
 		return result;
 	}
 

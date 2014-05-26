@@ -62,6 +62,9 @@ public class ShadowViewer extends JFrame implements GLEventListener,
 	
 	private int ray = 0;
 	
+	private int splitAzimuth = 32;
+	private int splitHeight = 16;
+	
 	private static final boolean showGrid = true;
 
 
@@ -87,29 +90,29 @@ public class ShadowViewer extends JFrame implements GLEventListener,
 		
 		// test values
 		VolumeTest.testCity2();
-//		VolumeTest.testCity2();
-//		VolumeTest.testCity2();
-//		City.getInstance().getBuildings().get(1).translate(0, 0, 5);
-//		City.getInstance().getBuildings().get(2).translate(5, 0, 5);
-//		City.getInstance().getBuildings().get(2).scale(1, 5, 1);
-//		
-//		int size = 20;
-//		Vertex v0 = new Vertex(-size, 0, -size);
-//		Vertex v1 = new Vertex(-size, 0, size);
-//		Vertex v2 = new Vertex(size, 0, size);
-//		Vertex v3 = new Vertex(size, 0, -size);
-//		
-//		Triangle t1 = new Triangle(v0, v1, v2);
-//		Triangle t2 = new Triangle(v0, v2, v3);
-//		
-//		Building b = new Building();
-//		BoundarySurface surface = new BoundarySurface("sur");
-//		Polygon p = new Polygon("poly");
-//		surface.addPolygon(p);
-//		p.addTriangle(t1);
-//		p.addTriangle(t2);
-//		b.addBoundarySurface(surface);
-//		City.getInstance().addBuilding(b);
+		VolumeTest.testCity2();
+		VolumeTest.testCity2();
+		City.getInstance().getBuildings().get(1).translate(0, 0, 5);
+		City.getInstance().getBuildings().get(2).translate(5, 0, 5);
+		City.getInstance().getBuildings().get(2).scale(1, 5, 1);
+		
+		int size = 20;
+		Vertex v0 = new Vertex(-size, 0, -size);
+		Vertex v1 = new Vertex(-size, 0, size);
+		Vertex v2 = new Vertex(size, 0, size);
+		Vertex v3 = new Vertex(size, 0, -size);
+		
+		Triangle t1 = new Triangle(v0, v1, v2);
+		Triangle t2 = new Triangle(v0, v2, v3);
+		
+		Building b = new Building();
+		BoundarySurface surface = new BoundarySurface("sur");
+		Polygon p = new Polygon("poly");
+		surface.addPolygon(p);
+		p.addTriangle(t1);
+		p.addTriangle(t2);
+		b.addBoundarySurface(surface);
+		City.getInstance().addBuilding(b);
 		
 //		for (int i = 0; i < 10; i++) {
 //			for (int j = 0; j < 10; j++) {
@@ -118,6 +121,18 @@ public class ShadowViewer extends JFrame implements GLEventListener,
 //				b.translate(20 * i, 0, 20 * j);
 //			}
 //		}
+		
+		for (Building b2 : City.getInstance().getBuildings()) {
+		for (BoundarySurface surface2 : b2.getBoundarySurfaces()) {
+			for (Polygon p2 : surface2.getPolygons()) {
+				for (Triangle t : p2.getTriangles()) {
+					Vertex d0 = ShadowCalculatorInterface.vertexDiff(t.getVertices()[1], t.getVertices()[0]);
+					Vertex d1 = ShadowCalculatorInterface.vertexDiff(t.getVertices()[2], t.getVertices()[0]);
+					t.setNormalVector(cross(d0, d1));
+				}
+			}
+		}
+	}
 		
 //		ParserInterface parser = Parser.getInstance();
 //		try {
@@ -129,17 +144,7 @@ public class ShadowViewer extends JFrame implements GLEventListener,
 //		System.out.println(Parser.getInstance().getEPSG());
 //		System.exit(0);
 		
-		for (Building b2 : City.getInstance().getBuildings()) {
-			for (BoundarySurface surface2 : b2.getBoundarySurfaces()) {
-				for (Polygon p2 : surface2.getPolygons()) {
-					for (Triangle t : p2.getTriangles()) {
-						Vertex d0 = ShadowCalculatorInterface.vertexDiff(t.getVertices()[1], t.getVertices()[0]);
-						Vertex d1 = ShadowCalculatorInterface.vertexDiff(t.getVertices()[2], t.getVertices()[0]);
-						t.setNormalVector(cross(d0, d1));
-					}
-				}
-			}
-		}
+
 
 		sunPositions = new SunPositionCalculator[12][24];
 		for (int j = 1; j < 13; ++j) {
@@ -155,7 +160,7 @@ public class ShadowViewer extends JFrame implements GLEventListener,
 //		ShadowCalculatorJavaBackend calc = new ShadowCalculatorJavaBackend();
 		System.out.println("Starting shadow calculation...");
 		long start = System.currentTimeMillis(); 
-		calc.calculateShadow(ShadowPrecision.HIGH); //VERY_LOW(5f), LOW(2.5f), MID(1.25f), HIGH(0.75f), ULTRA(0.375f), HYPER(0.1f), AWESOME(0.01f)
+		calc.calculateShadow(ShadowPrecision.HIGH, splitAzimuth, splitHeight); //VERY_LOW(5f), LOW(2.5f), MID(1.25f), HIGH(0.75f), ULTRA(0.375f), HYPER(0.1f), AWESOME(0.01f)
 		long end = System.currentTimeMillis();
 		long milli = end - start;
 		
@@ -280,12 +285,12 @@ public class ShadowViewer extends JFrame implements GLEventListener,
 			return;
 		}
 		gl.glColor3f(1f, 1f, 0);
-		float dv = (float) (Math.PI / 12);
-		float dh = (float) (2 * Math.PI / 12);
+		float dv = (float) (Math.PI / splitHeight / 2);
+		float dh = (float) (2 * Math.PI / splitAzimuth);
 //		for (int i = 0; i < 1; i++) {
 //			for (int j = 0; j < 1; j++) {
-				float v = dv * (ray / 12) + dv / 2;
-				float h = dh * ((ray % 12) - 6) + dh / 2;
+				float v = dv * (ray / splitAzimuth) + dv / 2;
+				float h = dh * ((ray % splitAzimuth) - (splitAzimuth/2f)) + dh / 2;
 				double sinH = Math.sin(h);
 				double sinV = Math.sin(v);
 				double cosH = Math.cos(h);
@@ -304,12 +309,12 @@ public class ShadowViewer extends JFrame implements GLEventListener,
 
 	private void drawHemisphere(GL2 gl) {
 		gl.glColor3f(1, 1, 1);
-		float dv = (float) (Math.PI / 12);
-		float dh = (float) (2 * Math.PI / 12);
-		for (int i = 0; i < 12; i++) {
-			for (int j = 0; j < 12; j++) {
+		float dv = (float) (Math.PI / splitHeight / 2);
+		float dh = (float) (2 * Math.PI / splitAzimuth);
+		for (int i = 0; i < splitHeight; i++) {
+			for (int j = 0; j < splitAzimuth; j++) {
 				float v = dv * i;
-				float h = dh * (j - 6);
+				float h = dh * (j - (splitAzimuth / 2f));
 				float newV = v + dv;
 				float newH = h + dh;
 				double sinH = Math.sin(h);
@@ -441,12 +446,12 @@ public class ShadowViewer extends JFrame implements GLEventListener,
 		}
 		if (e.getKeyCode() == KeyEvent.VK_O) {
 			ray++;
-			ray = ray % 144;
+			ray = ray % (splitAzimuth * splitHeight);
 		}
 		if (e.getKeyCode() == KeyEvent.VK_L) {
 			ray--;
 			if (ray < 0) {
-				ray = 143;
+				ray = (splitAzimuth * splitHeight) - 1;
 			}
 		}
 		if (e.getKeyCode() == KeyEvent.VK_E) {
