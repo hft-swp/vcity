@@ -46,12 +46,12 @@ public class KeyEventListener implements KeyListener {
 		}
 		if (e.getKeyCode() == KeyEvent.VK_O) {
 			cityMap3D.ray++;
-			cityMap3D.ray = cityMap3D.ray % 144;
+			cityMap3D.ray = cityMap3D.ray % (Main.getSplitAzimuth() * Main.getSplitHeight());
 		}
 		if (e.getKeyCode() == KeyEvent.VK_L) {
 			cityMap3D.ray--;
 			if (cityMap3D.ray < 0) {
-				cityMap3D.ray = 143;
+				cityMap3D.ray = (Main.getSplitAzimuth() * Main.getSplitHeight()) - 1;
 			}
 		}
 		if (e.getKeyCode() == KeyEvent.VK_E) {

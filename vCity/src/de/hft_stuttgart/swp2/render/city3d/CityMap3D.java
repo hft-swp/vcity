@@ -21,12 +21,15 @@ import javax.swing.JFrame;
 import com.jogamp.opengl.util.FPSAnimator;
 import com.jogamp.opengl.util.gl2.GLUT;
 
+import de.hft_stuttgart.swp2.model.BoundarySurface;
 import de.hft_stuttgart.swp2.model.Building;
 import de.hft_stuttgart.swp2.model.City;
+import de.hft_stuttgart.swp2.model.Polygon;
 import de.hft_stuttgart.swp2.model.ShadowTriangle;
 import de.hft_stuttgart.swp2.model.Triangle;
 import de.hft_stuttgart.swp2.model.Vertex;
 
+import de.hft_stuttgart.swp2.opencl.ShadowCalculatorInterface;
 import de.hft_stuttgart.swp2.opencl.ShadowPrecision;
 import de.hft_stuttgart.swp2.opencl.SunPositionCalculator;
 import de.hft_stuttgart.swp2.render.Main;
@@ -50,14 +53,16 @@ public class CityMap3D extends JFrame implements GLEventListener {
 	private boolean isVolumeCalc = true;
 	private int minGroundSize = 0;
 	private int maxGroundSize = 10000;
-	ShadowPrecision defaultShadowPrecision = ShadowPrecision.VERY_LOW;
-
+	ShadowPrecision defaultShadowPrecision = ShadowPrecision.HIGH;
+	private int splitAzimuth = Main.getSplitAzimuth();
+	private int splitHeight = Main.getSplitHeight();
 	private FPSAnimator animator;
 
 	Runnable startVolumeCalculationRunnable = 
 			new StartVolumeCalculationRunnable();
 	Runnable startShadowCalculationRunnable = 
-			new StartShadowCalculationRunnable(defaultShadowPrecision);
+			new StartShadowCalculationRunnable(defaultShadowPrecision,
+					splitAzimuth, splitHeight);
 
 	private SunPositionCalculator[][] sunPositions;
 	//Sunposition vars
@@ -68,6 +73,7 @@ public class CityMap3D extends JFrame implements GLEventListener {
 	public int month = 0;
 
 	public int ray = 0;
+
 
 	private static final boolean showGrid = true;
 	
@@ -157,7 +163,7 @@ public class CityMap3D extends JFrame implements GLEventListener {
 				calendar.get(Calendar.MINUTE), 0);
 		month = calendar.get(Calendar.MONTH);
 		sunPos = new SunPositionCalculator(utcCal.getTime(), 11.6, 48.1);
-		ray = sunPos.getSunPosition();
+		ray = sunPos.getSunPosition(splitAzimuth, splitHeight);
 	}
 	
 
@@ -203,10 +209,13 @@ public class CityMap3D extends JFrame implements GLEventListener {
 		Vertex v3 = new Vertex(maxSize, 0, minSize);
 		Triangle t1 = new Triangle(v0, v1, v2);
 		Triangle t2 = new Triangle(v0, v2, v3);
-
+		Polygon p1 = new Polygon("-1");
+		BoundarySurface bs = new BoundarySurface("-1");
+		p1.addTriangle(t1);
+		p1.addTriangle(t2);
+		bs.addPolygon(p1);
 		Building b = new Building();
-		b.addTriangle(t1);
-		b.addTriangle(t2);
+		b.addBoundarySurface(bs);
 		City.getInstance().addBuilding(b);
 	}
 
@@ -283,33 +292,41 @@ public class CityMap3D extends JFrame implements GLEventListener {
 		float maxY = Float.MIN_VALUE;
 		float maxZ = Float.MIN_VALUE;
 		if(building.getVolume() == 0.0 && !isVolumeCalc){
-			System.out.println("Um das Volumen der Gebaeude anzeigen zu lassen " +
-					"muss es erst berechnet werden.");
+			//TODO Fehlermeldung
+//			System.out.println("Um das Volumen der Gebaeude anzeigen zu lassen " +
+//					"muss es erst berechnet werden.");
 		}
-		if(building.getVolume() > 0){
-			for (Triangle triangle : building.getTriangles()){
-				Vertex [] v= triangle.getVertices();
-				for(int j=0; j<3;j++){
-					if(minX > v[j].getX()){
-						minX = v[j].getX();
-					}
-					if(minY > v[j].getY()){
-						minY = v[j].getY();
-					}
-					if(minZ > v[j].getZ()){
-						minZ = v[j].getZ();
-					}
-					if(maxX < v[j].getX()){
-						maxX = v[j].getX();
-					}
-					if(maxY < v[j].getY()){
-						maxY = v[j].getY();
-					}
-					if(maxZ < v[j].getZ()){
-						maxZ = v[j].getZ();
+		if (building.getVolume() > 0) {
+			for (int i = 0; i < building.getBoundarySurfaces().size(); ++i) {
+				BoundarySurface surface = building.getBoundarySurfaces().get(i);
+				for (int j = 0; j < surface.getPolygons().size(); ++j) {
+					Polygon p = surface.getPolygons().get(j);
+					for (Triangle triangle : p.getTriangles()) {
+						Vertex[] v = triangle.getVertices();
+						for (int k = 0; k < 3; k++) {
+							if (minX > v[k].getX()) {
+								minX = v[k].getX();
+							}
+							if (minY > v[k].getY()) {
+								minY = v[k].getY();
+							}
+							if (minZ > v[k].getZ()) {
+								minZ = v[k].getZ();
+							}
+							if (maxX < v[k].getX()) {
+								maxX = v[k].getX();
+							}
+							if (maxY < v[k].getY()) {
+								maxY = v[k].getY();
+							}
+							if (maxZ < v[k].getZ()) {
+								maxZ = v[k].getZ();
+							}
+						}
 					}
 				}
 			}
+			//---------------
 			
 			float averageValueX;
 			if(minX <= 0 && maxX >= 0){
@@ -347,54 +364,99 @@ public class CityMap3D extends JFrame implements GLEventListener {
 
 
 	private void drawVolumeBuildings(GL2 gl, Building building) {
-		for (Triangle t : building.getTriangles()) {
-			gl.glBegin(GL2.GL_TRIANGLES);
-			gl.glColor3f(0, 1, 0);
-			for (Vertex v : t.getVertices()) {
-				// green
-				gl.glColor3f(0, 1, 0);
-				gl.glVertex3fv(v.getCoordinates(), 0);
+		for (int i = 0; i < building.getBoundarySurfaces().size(); ++i) {
+			BoundarySurface surface = building.getBoundarySurfaces().get(i);
+			for (int j = 0; j < surface.getPolygons().size(); ++j) {
+				Polygon p = surface.getPolygons().get(j);
+				for (Triangle t : p.getTriangles()) {
+					gl.glBegin(GL2.GL_TRIANGLES);
+					gl.glColor3f(0, 1, 0);
+					for (Vertex v : t.getVertices()) {
+						// green
+						gl.glColor3f(0, 1, 0);
+						gl.glVertex3fv(v.getCoordinates(), 0);
+					}
+					gl.glEnd();
+					drawGrid(gl, t);
+				}
 			}
-			gl.glEnd();
-			drawGrid(gl, t);
+			
 		}
-		// TODO Texturen Volumen
 	}
+	
 
 	private void drawShadowBuildings(GL2 gl, Building building) {
 		try {
-			for (ShadowTriangle t : building.getShadowTriangles()) {
-				gl.glBegin(GL2.GL_TRIANGLES);
-				gl.glColor3f(1, 0, 0);
-				if (ray != -1 && !t.getShadowSet().get(ray)) {
-					gl.glColor3f(0, 1, 0);
-				}
-				for (Vertex v : t.getVertices()) {
-					gl.glVertex3fv(v.getCoordinates(), 0);
-				}
-				gl.glEnd();
-				if (showGrid) {
-					drawGrid(gl, t);
-				}
+			
+			for (int i = 0; i < building.getBoundarySurfaces().size(); ++i) {
+				BoundarySurface surface = building.getBoundarySurfaces().get(i);
+				for (int j = 0; j < surface.getPolygons().size(); ++j) {
+					Polygon p = surface.getPolygons().get(j);
+					Double grey = 0.1;
+					if (ray != -1) {
+						grey = 1.0 - p.getPercentageShadow()[ray];
+					}
+//					System.out.println("polygon: " + j + " grey: " +grey);
+					for (ShadowTriangle t : p.getShadowTriangles()) {
+//						gl.glBegin(GL2.GL_LINE_LOOP);
+						gl.glBegin(GL2.GL_TRIANGLES);
+						gl.glColor3d(grey, 0.0, 0.0);
+						if (ray != -1 && !t.getShadowSet().get(ray)) {
+							gl.glColor3d(0.0, grey, 0.0);
+						}
+						
+						for (Vertex v : t.getVertices()) {
+							gl.glVertex3fv(v.getCoordinates(), 0);
+						}
+						gl.glEnd();
+						drawGrid(gl,t);
+						gl.glColor3f(255f, 0, 255f);
+						gl.glBegin(GL2.GL_LINE_LOOP);
+						for (int sunPositionIdx = 0; sunPositionIdx < sunPositions[month].length; sunPositionIdx++) {
+							gl.glVertex3d(sunPositions[month][sunPositionIdx].getX(), sunPositions[month][sunPositionIdx].getY(), sunPositions[month][sunPositionIdx].getZ());
+						}
+						gl.glEnd();
+						
+						gl.glBegin(GL2.GL_LINES);
+						gl.glVertex3d(sunPos.getX(), sunPos.getY(), sunPos.getZ());
+						gl.glVertex3d(0, 0, 0);
+						gl.glEnd();
+					}
 
-				setSunPosition(Main.getTimeForSunPosition());
-				gl.glColor3f(255f, 0, 255f);
-				gl.glBegin(GL2.GL_LINE_LOOP);
-				for (int i = 0; i < sunPositions[month].length; i++) {
-					gl.glVertex3d(sunPositions[month][i].getX(),
-							sunPositions[month][i].getY(),
-							sunPositions[month][i].getZ());
 				}
-				gl.glEnd();
-
-				gl.glBegin(GL2.GL_LINES);
-				gl.glVertex3d(sunPos.getX(), sunPos.getY(), sunPos.getZ());
-				gl.glVertex3d(0, 0, 0);
-				gl.glEnd();
 			}
+			
+//			for (ShadowTriangle t : building.getShadowTriangles()) {
+//				gl.glBegin(GL2.GL_TRIANGLES);
+//				gl.glColor3f(1, 0, 0);
+//				if (ray != -1 && !t.getShadowSet().get(ray)) {
+//					gl.glColor3f(0, 1, 0);
+//				}
+//				for (Vertex v : t.getVertices()) {
+//					gl.glVertex3fv(v.getCoordinates(), 0);
+//				}
+//				gl.glEnd();
+//				if (showGrid) {
+//					drawGrid(gl, t);
+//				}
+//
+//				setSunPosition(Main.getTimeForSunPosition());
+//				gl.glColor3f(255f, 0, 255f);
+//				gl.glBegin(GL2.GL_LINE_LOOP);
+//				for (int i = 0; i < sunPositions[month].length; i++) {
+//					gl.glVertex3d(sunPositions[month][i].getX(),
+//							sunPositions[month][i].getY(),
+//							sunPositions[month][i].getZ());
+//				}
+//				gl.glEnd();
+//
+//				gl.glBegin(GL2.GL_LINES);
+//				gl.glVertex3d(sunPos.getX(), sunPos.getY(), sunPos.getZ());
+//				gl.glVertex3d(0, 0, 0);
+//				gl.glEnd();
+//			}
 		} catch (Exception e) {
-			System.out.println("Schattenberechnung funktioniert nicht");
-			drawVolumeBuildings(gl, building);
+			System.out.println("Initialisierung der Schattenberechnung");
 		}
 
 	}
@@ -411,12 +473,15 @@ public class CityMap3D extends JFrame implements GLEventListener {
 	}
 
 	private void drawGrid(GL2 gl, ShadowTriangle triangle) {
-		gl.glColor3f(0, 0, 0);
-		gl.glBegin(GL2.GL_LINE_LOOP);
-		for (Vertex v : triangle.getVertices()) {
-			gl.glVertex3fv(v.getCoordinates(), 0);
+		if(showGrid) {
+			gl.glColor3f(0, 0, 0);
+			gl.glBegin(GL2.GL_LINE_LOOP);
+//				gl.glBegin(GL2.GL_TRIANGLES);
+			for (Vertex v : triangle.getVertices()) {
+				gl.glVertex3fv(v.getCoordinates(), 0);
+			}
+			gl.glEnd();
 		}
-		gl.glEnd();
 	}
 
 
@@ -426,12 +491,12 @@ public class CityMap3D extends JFrame implements GLEventListener {
 			return;
 		}
 		gl.glColor3f(1f, 1f, 0);
-		float dv = (float) (Math.PI / 12);
-		float dh = (float) (2 * Math.PI / 12);
+		float dv = (float) (Math.PI / splitHeight / 2);
+		float dh = (float) (2 * Math.PI / splitAzimuth);
 		// for (int i = 0; i < 1; i++) {
 		// for (int j = 0; j < 1; j++) {
-		float v = dv * (ray / 12) + dv / 2;
-		float h = dh * ((ray % 12) - 6) + dh / 2;
+		float v = dv * (ray / splitAzimuth) + dv / 2;
+		float h = dh * ((ray % splitAzimuth) - (splitAzimuth/2f)) + dh / 2;
 		double sinH = Math.sin(h);
 		double sinV = Math.sin(v);
 		double cosH = Math.cos(h);
@@ -450,12 +515,12 @@ public class CityMap3D extends JFrame implements GLEventListener {
 
 	private void drawHemisphere(GL2 gl) {
 		gl.glColor3f(1, 1, 1);
-		float dv = (float) (Math.PI / 12);
-		float dh = (float) (2 * Math.PI / 12);
-		for (int i = 0; i < 12; i++) {
-			for (int j = 0; j < 12; j++) {
+		float dv = (float) (Math.PI / splitHeight / 2);
+		float dh = (float) (2 * Math.PI / splitAzimuth);
+		for (int i = 0; i < splitHeight; i++) {
+			for (int j = 0; j < splitAzimuth; j++) {
 				float v = dv * i;
-				float h = dh * (j - 6);
+				float h = dh * (j - (splitAzimuth / 2f));
 				float newV = v + dv;
 				float newH = h + dh;
 				double sinH = Math.sin(h);

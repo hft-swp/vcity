@@ -32,6 +32,8 @@ public class Main {
 	private static Date currentDate = new Date();
 	private static CalculatorInterface backend = new CalculatorImpl();
 	public static ExecutorService executor = Executors.newFixedThreadPool(1);
+	private static int splitAzimuth = 32;
+	private static int splitHeight = 16;
 	/**
 	 * @param args
 	 */
@@ -112,14 +114,14 @@ public class Main {
 	}
 	
 	
-	public static void calculateShadow(ShadowPrecision shadowPrecision){
+	public static void calculateShadow(ShadowPrecision shadowPrecision, int splitAzimuth, int splitHeight){
 		if (Main.isParserSuccess()) {
 			long start;
 			long end;
 			System.out.println("Starting shadow calculation...");
 			start = System.currentTimeMillis();
 			try {
-				backend.calculateShadow(shadowPrecision); // VERY_LOW(5),
+				backend.calculateShadow(ShadowPrecision.VERY_LOW, splitAzimuth, splitHeight); // VERY_LOW(5),
 				// LOW(2.5f),
 				// MID(1.25f),
 				// HIGH(0.75f),
@@ -162,7 +164,6 @@ public class Main {
 			}else{
 				isParserSuccess = false;
 			}
-
 			e.getMessage(); // Contains the error message
 		}
 	}
@@ -190,6 +191,22 @@ public class Main {
 
 	public static String getPath() {
 		return optionGUI.getPath();
+	}
+
+	public static int getSplitAzimuth() {
+		return splitAzimuth;
+	}
+
+	public static void setSplitAzimuth(int splitAzimuth) {
+		Main.splitAzimuth = splitAzimuth;
+	}
+
+	public static int getSplitHeight() {
+		return splitHeight;
+	}
+
+	public static void setSplitHeight(int splitHeight) {
+		Main.splitHeight = splitHeight;
 	}
 
 
