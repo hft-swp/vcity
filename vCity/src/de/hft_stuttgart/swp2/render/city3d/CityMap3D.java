@@ -4,7 +4,6 @@ import java.awt.AWTException;
 import java.awt.Dimension;
 import java.awt.Robot;
 import java.awt.Toolkit;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -29,7 +28,6 @@ import de.hft_stuttgart.swp2.model.ShadowTriangle;
 import de.hft_stuttgart.swp2.model.Triangle;
 import de.hft_stuttgart.swp2.model.Vertex;
 
-import de.hft_stuttgart.swp2.opencl.ShadowCalculatorInterface;
 import de.hft_stuttgart.swp2.opencl.ShadowPrecision;
 import de.hft_stuttgart.swp2.opencl.SunPositionCalculator;
 import de.hft_stuttgart.swp2.render.Main;
@@ -77,33 +75,33 @@ public class CityMap3D extends JFrame implements GLEventListener {
 
 	private static final boolean showGrid = true;
 	
-	public ArrayList<Building> findBugBuildings(){
-		ArrayList<Building> listeBuilding = new ArrayList <Building>();
-		for (Building b : City.getInstance().getBuildings()) {
-				int triangleIndex = 0;
-				float minZ = Float.MAX_VALUE;
-				float minY = Float.MAX_VALUE;
-				for (Triangle triangle : b.getTriangles()){
-					Vertex [] v= triangle.getVertices();
-					for(int j=0; j<3;j++){
-						System.out.println("Point " + String.valueOf(triangleIndex) + String.valueOf(j) +  
-								" x Wert: "+ v[j].getX() + " y Wert: "+ v[j].getY() + 
-								" z Wert: "+ v[j].getZ());
-						if(minZ > v[j].getZ()){
-							minZ = v[j].getZ();
-						}
-						if(minY > v[j].getY()){
-							minY = v[j].getY();
-						}
-					}
-					triangleIndex ++;
-				}
-				if(minY < 0 || minZ <0){
-					listeBuilding.add(b);
-				}
-		}
-		return listeBuilding;
-	}
+//	public ArrayList<Building> findBugBuildings(){
+//		ArrayList<Building> listeBuilding = new ArrayList <Building>();
+//		for (Building b : City.getInstance().getBuildings()) {
+//				int triangleIndex = 0;
+//				float minZ = Float.MAX_VALUE;
+//				float minY = Float.MAX_VALUE;
+//				for (Triangle triangle : b.getTriangles()){
+//					Vertex [] v= triangle.getVertices();
+//					for(int j=0; j<3;j++){
+//						System.out.println("Point " + String.valueOf(triangleIndex) + String.valueOf(j) +  
+//								" x Wert: "+ v[j].getX() + " y Wert: "+ v[j].getY() + 
+//								" z Wert: "+ v[j].getZ());
+//						if(minZ > v[j].getZ()){
+//							minZ = v[j].getZ();
+//						}
+//						if(minY > v[j].getY()){
+//							minY = v[j].getY();
+//						}
+//					}
+//					triangleIndex ++;
+//				}
+//				if(minY < 0 || minZ <0){
+//					listeBuilding.add(b);
+//				}
+//		}
+//		return listeBuilding;
+//	}
 	
 	private Boolean isStartCalculation = true;
 	public void setIsStartCalculation(Boolean isStartCalculation) {

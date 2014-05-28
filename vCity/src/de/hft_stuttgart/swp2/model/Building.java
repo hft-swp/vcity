@@ -8,7 +8,7 @@ import java.util.ArrayList;
  * @author vCity team
  *
  */
-public class Building extends MeshInterface {
+public class Building {
 
 	private String id;
 	private String city;
@@ -16,7 +16,6 @@ public class Building extends MeshInterface {
 	private double volume;
 	private ArrayList<BoundarySurface> boundarySurface = new ArrayList<>();
 	@Deprecated
-	private ArrayList<ShadowTriangle> shadowTriangles = new ArrayList<>();
 	private Vertex center;
 
 	/**
@@ -77,25 +76,6 @@ public class Building extends MeshInterface {
 	 */
 	public String getId() {
 		return id;
-	}
-
-	/**
-	 * Adds a ShadowTriangle to the triangles stored.
-	 * @param t the triangle which is added
-	 * @deprecated Please use {@link Polygon#addShadowTriangle(ShadowTriangle)}
-	 */
-	@Deprecated
-	public void addShadowTriangle(ShadowTriangle t) {
-		shadowTriangles.add(t);
-	}
-
-	/**
-	 * @return the list of ShadowTriangles
-	 * @deprecated Please use {@link Polygon#getShadowTriangles()}
-	 */
-	@Deprecated
-	public ArrayList<ShadowTriangle> getShadowTriangles() {
-		return shadowTriangles;
 	}
 
 	/**
