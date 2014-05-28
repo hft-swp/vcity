@@ -73,19 +73,19 @@ public class VolumeCalculatorOpenClBackend implements VolumeCalculatorInterface 
 			Building b = City.getInstance().getBuildings().get(i);
 			for (BoundarySurface surface : b.getBoundarySurfaces()) {
 				for (Polygon p : surface.getPolygons()) {
-					for (int j = 0; j < triangleCount[i]; j++) {
+					for (int j = 0; j < p.getTriangles().size(); j++) {
 						Triangle t = p.getTriangles().get(j);
-						vertices[offset + j * 9 + 0] = t.getVertices()[0].getX();
-						vertices[offset + j * 9 + 1] = t.getVertices()[0].getY();
-						vertices[offset + j * 9 + 2] = t.getVertices()[0].getZ();
-						vertices[offset + j * 9 + 3] = t.getVertices()[1].getX();
-						vertices[offset + j * 9 + 4] = t.getVertices()[1].getY();
-						vertices[offset + j * 9 + 5] = t.getVertices()[1].getZ();
-						vertices[offset + j * 9 + 6] = t.getVertices()[2].getX();
-						vertices[offset + j * 9 + 7] = t.getVertices()[2].getY();
-						vertices[offset + j * 9 + 8] = t.getVertices()[2].getZ();
+						vertices[offset + 0] = t.getVertices()[0].getX();
+						vertices[offset + 1] = t.getVertices()[0].getY();
+						vertices[offset + 2] = t.getVertices()[0].getZ();
+						vertices[offset + 3] = t.getVertices()[1].getX();
+						vertices[offset + 4] = t.getVertices()[1].getY();
+						vertices[offset + 5] = t.getVertices()[1].getZ();
+						vertices[offset + 6] = t.getVertices()[2].getX();
+						vertices[offset + 7] = t.getVertices()[2].getY();
+						vertices[offset + 8] = t.getVertices()[2].getZ();
+						offset = offset + 9;
 					}
-					offset = offset + triangleCount[i] * 9;
 				}
 			}
 		}
