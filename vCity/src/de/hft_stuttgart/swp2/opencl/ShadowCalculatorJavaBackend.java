@@ -1,5 +1,7 @@
 package de.hft_stuttgart.swp2.opencl;
 
+import java.util.BitSet;
+
 import de.hft_stuttgart.swp2.model.BoundarySurface;
 import de.hft_stuttgart.swp2.model.Building;
 import de.hft_stuttgart.swp2.model.City;
@@ -28,6 +30,7 @@ public class ShadowCalculatorJavaBackend extends ShadowCalculatorInterface {
 					double [] percentageShadow = new double[splitAzimuth * splitHeight];
 					double shadow = 1.0/p.getShadowTriangles().size();
 					for (ShadowTriangle t : p.getShadowTriangles()) {
+						t.setShadowSet(new BitSet(splitAzimuth * splitHeight));
 						for (int i = 0; i < (splitAzimuth * splitHeight); i++) {
 							Vertex himmelV = directions[i];
 							boolean hasShadow = false;
