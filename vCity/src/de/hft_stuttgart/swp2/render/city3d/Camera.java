@@ -58,13 +58,31 @@ public class Camera {
 
 	public void moveForward(double delta) {
 		positionX += directionX * delta * speed;
-		positionY += directionY * delta * speed;
+		double newY = positionY + directionY * delta * speed;
+		if (newY >= 0) {
+			positionY = newY;
+		}
+		// positionY += directionY * delta * speed;
 		positionZ += directionZ * delta * speed;
 	}
 
 	public void moveBackwards(double delta) {
 		positionX -= directionX * delta * speed;
-		positionY -= directionY * delta * speed;
+		double newY = positionY - directionY * delta * speed;
+		if (newY >= 0) {
+			positionY = newY;
+		}
+		// positionY -= directionY * delta * speed;
+		positionZ -= directionZ * delta * speed;
+	}
+
+	public void strafeForward(double delta) {
+		positionX += directionX * delta * speed;
+		positionZ += directionZ * delta * speed;
+	}
+
+	public void strafeBackwards(double delta) {
+		positionX -= directionX * delta * speed;
 		positionZ -= directionZ * delta * speed;
 	}
 

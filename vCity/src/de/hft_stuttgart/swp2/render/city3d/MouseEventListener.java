@@ -6,11 +6,12 @@ import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 
-public class MouseEventListener implements MouseListener, 
-		MouseWheelListener, MouseMotionListener{
+public class MouseEventListener implements MouseListener, MouseWheelListener,
+		MouseMotionListener {
 
 	CityMap3D cityMap3D;
-	public MouseEventListener(CityMap3D cityMap3D){
+
+	public MouseEventListener(CityMap3D cityMap3D) {
 		this.cityMap3D = cityMap3D;
 	}
 
@@ -44,7 +45,8 @@ public class MouseEventListener implements MouseListener,
 		}
 		int dx = e.getXOnScreen() - cityMap3D.halfScreenWidth;
 		int dy = e.getYOnScreen() - cityMap3D.halfScreenHeight;
-		cityMap3D.robot.mouseMove(cityMap3D.halfScreenWidth, cityMap3D.halfScreenHeight);
+		cityMap3D.robot.mouseMove(cityMap3D.halfScreenWidth,
+				cityMap3D.halfScreenHeight);
 		cityMap3D.camera.turnLeft(dx * 2 * Math.PI / 360 / 8);
 		cityMap3D.camera.turnDown(dy * 2 * Math.PI / 360 / 8);
 	}
@@ -52,18 +54,18 @@ public class MouseEventListener implements MouseListener,
 	@Override
 	public void mouseMoved(MouseEvent e) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void mouseWheelMoved(MouseWheelEvent e) {
-		int notches =e.getWheelRotation();
-				if (notches >= 0 ) {
-					cityMap3D.camera.moveBackwards(0.5d);
-				} else {
-					cityMap3D.camera.moveForward(0.5d);
-				}
-		
+		int notches = e.getWheelRotation();
+		if (notches >= 0) {
+			cityMap3D.camera.moveBackwards(8);
+		} else {
+			cityMap3D.camera.moveForward(8);
+		}
+
 	}
 
 }

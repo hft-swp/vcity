@@ -30,19 +30,19 @@ public class KeyEventListener implements KeyListener {
 
 		if ((e.getKeyCode() == KeyEvent.VK_W)
 				|| (e.getKeyCode() == KeyEvent.VK_UP)) {
-			cityMap3D.camera.moveForward(0.5d);
+			cityMap3D.camera.strafeForward(3d);
 		}
 		if ((e.getKeyCode() == KeyEvent.VK_S)
 				|| (e.getKeyCode() == KeyEvent.VK_DOWN)) {
-			cityMap3D.camera.moveBackwards(0.5d);
+			cityMap3D.camera.strafeBackwards(3d);
 		}
 		if ((e.getKeyCode() == KeyEvent.VK_A)
 				|| (e.getKeyCode() == KeyEvent.VK_LEFT)) {
-			cityMap3D.camera.strafeLeft(0.5d);
+			cityMap3D.camera.strafeLeft(3d);
 		}
 		if ((e.getKeyCode() == KeyEvent.VK_D)
 				|| (e.getKeyCode() == KeyEvent.VK_RIGHT)) {
-			cityMap3D.camera.strafeRight(0.5d);
+			cityMap3D.camera.strafeRight(3d);
 		}
 		if (e.getKeyCode() == KeyEvent.VK_O) {
 			cityMap3D.ray++;
