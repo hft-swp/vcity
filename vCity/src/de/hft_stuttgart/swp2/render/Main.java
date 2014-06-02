@@ -32,8 +32,8 @@ public class Main {
 	private static Date currentDate = new Date();
 	private static CalculatorInterface backend = new CalculatorImpl();
 	public static ExecutorService executor = Executors.newFixedThreadPool(1);
-	private static int splitAzimuth = 32;
-	private static int splitHeight = 16;
+	private static int splitAzimuth = 16;
+	private static int splitHeight = 8;
 	/**
 	 * @param args
 	 */
