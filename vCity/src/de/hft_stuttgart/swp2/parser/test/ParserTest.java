@@ -4,7 +4,6 @@ import static org.junit.Assert.*;
 
 import java.util.ArrayList;
 
-import org.junit.Before;
 import org.junit.Test;
 
 import de.hft_stuttgart.swp2.model.BoundarySurface;
@@ -27,18 +26,6 @@ import de.hft_stuttgart.swp2.parser.PolygonTriangulator;
  * @author 02grst1bif
  */
 public class ParserTest {
-	
-	private City gCity;// = Parser.getInstance().parse("Gruenbuehl_LOD2.gml");
-
-	@Before
-	public void setUp() {
-		try {
-			Parser gParser = Parser.getInstance();
-			gCity = gParser.parse("Gruenbuehl_LOD2.gml");
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
 	
 	@Test
 	public void testReadAndParseAndValidateEinHaus() {
