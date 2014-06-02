@@ -42,7 +42,7 @@ public class ShadowCalculatorOpenClBackend extends ShadowCalculatorInterface {
 	/**
 	 * This is the maximum distance in which neighbours are found
 	 */
-	private static final float MAX_DISTANCE = 50;
+	private static final float MAX_DISTANCE = 80;
 
 	private static final String filename = "shadowCalculation.cl";
 	private OpenClContext occ;
