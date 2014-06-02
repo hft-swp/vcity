@@ -167,11 +167,11 @@ public class ParserExport implements ParserExportInterface {
 
 			Element skyModel = doc.createElement("SkyModel");
 			
-				Element azimuthwinkel = doc.createElement("azimuthwinkel");
+				Element azimuthwinkel = doc.createElement("SplitAzimuth");
 				azimuthwinkel.appendChild(doc.createTextNode(Integer.toString(Main.getSplitAzimuth())));
 				skyModel.appendChild(azimuthwinkel);
 				
-				Element hoehenwinkel = doc.createElement("hoehenwinkel");
+				Element hoehenwinkel = doc.createElement("SplitHeight");
 				hoehenwinkel.appendChild(doc.createTextNode(Integer.toString(Main.getSplitHeight())));
 				skyModel.appendChild(hoehenwinkel);
 			
@@ -185,9 +185,9 @@ public class ParserExport implements ParserExportInterface {
 				buildID.setValue(b.getId());
 				building.setAttributeNode(buildID);
 
-				Element buildVol = doc.createElement("volumen");
+				Element buildVol = doc.createElement("Volume");
 				Attr vUom = doc.createAttribute("uom");
-				vUom.setValue("m3");
+				vUom.setValue("urn:ogc:def:uom:UCUM::m3");
 				buildVol.setAttributeNode(vUom);
 				buildVol.appendChild(doc.createTextNode(Double.toString(b.getVolume())));
 				building.appendChild(buildVol);
@@ -198,6 +198,10 @@ public class ParserExport implements ParserExportInterface {
 					Attr bid = doc.createAttribute("id");
 					bid.setValue(bs.getId());
 					bounds.setAttributeNode(bid);
+					
+					Attr btype = doc.createAttribute("type");
+					btype.setValue(bs.getType().toString());
+					bounds.setAttributeNode(btype);
 
 					for (Polygon p : bs.getPolygons()) {
 						Element poly = doc.createElement("Polygon");
@@ -206,14 +210,14 @@ public class ParserExport implements ParserExportInterface {
 						pid.setValue(p.getId());
 						poly.setAttributeNode(pid);
 
-						Element area = doc.createElement("area");
+						Element area = doc.createElement("Area");
 						Attr uarea = doc.createAttribute("uom");
-						uarea.setValue("m2");
+						uarea.setValue("urn:ogc:def:uom:UCUM::m2");
 						area.setAttributeNode(uarea);
 						area.appendChild(doc.createTextNode(Double.toString(p.getArea())));
-						bounds.appendChild(area);
+						poly.appendChild(area);
 						
-						Element shadow = doc.createElement("shadow");
+						Element shadow = doc.createElement("Shadow");
 						StringBuilder sb = new StringBuilder();
 						double[] shadowPercent = p.getPercentageShadow();
 						for (int i = 0; i < shadowPercent.length; i++) {

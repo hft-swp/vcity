@@ -10,7 +10,6 @@ import de.hft_stuttgart.swp2.model.Triangle;
 import de.hft_stuttgart.swp2.model.Vertex;
 import de.hft_stuttgart.swp2.opencl.CalculatorImpl;
 import de.hft_stuttgart.swp2.opencl.CalculatorInterface;
-import de.hft_stuttgart.swp2.opencl.OpenClException;
 import de.hft_stuttgart.swp2.opencl.ShadowPrecision;
 
 /**
@@ -23,7 +22,7 @@ public class ParserTest {
 	private static City city = null;
 
 	@SuppressWarnings("all")
-	public static void main(String[] args) throws NullPointerException, OpenClException {
+	public static void main(String[] args) {
 		
 		long id = System.currentTimeMillis();
 		
@@ -121,7 +120,7 @@ public class ParserTest {
 	}
 	
 	@SuppressWarnings("all")
-	private static void testExportToXml(String outputFileName) throws OpenClException {
+	private static void testExportToXml(String outputFileName) {
 		try {
 					
 			System.out.println("Schattenberechnung...");
@@ -138,7 +137,8 @@ public class ParserTest {
 			ParserExport pe = new ParserExport();
 			pe.exportToXml(outputFileName);
 			
-		} catch (ParserException e) {
+		} catch (Exception e) {
+			e.printStackTrace();
 		} 
 	}
 	

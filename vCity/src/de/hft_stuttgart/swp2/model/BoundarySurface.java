@@ -11,6 +11,10 @@ public class BoundarySurface {
 
 	private ArrayList<Polygon> polygon = new ArrayList<>();
 	private String id;
+	public enum SurfaceType {
+		WALL, ROOF, GROUND, OTHER
+	}
+	private SurfaceType type;
 
 	/**
 	 * Creates a BoundarySurface
@@ -25,6 +29,21 @@ public class BoundarySurface {
 	 */
 	public String getId() {
 		return id;
+	}
+	
+	/**
+	 * Set type of the BoundarySurface
+	 * @param type BoundarySurface type
+	 */
+	public void setType(SurfaceType type) {
+		this.type = type;
+	}
+	
+	/**
+	 * @return Type of the BoundarySurface
+	 */
+	public SurfaceType getType() {
+		return type;
 	}
 	
 	/**

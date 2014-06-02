@@ -27,6 +27,7 @@ import org.citygml4j.xml.io.reader.CityGMLReadException;
 import org.citygml4j.xml.io.reader.CityGMLReader;
 
 import de.hft_stuttgart.swp2.model.BoundarySurface;
+import de.hft_stuttgart.swp2.model.BoundarySurface.SurfaceType;
 import de.hft_stuttgart.swp2.model.Building;
 import de.hft_stuttgart.swp2.model.City;
 import de.hft_stuttgart.swp2.model.Polygon;
@@ -206,10 +207,23 @@ public class Parser implements ParserInterface {
 							if (boundarySurface.isSetLod2MultiSurface()
 									&& boundarySurface.getLod2MultiSurface().isSetMultiSurface()
 									&& boundarySurface.getLod2MultiSurface().getMultiSurface().isSetSurfaceMember()) {
-
+								
+								
+								
 								List<SurfaceProperty> surfaces = boundarySurface.getLod2MultiSurface().getMultiSurface().getSurfaceMember();
 								
 								BoundarySurface bSurface = new BoundarySurface(boundarySurface.getId());
+								
+								CityGMLClass cg = boundarySurface.getCityGMLClass();
+								if (cg == CityGMLClass.BUILDING_GROUND_SURFACE){
+									bSurface.setType(SurfaceType.GROUND);
+								}else if (cg == CityGMLClass.BUILDING_ROOF_SURFACE){
+									bSurface.setType(SurfaceType.ROOF);
+								}else if (cg == CityGMLClass.BUILDING_WALL_SURFACE){
+									bSurface.setType(SurfaceType.WALL);
+								}else {
+									bSurface.setType(SurfaceType.OTHER);
+								}
 								
 								for (int i = 0; i < surfaces.size(); i++) {
 									polyTriangles.clear();

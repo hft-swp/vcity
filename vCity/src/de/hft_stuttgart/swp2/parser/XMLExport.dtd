@@ -1,31 +1,32 @@
 <!ELEMENT City (SkyModel, Building+)>
 
-	<!ELEMENT SkyModel (azimuthwinkel, hoehenwinkel)>
-		<!ELEMENT azimuthwinkel (#PCDATA)>
-		<!ELEMENT hoehenwinkel (#PCDATA)>
+	<!ELEMENT SkyModel (SplitAzimuth, SplitHeight)>
+		<!ELEMENT SplitAzimuth (#PCDATA)>
+		<!ELEMENT SplitHeight (#PCDATA)>
 
 	<!ELEMENT Building (BoundarySurface)+>
 	<!ATTLIST Building 
 	  id CDATA #REQUIRED
 	  >
   
-		<!ELEMENT Volumen (#PCDATA)>
-		<!ATTLIST Volumen 
+		<!ELEMENT Volume (#PCDATA)>
+		<!ATTLIST Volume 
 		  uom CDATA #REQUIRED
 		  >
   
 		<!ELEMENT BoundarySurface (Polygon)+>
 		<!ATTLIST BoundarySurface 
 		  id CDATA #REQUIRED
+		  type (GROUND|ROOF|WALL|OTHER) #REQUIRED
 		  >
 
 			<!ELEMENT Polygon (area, shadow)>
 			<!ATTLIST Polygon 
-		 		id CDATA #REQUIRED
-		  		>
+		 	  id CDATA #REQUIRED
+		  	  >
 
-			<!ELEMENT area (#PCDATA)>
-			<!ATTLIST area 
+			<!ELEMENT Area (#PCDATA)>
+			<!ATTLIST Area 
 			  uom CDATA #REQUIRED
 			  >
-			<!ELEMENT shadow (#PCDATA)>
+			<!ELEMENT Shadow (#PCDATA)>
