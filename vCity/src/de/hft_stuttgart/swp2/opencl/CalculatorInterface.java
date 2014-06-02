@@ -25,10 +25,6 @@ public interface CalculatorInterface {
 	 * @throws OpenClException
 	 *             if the initialization of the OpenCL context creation fails.
 	 */
-	@Deprecated
-	public void calculateShadow(ShadowPrecision precision)
-			throws OpenClException;
-	
 	public void calculateShadow(ShadowPrecision precision, int splitAzimuth, int splitHeight) throws OpenClException;
 	
 	public void calculateArea();

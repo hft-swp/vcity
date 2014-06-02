@@ -58,13 +58,6 @@ public class ShadowCalculatorOpenClBackend extends ShadowCalculatorInterface {
 	}
 	
 	/**
-	 * @deprecated Please use {@link ShadowCalculatorOpenClBackend#calculateShadow(ShadowPrecision, int, int)}
-	 */
-	public void calculateShadow(ShadowPrecision precision) {
-		calculateShadow(precision, 12, 12);
-	}
-	
-	/**
 	 * 
 	 * This method calculates the shadow of each triangle on the gpu.
 	 * 

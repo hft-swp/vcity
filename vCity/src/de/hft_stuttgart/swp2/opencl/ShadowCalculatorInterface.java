@@ -15,7 +15,6 @@ public abstract class ShadowCalculatorInterface {
 	 * @param precision
 	 * @throws OpenClException an error has occured while creating the OpenCL context
 	 */
-	public abstract void calculateShadow(ShadowPrecision precision) throws OpenClException;
 	public abstract void calculateShadow(ShadowPrecision precision, int splitAzimuth, int splitHeight) throws OpenClException;
 	
 	private static void splitTriangles(Vertex v0, Vertex v1, Vertex v2,

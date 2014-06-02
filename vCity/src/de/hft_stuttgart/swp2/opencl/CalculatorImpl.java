@@ -29,19 +29,6 @@ public class CalculatorImpl implements CalculatorInterface {
 	}
 
 	@Override
-	public void calculateShadow(ShadowPrecision precision)
-			throws OpenClException {
-		ShadowCalculatorInterface backend;
-		try {
-			backend = new ShadowCalculatorOpenClBackend();
-		} catch (OpenClException e) {
-			System.out.println("Using Java Backend");
-			backend = new ShadowCalculatorJavaBackend();
-		}
-		backend.calculateShadow(precision);
-	}
-
-	@Override
 	public void calculateShadow(ShadowPrecision precision, int splitAzimuth,
 			int splitHeight) throws OpenClException {
 		ShadowCalculatorInterface backend;
