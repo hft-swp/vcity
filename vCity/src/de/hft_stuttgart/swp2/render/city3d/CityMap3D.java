@@ -187,7 +187,7 @@ public class CityMap3D extends JFrame implements GLEventListener {
 	 * isVolumeCalc: Gives the information of the checkboxes in the PanelSettings
 	 * 				 if it is selected or not
 	 * isFirstTimeVolumeCalc: gives the information if the volume calculation was started or not
-	 * isVolumeChange: gives the information if the if the value of isVolumeCalc has changed or not 
+	 * isVolumeChange: gives the information if the value of isVolumeCalc has changed or not 
 	 * isStartCalculation: gives the information if the calculation starts for the first time or several times
 	 * 					   with the same parsed city  
 	 */

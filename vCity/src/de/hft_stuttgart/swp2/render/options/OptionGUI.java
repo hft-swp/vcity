@@ -111,8 +111,7 @@ public class OptionGUI extends JFrame implements Refreshable{
 		//Example Data
 		panelCityInfo.setLayout(new GridLayout(1,1));
 		panelCityInfo.add(new JLabel("Hallo Panel2"));
-		panelNavigation.setLayout(new GridLayout(1,1));
-		panelNavigation.add(new JLabel("Hallo Panel3"));
+
 		
 		panelSettings.setVisible(true);
 		panelCityInfo.setVisible(true);
