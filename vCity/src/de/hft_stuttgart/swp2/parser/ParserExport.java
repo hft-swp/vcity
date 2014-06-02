@@ -37,6 +37,7 @@ import de.hft_stuttgart.swp2.model.BoundarySurface;
 import de.hft_stuttgart.swp2.model.Building;
 import de.hft_stuttgart.swp2.model.City;
 import de.hft_stuttgart.swp2.model.Polygon;
+import de.hft_stuttgart.swp2.render.Main;
 
 /**
  * Export class of the CityGML Parser
@@ -148,45 +149,12 @@ public class ParserExport implements ParserExportInterface {
 	}
 
 	/**
-	 * Exports the Shadow calculations to an XML file "INSEL" will can read.
+	 * Exports the vCity results to an XML file for usage in "INSEL"
 	 * 
 	 * @param OutputFileName Output file name
 	 * @return true if the export was successful
 	 */
 	public boolean exportToXml(String outputFileName) throws ParserException {
-
-		/** VERALTETES MODELL
-		 * <SkyModel> .... </SkyModel>
-		 * 	<Building>
-		 * 	 <id>
-		 * 	 <BoundarySurface>
-		 *    <Polygon>
-		 *     <Triangle> // ShadowTriangle
-		 *      <x> <y> <z>
-		 *      <Shadows> T, F, T, T, .... // Schatten pro SkyPatch
-		 *      </Shadows>
-		 *     </Triangle>
-		 *     <Triangle>
-		 *     ....
-		 *     </Triangle>
-		 *    </Polygon>		
-		 *   </BoundarySurface>
-		 *  </Building>
-		 */
-		
-		/** NEUES MODELL
-		 * <SkyModel>
-		 * 	<azimuthwinkel> 16 </azimuthwinkel>
-		 * 	<hoehenwinkel> 8 </hoehenwinkel>
-		 * </SkyModel>
-		 * 
-		 * <Building id=...>
-		 * 	<volumen uom=m3>12</volumen>
-		 * 	<BoundarySurface>
-		 * 	 <Polygon>
-		 *    <area uom=m2> 10 </area>
-		 *    <shadow>1.0,0.5,0.4, 0.3...</shadow>
-		 */
 
 		try {
 
@@ -200,11 +168,11 @@ public class ParserExport implements ParserExportInterface {
 			Element skyModel = doc.createElement("SkyModel");
 			
 				Element azimuthwinkel = doc.createElement("azimuthwinkel");
-				azimuthwinkel.appendChild(doc.createTextNode("12"));					 // TODO
+				azimuthwinkel.appendChild(doc.createTextNode(Integer.toString(Main.getSplitAzimuth())));
 				skyModel.appendChild(azimuthwinkel);
 				
 				Element hoehenwinkel = doc.createElement("hoehenwinkel");
-				hoehenwinkel.appendChild(doc.createTextNode("12"));						 // TODO
+				hoehenwinkel.appendChild(doc.createTextNode(Integer.toString(Main.getSplitHeight())));
 				skyModel.appendChild(hoehenwinkel);
 			
 			rootCity.appendChild(skyModel);
@@ -245,20 +213,18 @@ public class ParserExport implements ParserExportInterface {
 						area.appendChild(doc.createTextNode(Double.toString(p.getArea())));
 						bounds.appendChild(area);
 						
-//						Element shadow = doc.createElement("shadow");						// TODO
-//						BitSet bs = t.getShadowSet();
-//						StringBuilder sb = new StringBuilder();
-//
-//						for (int i = 0; i < 144; i++) {
-//							sb.append((boolean) bs.get(i) == true ? "T" : "F");
-//							
-//							if (i != 143) {
-//								sb.append(",");
-//							}
-//						}
-//
-//						shadow.appendChild(doc.createTextNode(sb.toString()));
-//						poly.appendChild(shadow);
+						Element shadow = doc.createElement("shadow");
+						StringBuilder sb = new StringBuilder();
+						double[] shadowPercent = p.getPercentageShadow();
+						for (int i = 0; i < shadowPercent.length; i++) {
+							sb.append(Double.toString(shadowPercent[i]));
+							
+							if (i < shadowPercent.length-1) {
+								sb.append(",");
+							}
+						}
+						shadow.appendChild(doc.createTextNode(sb.toString()));
+						poly.appendChild(shadow);
 
 						bounds.appendChild(poly);
 					}

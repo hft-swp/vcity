@@ -8,9 +8,10 @@ import de.hft_stuttgart.swp2.model.City;
 import de.hft_stuttgart.swp2.model.Polygon;
 import de.hft_stuttgart.swp2.model.Triangle;
 import de.hft_stuttgart.swp2.model.Vertex;
-import de.hft_stuttgart.swp2.opencl.ShadowCalculatorJavaBackend;
+import de.hft_stuttgart.swp2.opencl.CalculatorImpl;
+import de.hft_stuttgart.swp2.opencl.CalculatorInterface;
+import de.hft_stuttgart.swp2.opencl.OpenClException;
 import de.hft_stuttgart.swp2.opencl.ShadowPrecision;
-import de.hft_stuttgart.swp2.opencl.VolumeCalculatorJavaBackend;
 
 /**
  * Simple testing, no JUnit yet.
@@ -22,13 +23,13 @@ public class ParserTest {
 	private static City city = null;
 
 	@SuppressWarnings("all")
-	public static void main(String[] args) throws NullPointerException {
+	public static void main(String[] args) throws NullPointerException, OpenClException {
 		
 		long id = System.currentTimeMillis();
 		
-//	String inputFileName = "Gruenbuehl_LOD2.gml";
+	String inputFileName = "Gruenbuehl_LOD2.gml";
 //	String inputFileName = "LB_MITTE_CITYGML_LB_3513294_5416846_GML.gml";
-	String inputFileName = "einHaus.gml";
+//	String inputFileName = "einHaus.gml";
 		
 //		String outputFileNameCsv = "testCSV_" + Long.toString(id) + ".csv";
 		String outputFileNameCgml = "C:\\temp\\testCGML_" + Long.toString(id) + ".gml";
@@ -39,10 +40,7 @@ public class ParserTest {
 		
 //		testExportToGml(outputFileNameCgml);
 		
-		/**
-		 *  Note: Do not run this with anything else than einHaus, else calculation will take forever.
-		 */
-//		testExportToXml(outputFileNameXml);
+		testExportToXml(outputFileNameXml);
 
 	}
 	
@@ -123,20 +121,23 @@ public class ParserTest {
 	}
 	
 	@SuppressWarnings("all")
-	private static void testExportToXml(String outputFileName) {
+	private static void testExportToXml(String outputFileName) throws OpenClException {
 		try {
 					
 			System.out.println("Schattenberechnung...");
-			ShadowCalculatorJavaBackend scjb = new ShadowCalculatorJavaBackend();
-			scjb.calculateShadow(ShadowPrecision.HIGH);
+			CalculatorInterface calc = new CalculatorImpl();
+			calc.calculateShadow(ShadowPrecision.HIGH, 16, 8);
 			
 			System.out.println("Volumenberechnug...");
-			VolumeCalculatorJavaBackend vcjb = new VolumeCalculatorJavaBackend();
-			vcjb.calculateVolume();
+			calc.calculateVolume();
+			
+			System.out.println("Flaechenberechnung...");
+			calc.calculateArea();
 			
 			System.out.println("Export...");
 			ParserExport pe = new ParserExport();
 			pe.exportToXml(outputFileName);
+			
 		} catch (ParserException e) {
 		} 
 	}
