@@ -49,6 +49,10 @@ public class OpenClContext {
 	}
 	
 	private OpenClContext() throws OpenClException {
+		reinit();
+	}
+	
+	public void reinit() throws OpenClException {
 		// Obtain the platform IDs and initialize the context properties
 		cl_platform_id platforms[] = new cl_platform_id[1];
 		clGetPlatformIDs(platforms.length, platforms, null);

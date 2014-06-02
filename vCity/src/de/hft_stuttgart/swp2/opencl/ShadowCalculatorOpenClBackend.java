@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.Map.Entry;
 
 import org.jocl.CL;
+import org.jocl.CLException;
 import org.jocl.Pointer;
 import org.jocl.Sizeof;
 import org.jocl.cl_command_queue;
@@ -81,18 +82,12 @@ public class ShadowCalculatorOpenClBackend extends ShadowCalculatorInterface {
 		cl_command_queue commandQueue = occ.getClCommandQueue();
 		cl_context context = occ.getClContext();
 
-		// float[] cityVertices = getCityVerticesArray();
-		// int[] cityVerticesCount = getCityVerticesCountArray();
-		//
-		// cl_mem cityVerticesMem = storeOnGPUAsReadOnly(context, cityVertices);
-		// cl_mem cityVerticesCountMem = storeOnGPUAsReadOnly(context,
-		// cityVerticesCount);
-
 		float[] sunDirections = getSunDirections(splitAzimuth, splitHeight);
 		cl_mem sunDirectionsMem = storeOnGPUAsReadOnly(context, sunDirections);
 
 		int currentBuilding = 0;
 		while (currentBuilding < city.getBuildings().size()) {
+			try {
 			// suche gebäude zusammen solange schatten dreiecke weniger als 1
 			// mio
 			int triangleCount = 0;
@@ -287,6 +282,26 @@ public class ShadowCalculatorOpenClBackend extends ShadowCalculatorInterface {
 			clReleaseMemObject(cityVerticesCountMem);
 			clReleaseMemObject(cityVerticesMem);
 			clReleaseMemObject(shadowTriangleNormalsMem);
+			} catch (CLException e) {
+				System.out.println("Aborted");
+				e.printStackTrace();
+				try {
+					Thread.sleep(5000);
+				} catch (InterruptedException e2) {
+					e2.printStackTrace();
+				}
+				try {
+					OpenClContext.getInstance().reinit();
+					kernel = occ.createKernelFromFile(filename);
+					commandQueue = occ.getClCommandQueue();
+					context = occ.getClContext();
+
+					sunDirections = getSunDirections(splitAzimuth, splitHeight);
+					sunDirectionsMem = storeOnGPUAsReadOnly(context, sunDirections);
+				} catch (OpenClException e1) {
+					e1.printStackTrace();
+				}
+			}
 		}
 
 		// Release kernel, program, and memory objects

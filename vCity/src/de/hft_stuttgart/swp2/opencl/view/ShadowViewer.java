@@ -61,8 +61,8 @@ public class ShadowViewer extends JFrame implements GLEventListener,
 	
 	private int ray = 0;
 	
-	private int splitAzimuth = 32;
-	private int splitHeight = 16;
+	private int splitAzimuth = 16;
+	private int splitHeight = 8;
 	
 	private static final boolean showGrid = true;
 
@@ -136,7 +136,8 @@ public class ShadowViewer extends JFrame implements GLEventListener,
 		
 		ParserInterface parser = Parser.getInstance();
 		try {
-			parser.parse("Gruenbuehl_LOD2.gml");
+//			parser.parse("Gruenbuehl_LOD2.gml");
+			parser.parse("LB_MITTE.gml");
 //			parser.parse("einHaus.gml");
 		} catch (Exception e1) {
 			e1.printStackTrace();
