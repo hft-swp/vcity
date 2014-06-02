@@ -178,17 +178,18 @@ public class OpenClContext {
 		startTime[0] -= queuedTime[0];
 		endTime[0] -= queuedTime[0];
 
-		System.out.println("Queued : " + String.format("%8.3f", 0.0) + " ms");
-		System.out.println("Submit : "
-				+ String.format("%8.3f", submitTime[0] / 1e6) + " ms");
-		System.out.println("Start  : "
-				+ String.format("%8.3f", startTime[0] / 1e6) + " ms");
-		System.out.println("End    : "
-				+ String.format("%8.3f", endTime[0] / 1e6) + " ms");
+//		System.out.println("Queued : " + String.format("%8.3f", 0.0) + " ms");
+//		System.out.println("Submit : "
+//				+ String.format("%8.3f", submitTime[0] / 1e6) + " ms");
+//		System.out.println("Start  : "
+//				+ String.format("%8.3f", startTime[0] / 1e6) + " ms");
+//		System.out.println("End    : "
+//				+ String.format("%8.3f", endTime[0] / 1e6) + " ms");
 
-		long duration = endTime[0] - startTime[0];
-		System.out.println("Time   : " + String.format("%8.3f", duration / 1e6)
-				+ " ms");
+//		long duration = endTime[0] - startTime[0];
+//		System.out.println("Time : " + String.format("%8.3f", duration / 1e6)
+//				+ " ms");
+		System.out.printf(" | took : %8.3f milliseconds\n", endTime[0] / 1e6);
 
 	}
 

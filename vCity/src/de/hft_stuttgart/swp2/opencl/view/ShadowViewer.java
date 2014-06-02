@@ -263,15 +263,15 @@ public class ShadowViewer extends JFrame implements GLEventListener,
 							gl.glVertex3fv(v.getCoordinates(), 0);
 						}
 						gl.glEnd();
-//						if(showGrid) {
-//							gl.glColor3f(0, 0, 0);
-//							gl.glBegin(GL2.GL_LINE_LOOP);
-//			//				gl.glBegin(GL2.GL_TRIANGLES);
-//							for (Vertex v : t.getVertices()) {
-//								gl.glVertex3fv(v.getCoordinates(), 0);
-//							}
-//							gl.glEnd();
-//						}
+						if(showGrid) {
+							gl.glColor3f(0.1216f, 0.0588f, 0.0078f);
+							gl.glBegin(GL2.GL_LINE_LOOP);
+			//				gl.glBegin(GL2.GL_TRIANGLES);
+							for (Vertex v : t.getVertices()) {
+								gl.glVertex3fv(v.getCoordinates(), 0);
+							}
+							gl.glEnd();
+						}
 						gl.glColor3f(255f, 0, 255f);
 						gl.glBegin(GL2.GL_LINE_LOOP);
 						for (int sunPositionIdx = 0; sunPositionIdx < sunPositions[month].length; sunPositionIdx++) {
@@ -408,7 +408,7 @@ public class ShadowViewer extends JFrame implements GLEventListener,
 		camera = new Camera(glu);
 		camera.turnRight(-1.2);
 		camera.turnDown(0.3);
-		gl.glClearColor(0.5f, 0.5f, 0.5f, 0.0f);
+		gl.glClearColor(0.3333f, 0.3961f, 0.4941f, 0.0f);
 		gl.glClearDepth(1.0f);
 //		gl.glCullFace(GL.GL_FRONT_AND_BACK);
 		gl.glEnable(GL.GL_CULL_FACE);
