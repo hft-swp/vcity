@@ -20,8 +20,8 @@ import javax.swing.JScrollPane;
 public class OptionGUI extends JFrame implements Refreshable{
 	
 	private int frameHeight; //Stores the height before refresh
-	private final int PREF_HEIGHT = 500;
-	private final int PREF_WIDTH= 250;
+	private final int PREF_HEIGHT = 650;
+	private final int PREF_WIDTH= 300;
 
 	private final int INSET_TOP_PANEL= 5;
 	private final int INSET_LEFT_PANEL= 10;

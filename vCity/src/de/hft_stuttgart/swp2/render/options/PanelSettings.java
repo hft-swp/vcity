@@ -19,6 +19,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.swing.BorderFactory;
+import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -26,12 +27,14 @@ import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JRadioButton;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.border.TitledBorder;
 
 import org.jdesktop.swingx.JXDatePicker;
 
+import de.hft_stuttgart.swp2.opencl.ShadowPrecision;
 import de.hft_stuttgart.swp2.render.Main;
 import de.hft_stuttgart.swp2.render.Selection;
 import de.hft_stuttgart.swp2.render.threads.StartParserRunnable;
@@ -60,8 +63,15 @@ public class PanelSettings extends JPanel {
 	private JButton btnFileChooser;
 	JTextField txtHours = new JTextField(String.valueOf(DEFAULT_VALUE_HOURS));
 	JTextField txtMin = new JTextField(getMinutesToText(DEFAULT_VALUE_MINUTES));
+	JTextField txtSplitAzimuth = new JTextField();
+	JTextField txtSplitHeight = new JTextField();
 	private Selection selectionHours = new Selection(txtHours);
 	private Selection selectionMin = new Selection(txtMin);
+	private Selection selectionAzimuth = new Selection(txtSplitAzimuth);
+	private Selection selectionHeight= new Selection(txtSplitHeight);
+	int tempAzimuth = Main.getSplitAzimuth();
+	int tempHeight = Main.getSplitHeight();
+	ShadowPrecision tempShadowPrecision = ShadowPrecision.VERY_LOW;
 
 	String strBtnFileChooser = "GML-Datei auswählen";
 	JFileChooser fc;
@@ -342,7 +352,7 @@ public class PanelSettings extends JPanel {
 		// constraints.fill = GridBagConstraints.HORIZONTAL;
 		panelShadowOptions.add(jxDatePicker, constraints);
 		JPanel panelTime = new JPanel();
-		panelTime.setLayout(new GridLayout(2, 2));
+		panelTime.setLayout(new GridLayout(7, 2));
 		JLabel lblHours = new JLabel("Stunden");
 		JLabel lblMin = new JLabel("Minuten");
 
@@ -355,6 +365,32 @@ public class PanelSettings extends JPanel {
 		txtMin.addKeyListener(getKeyListenerMinutes());
 		panelTime.add(txtHours);
 		panelTime.add(txtMin);
+		
+		panelTime.add(new JLabel("Unterteilung in:"));
+		panelTime.add(new JLabel());
+		JRadioButton jrbPolygon = new JRadioButton("Polygone");
+		JRadioButton jrbTriangle = new JRadioButton("Dreiecke");
+		ButtonGroup groupForms = new ButtonGroup();
+		groupForms.add(jrbPolygon);
+		groupForms.add(jrbTriangle);
+		panelTime.add(jrbTriangle);
+		panelTime.add(jrbPolygon);
+		JComboBox<ShadowPrecision> cmbShadowPrecision = 
+				new JComboBox<ShadowPrecision>(ShadowPrecision.values());
+		//groupForms.isSelected(jrbTriangle.getModel());
+		panelTime.add(new JLabel("Genauigkeit"));
+		panelTime.add(cmbShadowPrecision);
+		
+		JLabel lblSplitAzimuth = new JLabel("Azimuthwinkel");
+		JLabel lblSplitHeight = new JLabel("Hoehenwinkel");
+		panelTime.add(lblSplitAzimuth);
+		panelTime.add(lblSplitHeight);
+		txtSplitAzimuth.addFocusListener(selectionAzimuth);
+		txtSplitHeight.addFocusListener(selectionHeight);
+		txtSplitAzimuth.setText(String.valueOf(Main.getSplitAzimuth()));
+		txtSplitHeight.setText(String.valueOf(Main.getSplitHeight()));
+		panelTime.add(txtSplitAzimuth);
+		panelTime.add(txtSplitHeight);
 		constraints.gridx = 0; // column 0
 		constraints.gridy = 1; // row 0
 		panelShadowOptions.add(panelTime, constraints);
@@ -396,6 +432,50 @@ public class PanelSettings extends JPanel {
 			public void keyReleased(KeyEvent e) {
 				if (e.getKeyChar() >= '0' && e.getKeyChar() <= '9') {
 					setMinutes();
+					setMinutesInitialNull();
+				}
+			}
+
+			@Override
+			public void keyPressed(KeyEvent e) {
+			}
+		};
+	}
+	
+	private KeyListener getKeyListenerAzimuth() {
+		return new KeyListener() {
+			public boolean verifyAzimuth() {
+				String regEx = "[1-9](([0-9])*)";
+				Pattern pattern = Pattern.compile(regEx);
+				Matcher matcher = pattern.matcher(selectionAzimuth.textKomponente
+						.getText());
+				return matcher.matches();
+			}
+
+			private void setAzimuth() {
+				try {
+					if (verifyAzimuth()) {
+						tempAzimuth = Integer.parseInt(selectionAzimuth.textKomponente
+								.getText());
+						//Main.getCityMap3D().setStartShadowCalculationRunnable(defaultShadowPrecision, splitAzimuth, splitHeight)
+					}
+				} catch (Exception e) {
+					// TODO Ausgabe Fehler
+					Main.getOptionGUI().setMinutes(0);
+				}
+			}
+
+			@Override
+			public void keyTyped(KeyEvent e) {
+				if (e.getKeyChar() == KeyEvent.VK_BACK_SPACE) {
+					setAzimuth();
+				}
+			}
+
+			@Override
+			public void keyReleased(KeyEvent e) {
+				if (e.getKeyChar() >= '0' && e.getKeyChar() <= '9') {
+					setAzimuth();
 					setMinutesInitialNull();
 				}
 			}
@@ -599,14 +679,9 @@ public class PanelSettings extends JPanel {
 						Main.setCityMap3DToNull();
 					}
 				}
-			} else if (source == cbVolume) {
-				if (cbVolume.isSelected()) {
-					Main.getCityMap3D().setIsStartCalculation(true);
-				}
 			} else if (source == cbShadow) {
 				if (cbShadow.isSelected()) {
 					panelShadowOptions.setVisible(true);
-					Main.getCityMap3D().setIsStartCalculation(true);
 				} else {
 					panelShadowOptions.setVisible(false);
 				}
