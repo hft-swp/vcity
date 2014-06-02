@@ -153,7 +153,7 @@ public class ShadowCalculatorOpenClBackend extends ShadowCalculatorInterface {
 					}
 				}
 				shadowVerticeCentersCount[calculateBuildingIdx] = shadowTriangleCount;
-			}
+			}			
 			HashMap<Integer, Integer> indexMap = new HashMap<Integer, Integer>();
 			ArrayList<Building> shadowCaster = new ArrayList<Building>();
 
@@ -180,7 +180,6 @@ public class ShadowCalculatorOpenClBackend extends ShadowCalculatorInterface {
 			}
 			// System.out.println("Umgebungsgebäude: " +
 			// Arrays.toString(neigh));
-			System.out.printf("number of environment building: %4d;", neigh.length);
 
 			cl_mem buildingNeighboursMem = storeOnGPUAsReadOnly(context, neigh);
 			cl_mem buildingNeighboursCountMem = storeOnGPUAsReadOnly(context,
@@ -251,7 +250,7 @@ public class ShadowCalculatorOpenClBackend extends ShadowCalculatorInterface {
 			int workSize = ((shadowVerticeCenters.length / 3) / localWorkSize + 1)
 					* localWorkSize;
 			
-			System.out.printf("    worksize: %4d;    actual worksize: %4d;", workSize, shadowVerticeCenters.length / 3);
+			System.out.printf("buildings: %4d | environment buildings: %4d | worksize: %4d | actual worksize: %4d", calcBuildings.size(), neigh.length, workSize, shadowVerticeCenters.length / 3);
 
 			long global_work_size[] = new long[] { workSize };
 			long local_work_size[] = new long[] { localWorkSize };

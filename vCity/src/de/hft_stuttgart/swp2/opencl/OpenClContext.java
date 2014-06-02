@@ -189,7 +189,7 @@ public class OpenClContext {
 //		long duration = endTime[0] - startTime[0];
 //		System.out.println("Time : " + String.format("%8.3f", duration / 1e6)
 //				+ " ms");
-		System.out.printf("    took : %8.3f milliseconds\n", endTime[0] / 1e6);
+		System.out.printf(" | took : %8.3f milliseconds\n", endTime[0] / 1e6);
 
 	}
 

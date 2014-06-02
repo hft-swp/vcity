@@ -76,7 +76,7 @@ public class GLBuildingEntity extends GLEntity {
 	
 	private void drawGrid(GL2 gl, Triangle triangle) {
 		if (isShowGrid) {
-			gl.glColor3f(0, 0, 0);
+			gl.glColor3f(0.1216f, 0.0588f, 0.0078f);
 			gl.glBegin(GL2.GL_LINE_LOOP);
 			for (Vertex v : triangle.getVertices()) {
 				gl.glVertex3fv(v.getCoordinates(), 0);
@@ -87,7 +87,7 @@ public class GLBuildingEntity extends GLEntity {
 
 	private void drawGrid(GL2 gl, ShadowTriangle triangle) {
 		if(isShowGrid) {
-			gl.glColor3f(0, 0, 0);
+			gl.glColor3f(0.1216f, 0.0588f, 0.0078f);
 			gl.glBegin(GL2.GL_LINE_LOOP);
 //				gl.glBegin(GL2.GL_TRIANGLES);
 			for (Vertex v : triangle.getVertices()) {
@@ -213,12 +213,13 @@ public class GLBuildingEntity extends GLEntity {
 					if (ray != -1) {
 						grey = 1.0 - polygon.getPercentageShadow()[ray];
 					}
-					for (ShadowTriangle t : polygon.getShadowTriangles()) {
+//					for (ShadowTriangle t : polygon.getShadowTriangles()) {
+					for (Triangle t : polygon.getTriangles()) {
 						gl.glBegin(GL2.GL_TRIANGLES);
 						gl.glColor3d(grey, grey, grey);
-						if (ray != -1 && !t.getShadowSet().get(ray)) {
-							gl.glColor3d(0.0, grey, 0.0);
-						}
+//						if (ray != -1 && !t.getShadowSet().get(ray)) {
+//							gl.glColor3d(0.0, grey, 0.0);
+//						}
 						
 						for (Vertex v : t.getVertices()) {
 							gl.glVertex3fv(v.getCoordinates(), 0);

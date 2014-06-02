@@ -171,10 +171,10 @@ public class ShadowViewer extends JFrame implements GLEventListener,
 		long milliTotalTime = endTotalTime - startTotalTime;
 		
 		System.out.printf("\n\n"
-				+ "      parse CityGML-file took : %d milliseconds\n"
-				+ "        calculate shadow took : %d milliseconds %s\n"
-				+ "         average per building : %f milliseconds (%d buildings)\n"
-				+ "                   total time : %d milliseconds %s\n", milliParser, milliShadowCalculation, milliseconds2string(milliShadowCalculation), (double)milliShadowCalculation/City.getInstance().getBuildings().size(), City.getInstance().getBuildings().size(), milliTotalTime, milliseconds2string(milliTotalTime));
+				+ "               parse CityGML-file took : %d milliseconds\n"
+				+ "                 calculate shadow took : %d milliseconds %s\n"
+				+ "                  average per building : %f milliseconds (%d buildings)\n"
+				+ "                            total time : %d milliseconds %s\n", milliParser, milliShadowCalculation, milliseconds2string(milliShadowCalculation), (double)milliShadowCalculation/City.getInstance().getBuildings().size(), City.getInstance().getBuildings().size(), milliTotalTime, milliseconds2string(milliTotalTime));
 		
 		
 		halfScreenHeight = Toolkit.getDefaultToolkit().getScreenSize().height / 2;
