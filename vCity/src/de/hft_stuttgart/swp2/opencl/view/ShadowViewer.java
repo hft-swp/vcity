@@ -86,6 +86,7 @@ public class ShadowViewer extends JFrame implements GLEventListener,
 
 	public ShadowViewer() throws OpenClException {
 		super("Shadow view");
+		long startTotalTime = System.currentTimeMillis(); 
 		
 		// test values
 //		VolumeTest.testCity1();
@@ -134,14 +135,19 @@ public class ShadowViewer extends JFrame implements GLEventListener,
 //			}
 //		}
 		
+		System.out.println("start parsing ...");
+		long start = System.currentTimeMillis(); 		
 		ParserInterface parser = Parser.getInstance();
 		try {
-//			parser.parse("Gruenbuehl_LOD2.gml");
-			parser.parse("LB_MITTE.gml");
+//			parser.parse("LB_MITTE.gml");
+			parser.parse("Gruenbuehl_LOD2.gml");
 //			parser.parse("einHaus.gml");
 		} catch (Exception e1) {
 			e1.printStackTrace();
-		}
+		}		
+		long end = System.currentTimeMillis();
+		long milliParser = end - start;
+		
 		System.out.println(Parser.getInstance().getEPSG());
 
 		sunPositions = new SunPositionCalculator[12][24];
@@ -156,15 +162,19 @@ public class ShadowViewer extends JFrame implements GLEventListener,
 		
 		CalculatorInterface calc = new CalculatorImpl();
 //		ShadowCalculatorJavaBackend calc = new ShadowCalculatorJavaBackend();
-		System.out.println("Starting shadow calculation...");
-		long start = System.currentTimeMillis(); 
+		System.out.println("start shadow calculation ...\n");
+		start = System.currentTimeMillis(); 
 		calc.calculateShadow(ShadowPrecision.VERY_LOW, splitAzimuth, splitHeight); //VERY_LOW(5f), LOW(2.5f), MID(1.25f), HIGH(0.75f), ULTRA(0.375f), HYPER(0.1f), AWESOME(0.01f)
-		long end = System.currentTimeMillis();
-		long milli = end - start;
+		end = System.currentTimeMillis();
+		long milliShadowCalculation = end - start;
+		long endTotalTime = System.currentTimeMillis();
+		long milliTotalTime = endTotalTime - startTotalTime;
 		
 		System.out.printf("\n\n"
-				+ "calculate shadow took : %7d milliseconds %s\n"
-				+ "average per building  : %5.2f milliseconds (%d buildings)\n", milli, milliseconds2string(milli), (double)milli/City.getInstance().getBuildings().size(), City.getInstance().getBuildings().size());
+				+ "      parse CityGML-file took : %d milliseconds\n"
+				+ "        calculate shadow took : %d milliseconds %s\n"
+				+ "         average per building : %f milliseconds (%d buildings)\n"
+				+ "                   total time : %d milliseconds %s\n", milliParser, milliShadowCalculation, milliseconds2string(milliShadowCalculation), (double)milliShadowCalculation/City.getInstance().getBuildings().size(), City.getInstance().getBuildings().size(), milliTotalTime, milliseconds2string(milliTotalTime));
 		
 		
 		halfScreenHeight = Toolkit.getDefaultToolkit().getScreenSize().height / 2;
@@ -196,6 +206,7 @@ public class ShadowViewer extends JFrame implements GLEventListener,
 		robot.mouseMove(halfScreenWidth, halfScreenHeight);
 	}
 
+	@SuppressWarnings("unused")
 	private Vertex cross(Vertex v0, Vertex v1) {
 		float x = v0.getY() * v1.getZ() - v0.getZ() * v1.getY();
 		float y = v0.getZ() * v1.getX() - v0.getX() * v1.getZ();
@@ -204,17 +215,17 @@ public class ShadowViewer extends JFrame implements GLEventListener,
 	}
 
 	private String milliseconds2string(long milli) {
-		String mytime = "( ";
+		String mytime = "(";
 		if(milli > 3600000) {
-			mytime += String.format("%d hours ",(int) ((milli / (1000*60*60)) % 24));
+			mytime += String.format("%d hours  ",(int) ((milli / (1000*60*60)) % 24));
 		}
 		if(milli > 60000) {
-			mytime += String.format("%d minutes ", (int) ((milli / (1000*60)) % 60));
+			mytime += String.format("%d minutes  ", (int) ((milli / (1000*60)) % 60));
 		}
 		if(milli > 1000) {
-			mytime += String.format("%d seconds ", (int) (milli / 1000) % 60);
+			mytime += String.format("%d seconds  ", (int) (milli / 1000) % 60);
 		}
-		mytime +=  String.format("%d milliseconds )", (int) (milli % 1000));
+		mytime +=  String.format("%d milliseconds)", (int) (milli % 1000));
 		return mytime;
 	}
 
@@ -232,7 +243,7 @@ public class ShadowViewer extends JFrame implements GLEventListener,
 				BoundarySurface surface = b.getBoundarySurfaces().get(i);
 				for (int j = 0; j < surface.getPolygons().size(); ++j) {
 					Polygon p = surface.getPolygons().get(j);
-					double grey = 0.1;
+					double grey = 0.0;
 					if (ray != -1) {
 						grey = 1.0 - p.getPercentageShadow()[ray];
 					}
@@ -249,15 +260,15 @@ public class ShadowViewer extends JFrame implements GLEventListener,
 							gl.glVertex3fv(v.getCoordinates(), 0);
 						}
 						gl.glEnd();
-//						if(showGrid) {
-//							gl.glColor3f(0, 0, 0);
-//							gl.glBegin(GL2.GL_LINE_LOOP);
-//			//				gl.glBegin(GL2.GL_TRIANGLES);
-//							for (Vertex v : t.getVertices()) {
-//								gl.glVertex3fv(v.getCoordinates(), 0);
-//							}
-//							gl.glEnd();
-//						}
+						if(showGrid) {
+							gl.glColor3f(0.1216f, 0.0588f, 0.0078f);
+							gl.glBegin(GL2.GL_LINE_LOOP);
+			//				gl.glBegin(GL2.GL_TRIANGLES);
+							for (Vertex v : t.getVertices()) {
+								gl.glVertex3fv(v.getCoordinates(), 0);
+							}
+							gl.glEnd();
+						}
 						gl.glColor3f(255f, 0, 255f);
 						gl.glBegin(GL2.GL_LINE_LOOP);
 						for (int sunPositionIdx = 0; sunPositionIdx < sunPositions[month].length; sunPositionIdx++) {
@@ -394,7 +405,7 @@ public class ShadowViewer extends JFrame implements GLEventListener,
 		camera = new Camera(glu);
 		camera.turnRight(-1.2);
 		camera.turnDown(0.3);
-		gl.glClearColor(0.5f, 0.5f, 0.5f, 0.0f);
+		gl.glClearColor(0.3333f, 0.3961f, 0.4941f, 0.0f);
 		gl.glClearDepth(1.0f);
 //		gl.glCullFace(GL.GL_FRONT_AND_BACK);
 		gl.glEnable(GL.GL_CULL_FACE);
@@ -434,16 +445,16 @@ public class ShadowViewer extends JFrame implements GLEventListener,
 	@Override
 	public void keyPressed(KeyEvent e) {
 		if (e.getKeyCode() == KeyEvent.VK_W) {
-			camera.moveForward(0.5d);
+			camera.moveForward(1d);
 		}
 		if (e.getKeyCode() == KeyEvent.VK_S) {
-			camera.moveBackwards(0.5d);
+			camera.moveBackwards(1d);
 		}
 		if (e.getKeyCode() == KeyEvent.VK_A) {
-			camera.strafeLeft(0.5d);
+			camera.strafeLeft(1d);
 		}
 		if (e.getKeyCode() == KeyEvent.VK_D) {
-			camera.strafeRight(0.5d);
+			camera.strafeRight(1d);
 		}
 		if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
 			System.exit(0);

@@ -9,7 +9,6 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.TimeZone;
 
-
 import javax.media.opengl.GL;
 import javax.media.opengl.GL2;
 import javax.media.opengl.GLAutoDrawable;
@@ -27,7 +26,6 @@ import de.hft_stuttgart.swp2.model.City;
 import de.hft_stuttgart.swp2.model.Polygon;
 import de.hft_stuttgart.swp2.model.Triangle;
 import de.hft_stuttgart.swp2.model.Vertex;
-
 import de.hft_stuttgart.swp2.opencl.ShadowPrecision;
 import de.hft_stuttgart.swp2.opencl.SunPositionCalculator;
 import de.hft_stuttgart.swp2.render.Main;
@@ -121,7 +119,7 @@ public class CityMap3D extends JFrame implements GLEventListener {
 		super("vCity - 3D Stadtansicht");
 		this.setSize(width, height);
 		this.requestFocus();
-		setGround(minGroundSize, maxGroundSize);
+		//setGround(minGroundSize, maxGroundSize);
 	
 		//
 		try {
@@ -213,6 +211,7 @@ public class CityMap3D extends JFrame implements GLEventListener {
 		return tmp;
 	}
 
+	@SuppressWarnings("unused")
 	private void setGround(int minSize, int maxSize) {
 		Vertex v0 = new Vertex(minSize, 0, minSize);
 		Vertex v1 = new Vertex(minSize, 0, maxSize);
@@ -447,7 +446,7 @@ public class CityMap3D extends JFrame implements GLEventListener {
 		camera = new Camera(glu);
 		camera.turnRight(-1.2);
 		camera.turnDown(0.3);
-		gl.glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+		gl.glClearColor(0.3333f, 0.3961f, 0.4941f, 0.0f);
 		gl.glClearDepth(1.0f);
 
 		gl.glEnable(GL.GL_DEPTH_TEST);

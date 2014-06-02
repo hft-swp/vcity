@@ -209,13 +209,13 @@ public class GLBuildingEntity extends GLEntity {
 				BoundarySurface surface = building.getBoundarySurfaces().get(i);
 				for (int j = 0; j < surface.getPolygons().size(); ++j) {
 					Polygon polygon = surface.getPolygons().get(j);
-					Double grey = 0.1;
+					Double grey = 0.0;
 					if (ray != -1) {
 						grey = 1.0 - polygon.getPercentageShadow()[ray];
 					}
 					for (ShadowTriangle t : polygon.getShadowTriangles()) {
 						gl.glBegin(GL2.GL_TRIANGLES);
-						gl.glColor3d(grey, 0.0, 0.0);
+						gl.glColor3d(grey, grey, grey);
 						if (ray != -1 && !t.getShadowSet().get(ray)) {
 							gl.glColor3d(0.0, grey, 0.0);
 						}

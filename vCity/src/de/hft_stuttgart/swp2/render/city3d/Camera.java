@@ -39,7 +39,7 @@ public class Camera {
 	}
 
 	public void setPerspective(int width, int height) {
-		glu.gluPerspective(60, (double) width / height, 0.1, 10000);
+		glu.gluPerspective(60, (double) width / height, 0.1, 20000);
 	}
 
 	public void turnLeft(double rad) {
