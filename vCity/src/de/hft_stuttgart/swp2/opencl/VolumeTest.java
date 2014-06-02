@@ -10,18 +10,24 @@ import de.hft_stuttgart.swp2.model.Vertex;
 public class VolumeTest {
 
 	public static void main(String[] args) throws OpenClException {
-		for (int i = 0; i < 100000 ; i++) {
+		for (int i = 0; i < 1 ; i++) {
 			testCity1();
 		}
 		testCity2();
 		CalculatorInterface vc = new CalculatorImpl();
 		long start = System.currentTimeMillis(); 
 		vc.calculateVolume();
+		vc.calculateArea();
 		long end = System.currentTimeMillis();
 		System.out.printf("calculate volume took %d milliseconds\n", (end - start));
-//		for (Building b : City.getInstance().getBuildings()) {
-//			System.out.println(b.getVolume());
-//		}
+		for (Building b : City.getInstance().getBuildings()) {
+			for (BoundarySurface surface : b.getBoundarySurfaces()) {
+				for (Polygon p : surface.getPolygons()) {
+					System.out.println("Area=" + p.getArea());
+				}
+			}
+			System.out.println(b.getVolume());
+		}
 	}
 	
 	public static void testCity1() {

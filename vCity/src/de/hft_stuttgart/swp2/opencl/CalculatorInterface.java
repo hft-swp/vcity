@@ -31,6 +31,8 @@ public interface CalculatorInterface {
 	
 	public void calculateShadow(ShadowPrecision precision, int splitAzimuth, int splitHeight) throws OpenClException;
 	
+	public void calculateArea();
+	
 	
 
 }

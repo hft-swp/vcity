@@ -19,11 +19,6 @@ public class SunPositionCalculator {
 
 	private double x, y, z;
 
-	public static void main(String[] args) {
-		Calendar utcCal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
-		utcCal.set(2006, Calendar.AUGUST, 6, 6, 0, 0);
-		new SunPositionCalculator(utcCal.getTime(), 0, 0);
-	}
 
 	/**
 	 * http://de.wikipedia.org/wiki/Julianisches_Datum#Berechnung
@@ -109,7 +104,7 @@ public class SunPositionCalculator {
 		// Refraktionsbelastete Höhe
 		hr = h + r / 60;
 
-		// System.out.println("Azimut=" + azimut);
+//		 System.out.println("Azimut=" + azimut);
 		// System.out.println("Höhe=" + hr);
 
 		x = cos(hr) * cos(azimut) * 10000;
@@ -150,17 +145,6 @@ public class SunPositionCalculator {
 	 * returns -1 if sun is beneath horizon, else the square number in which the
 	 * sun is positioned.
 	 * 
-	 * @return value between -1 and 144
-	 * @deprecated Please use {@link SunPositionCalculator#getSunPosition(int splitAzimuth, int splitHeight)}
-	 */
-	@Deprecated
-	public int getSunPosition() {
-		return getSunPosition(12, 12);
-	}
-	/**
-	 * returns -1 if sun is beneath horizon, else the square number in which the
-	 * sun is positioned.
-	 * 
 	 * @param splitAzimuth split the Azimuth angle in given parts
 	 * @param splitHeight split the Height angle in given parts
 	 * @return value between -1 and (splitAzimuth * splitHeight)
@@ -170,8 +154,8 @@ public class SunPositionCalculator {
 			return -1;
 		}
 		int result = 0;
-		result += (int) (hr / (90.0/splitHeight)) * splitAzimuth;
-		result += (-1 * azimut + 270) / (360.0/splitAzimuth);
+		result += ((int) (hr / (90.0/splitHeight))) * splitAzimuth;
+		result += splitAzimuth - (azimut + 90) / (360.0/splitAzimuth);
 		return result;
 	}
 
