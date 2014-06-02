@@ -4,6 +4,7 @@ import static org.junit.Assert.*;
 
 import java.util.ArrayList;
 
+import org.junit.Before;
 import org.junit.Test;
 
 import de.hft_stuttgart.swp2.model.BoundarySurface;
@@ -15,6 +16,8 @@ import de.hft_stuttgart.swp2.model.Vertex;
 import de.hft_stuttgart.swp2.model.VertexDouble;
 import de.hft_stuttgart.swp2.parser.Parser;
 import de.hft_stuttgart.swp2.parser.ParserException;
+import de.hft_stuttgart.swp2.parser.ParserExport;
+import de.hft_stuttgart.swp2.parser.ParserExportInterface;
 import de.hft_stuttgart.swp2.parser.PolygonTranslate;
 import de.hft_stuttgart.swp2.parser.PolygonTriangulator;
 
@@ -24,7 +27,19 @@ import de.hft_stuttgart.swp2.parser.PolygonTriangulator;
  * @author 02grst1bif
  */
 public class ParserTest {
+	
+	private City gCity;// = Parser.getInstance().parse("Gruenbuehl_LOD2.gml");
 
+	@Before
+	public void setUp() {
+		try {
+			Parser gParser = Parser.getInstance();
+			gCity = gParser.parse("Gruenbuehl_LOD2.gml");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
 	@Test
 	public void testReadAndParseAndValidateEinHaus() {
 		try {
@@ -32,6 +47,8 @@ public class ParserTest {
 			Parser parser = Parser.getInstance();
 			assertNotNull(parser);
 
+			City.getInstance().getBuildings().clear();
+			
 			City city = parser.parse("einHaus.gml");
 			assertNotNull(city);
 
@@ -106,6 +123,8 @@ public class ParserTest {
 
 			Parser parser = Parser.getInstance();
 			assertNotNull(parser);
+			
+			City.getInstance().getBuildings().clear();
 
 			City city = parser.parse("Gruenbuehl_LOD2.gml");
 			assertNotNull(city);
@@ -122,6 +141,8 @@ public class ParserTest {
 
 			Parser parser = Parser.getInstance();
 			assertNotNull(parser);
+			
+			City.getInstance().getBuildings().clear();
 
 			City city = parser.parse("LB_MITTE_CITYGML_LB_3513294_5416846_GML.gml");
 			assertNotNull(city);
@@ -131,6 +152,76 @@ public class ParserTest {
 			fail();
 		}
 	}
+	
+	@Test
+	public void testExportToCSV() {
+		try {
+			Parser parser = Parser.getInstance();
+			assertNotNull(parser);
+			
+			City.getInstance().getBuildings().clear();
+
+			City city = parser.parse("Gruenbuehl_LOD2.gml");
+			assertNotNull(city);
+			
+			ParserExportInterface pe = new ParserExport();
+			assertNotNull(pe);
+			
+			boolean isSuccess = pe.exportToCsv("C://temp//" + System.currentTimeMillis() + ".csv");
+			assertTrue(isSuccess);
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			fail();
+		}
+	}
+	
+	@Test
+	public void testExportToGML() {
+		try {
+			Parser parser = Parser.getInstance();
+			assertNotNull(parser);
+			
+			City.getInstance().getBuildings().clear();
+
+			City city = parser.parse("Gruenbuehl_LOD2.gml");
+			assertNotNull(city);
+			
+			ParserExportInterface pe = new ParserExport();
+			assertNotNull(pe);
+			
+			boolean isSuccess = pe.exportToCGML("C://temp//" + System.currentTimeMillis() + ".gml");
+			assertTrue(isSuccess);
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			fail();
+		}
+	}
+	
+	@Test
+	public void testExportToXML() {
+		try {
+			Parser parser = Parser.getInstance();
+			assertNotNull(parser);
+			
+			City.getInstance().getBuildings().clear();
+
+			City city = parser.parse("Gruenbuehl_LOD2.gml");
+			assertNotNull(city);
+			
+			ParserExportInterface pe = new ParserExport();
+			assertNotNull(pe);
+			
+			boolean isSuccess = pe.exportToXml("C://temp//" + System.currentTimeMillis() + ".xml");
+			assertTrue(isSuccess);
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			fail();
+		}
+	}
+	
 
 	@Test
 	public void testFileNotFoundException() {

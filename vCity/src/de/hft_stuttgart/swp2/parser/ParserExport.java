@@ -220,11 +220,13 @@ public class ParserExport implements ParserExportInterface {
 						Element shadow = doc.createElement("Shadow");
 						StringBuilder sb = new StringBuilder();
 						double[] shadowPercent = p.getPercentageShadow();
-						for (int i = 0; i < shadowPercent.length; i++) {
-							sb.append(Double.toString(shadowPercent[i]));
-							
-							if (i < shadowPercent.length-1) {
-								sb.append(",");
+						if (shadowPercent != null) {
+							for (int i = 0; i < shadowPercent.length; i++) {
+								sb.append(Double.toString(shadowPercent[i]));
+								
+								if (i < shadowPercent.length-1) {
+									sb.append(",");
+								}
 							}
 						}
 						shadow.appendChild(doc.createTextNode(sb.toString()));
