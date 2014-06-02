@@ -13,15 +13,19 @@ public class ShadowTriangle extends Triangle {
 
 	private BitSet shadowSet = new BitSet();
 	private Vertex center;
+	private Building b;
 
 	/**
 	 * Creates a ShadowTriangle from the given vertices
 	 * 
 	 * @param vertices
 	 *            Vertices array of length 3
+	 * @param b
+	 *            the building to which the triangle belongs
 	 */
-	public ShadowTriangle(Vertex[] vertices) {
+	public ShadowTriangle(Vertex[] vertices, Building b) {
 		super(vertices);
+		this.b = b;
 		calcCenter();
 	}
 
@@ -31,9 +35,12 @@ public class ShadowTriangle extends Triangle {
 	 * @param v0
 	 * @param v1
 	 * @param v2
+	 * @param b
+	 *            the building to which the triangle belongs
 	 */
-	public ShadowTriangle(Vertex v0, Vertex v1, Vertex v2) {
+	public ShadowTriangle(Vertex v0, Vertex v1, Vertex v2, Building b) {
 		super(v0, v1, v2);
+		this.b = b;
 		calcCenter();
 	}
 
@@ -43,6 +50,14 @@ public class ShadowTriangle extends Triangle {
 	 */
 	public BitSet getShadowSet() {
 		return shadowSet;
+	}
+
+	/**
+	 * 
+	 * @return the building to which the triangle belongs
+	 */
+	public Building getBuilding() {
+		return b;
 	}
 
 	/**

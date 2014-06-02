@@ -38,7 +38,7 @@ public class ShadowCalculatorOpenClBackend extends ShadowCalculatorInterface {
 	 * This is the minimum count of triangles which are calculated at once on
 	 * the gpu
 	 */
-	private static final int TRIANGLE_COUNT = 1000;
+	private static final int TRIANGLE_COUNT = 1024;
 
 	/**
 	 * This is the maximum distance in which neighbours are found
@@ -153,7 +153,7 @@ public class ShadowCalculatorOpenClBackend extends ShadowCalculatorInterface {
 					}
 				}
 				shadowVerticeCentersCount[calculateBuildingIdx] = shadowTriangleCount;
-			}
+			}			
 			HashMap<Integer, Integer> indexMap = new HashMap<Integer, Integer>();
 			ArrayList<Building> shadowCaster = new ArrayList<Building>();
 
@@ -180,7 +180,6 @@ public class ShadowCalculatorOpenClBackend extends ShadowCalculatorInterface {
 			}
 			// System.out.println("Umgebungsgebäude: " +
 			// Arrays.toString(neigh));
-			System.out.println("Anzahl umgebungsgebäude: " + neigh.length);
 
 			cl_mem buildingNeighboursMem = storeOnGPUAsReadOnly(context, neigh);
 			cl_mem buildingNeighboursCountMem = storeOnGPUAsReadOnly(context,
@@ -250,9 +249,9 @@ public class ShadowCalculatorOpenClBackend extends ShadowCalculatorInterface {
 			int localWorkSize = (int) kernelWorkSize[0];
 			int workSize = ((shadowVerticeCenters.length / 3) / localWorkSize + 1)
 					* localWorkSize;
-			System.out.println("Worksize = " + workSize);
-			System.out.println("Actual Worksize = "
-					+ shadowVerticeCenters.length / 3);
+			
+			System.out.printf("buildings: %4d | environment buildings: %4d | worksize: %4d | actual worksize: %4d", calcBuildings.size(), neigh.length, workSize, shadowVerticeCenters.length / 3);
+
 			long global_work_size[] = new long[] { workSize };
 			long local_work_size[] = new long[] { localWorkSize };
 
@@ -310,6 +309,258 @@ public class ShadowCalculatorOpenClBackend extends ShadowCalculatorInterface {
 		occ.finalizeKernel(kernel);
 
 	}
+	
+	public void calculateShadow2(ShadowPrecision precision, int splitAzimuth, int splitHeight) {
+		City city = City.getInstance();
+		// if no buildings are available, abort
+		if (city.getBuildings().size() == 0) {
+			return;
+		}
+		calculateCenterOfBuildingsAndCity();
+		recalculateShadowTriangles(precision);
+		
+		// get the opencl context
+		cl_kernel kernel = occ.createKernelFromFile(filename);
+		cl_command_queue commandQueue = occ.getClCommandQueue();
+		cl_context context = occ.getClContext();
+
+		// calculate the sun directions and put them on the gpu
+		float[] sunDirections = getSunDirections(splitAzimuth, splitHeight);
+		cl_mem sunDirectionsMem = storeOnGPUAsReadOnly(context, sunDirections);
+
+		ArrayList<ShadowTriangle> shadowTriangles = new ArrayList<ShadowTriangle>();
+		for (Building b : city.getBuildings()) {
+			for (BoundarySurface surface : b.getBoundarySurfaces()) {
+				for (Polygon p : surface.getPolygons()) {
+					shadowTriangles.addAll(p.getShadowTriangles());
+				}
+			}
+		}
+		int currentTriangle = 0;
+		int triangleCount = shadowTriangles.size();
+		while (currentTriangle < triangleCount) {
+			System.out.printf("%.2f%% done%n", currentTriangle / (float) triangleCount * 100);
+			// calculate how many triangles have to be calculated, either TRIANGLE_COUNT or rest
+			int lastTriangleIdx = Math.min(currentTriangle + TRIANGLE_COUNT, triangleCount);
+			int numberOfTrianglesToCalculate = lastTriangleIdx - currentTriangle;
+			Building b = shadowTriangles.get(currentTriangle).getBuilding();
+			int currentTriangleCount = 0;
+			ArrayList<Integer> triangleCountPerBuilding = new ArrayList<Integer>();
+			
+			float[] shadowVerticeCenters = new float[numberOfTrianglesToCalculate * 3];
+			float[] shadowTriangleNormals = new float[numberOfTrianglesToCalculate * 3];
+			for (int shadowTriangleIdx = currentTriangle; shadowTriangleIdx < lastTriangleIdx; shadowTriangleIdx++) {
+				ShadowTriangle t = shadowTriangles.get(shadowTriangleIdx);
+				if (b == t.getBuilding()) {
+					currentTriangleCount++;
+				} else {
+					triangleCountPerBuilding.add(currentTriangleCount);
+					currentTriangleCount = 1;
+					b = t.getBuilding();
+				}
+				for (int i = 0; i < 3; i++) {
+					shadowVerticeCenters[(shadowTriangleIdx - currentTriangle) * 3 + i] = t.getCenter().getCoordinates()[i];
+					shadowTriangleNormals[(shadowTriangleIdx - currentTriangle) * 3 + i] = t.getNormalVector().getCoordinates()[i];
+				}
+				
+			}
+			triangleCountPerBuilding.add(currentTriangleCount);
+//			for (Integer i : triangleCountPerBuilding) {
+//				System.out.print(i + ", ");
+//			}
+//			System.out.println();
+			
+			ArrayList<Integer> neighbours = new ArrayList<Integer>();
+			int[] numNeighbours = new int[triangleCountPerBuilding.size()];
+			
+			HashMap<Integer, Building> cityBuildings = new HashMap<Integer, Building>();
+			for (int calculateBuildingIdx = 0; calculateBuildingIdx < triangleCountPerBuilding
+					.size(); ++calculateBuildingIdx) {
+				int buildingOffset = 0;
+				for (int i = 0; i < calculateBuildingIdx; i++) {
+					buildingOffset = buildingOffset + triangleCountPerBuilding.get(i);
+				}
+				Building b2 = shadowTriangles.get(currentTriangle + buildingOffset).getBuilding();
+				// calculate neighbours for building
+				for (int i = 0; i < city.getBuildings().size(); ++i) {
+					Building neighbourBuilding = city.getBuildings().get(i);
+					Vertex v = vertexDiff(b2.getCenter(),
+							neighbourBuilding.getCenter());
+					float distance = distance(v);
+					if (distance < MAX_DISTANCE) {
+						neighbours.add(i);
+						cityBuildings.put(i, neighbourBuilding);
+					}
+				}
+				// calculate number of neighbours per building
+				int numNeighbour = neighbours.size();
+				for (int i = 0; i < calculateBuildingIdx; ++i) {
+					numNeighbour -= numNeighbours[i];
+				}
+				numNeighbours[calculateBuildingIdx] = numNeighbour;
+				
+			}
+			
+			HashMap<Integer, Integer> indexMap = new HashMap<Integer, Integer>();
+			ArrayList<Building> shadowCaster = new ArrayList<Building>();
+			for (Entry<Integer, Building> e : cityBuildings.entrySet()) {
+				int toIndex = shadowCaster.size();
+				shadowCaster.add(e.getValue());
+				indexMap.put(e.getKey(), toIndex);
+			}
+
+			int[] cityVerticesCount = getCityVerticesCountArray(shadowCaster);
+			float[] cityVertices = getCityVerticesArray(shadowCaster, cityVerticesCount);
+
+			cl_mem cityVerticesMem = storeOnGPUAsReadOnly(context, cityVertices);
+			cl_mem cityVerticesCountMem = storeOnGPUAsReadOnly(context, cityVerticesCount);
+
+			// tritt nur ein für MAX_DISTANCE = 0
+			if (neighbours.size() == 0) {
+				continue;
+			}
+			int[] neigh = new int[neighbours.size()];
+			for (int i = 0; i < neigh.length; ++i) {
+				neigh[i] = indexMap.get(neighbours.get(i));
+			}
+//			System.out.printf("number of environment building: %4d;%n", neigh.length);
+
+			cl_mem buildingNeighboursMem = storeOnGPUAsReadOnly(context, neigh);
+			cl_mem buildingNeighboursCountMem = storeOnGPUAsReadOnly(context,
+					numNeighbours);
+			cl_mem shadowVerticesMem = storeOnGPUAsReadOnly(context,
+					shadowVerticeCenters);
+			int[] shadowVerticeCentersCount = new int[triangleCountPerBuilding.size()];
+			for (int i = 0; i < triangleCountPerBuilding.size(); i++) {
+				shadowVerticeCentersCount[i] = triangleCountPerBuilding.get(i);
+			}
+			cl_mem shadowTriangleCountMem = storeOnGPUAsReadOnly(context,
+					shadowVerticeCentersCount );
+			cl_mem shadowTriangleNormalsMem = storeOnGPUAsReadOnly(context,
+					shadowTriangleNormals);
+
+			byte[] hasShadow = new byte[(int) (Math.ceil(splitAzimuth * splitHeight / 8.0) * numberOfTrianglesToCalculate)];
+
+			Pointer hasShadowPointer = Pointer.to(hasShadow);
+			cl_mem hasShadowMem = clCreateBuffer(context, CL_MEM_READ_WRITE,
+					Sizeof.cl_char * hasShadow.length, null, null);
+
+			// Stadt in großen dreiecken
+			clSetKernelArg(kernel, 0, Sizeof.cl_mem,
+					Pointer.to(cityVerticesMem));
+			// Anzahl an Dreiecken pro Gebäude
+			clSetKernelArg(kernel, 1, Sizeof.cl_mem,
+					Pointer.to(cityVerticesCountMem));
+
+			// Indizes der Nachbarn der zu rechnenden Gebäuden
+			clSetKernelArg(kernel, 2, Sizeof.cl_mem,
+					Pointer.to(buildingNeighboursMem));
+
+			// Anzahl der Nachbarn pro Gebäude
+			clSetKernelArg(kernel, 3, Sizeof.cl_mem,
+					Pointer.to(buildingNeighboursCountMem));
+
+			// Alle Schattendreiecksmitten der zu rechnenden Gebäuden
+			clSetKernelArg(kernel, 4, Sizeof.cl_mem,
+					Pointer.to(shadowVerticesMem));
+			// Schattendreiecksmittenanzahl pro Gebäude
+			clSetKernelArg(kernel, 5, Sizeof.cl_mem,
+					Pointer.to(shadowTriangleCountMem));
+			// Anzahl der der zu rechneden Gebäude
+			clSetKernelArg(kernel, 6, Sizeof.cl_int,
+					Pointer.to(new int[] { triangleCountPerBuilding.size() }));
+
+			// Normalenvektoren der dreiecke
+			clSetKernelArg(kernel, 7, Sizeof.cl_mem,
+					Pointer.to(shadowTriangleNormalsMem));
+
+			// Sonnenrichtungs vektoren
+			clSetKernelArg(kernel, 8, Sizeof.cl_mem,
+					Pointer.to(sunDirectionsMem));
+
+			// Ergebnis array
+			clSetKernelArg(kernel, 9, Sizeof.cl_mem, Pointer.to(hasShadowMem));
+
+			// actual work size
+			clSetKernelArg(kernel, 10, Sizeof.cl_int,
+					Pointer.to(new int[] { shadowVerticeCenters.length / 3 }));
+
+			// Azimuthwinkel * Höhenwinkel
+			clSetKernelArg(kernel, 11, Sizeof.cl_int,
+					Pointer.to(new int[] { splitAzimuth * splitHeight }));
+
+			cl_device_id device = occ.getDevice();
+			long[] kernelWorkSize = new long[1];
+			CL.clGetKernelWorkGroupInfo(kernel, device,
+					CL.CL_KERNEL_WORK_GROUP_SIZE, Sizeof.size_t,
+					Pointer.to(kernelWorkSize), null);
+			int localWorkSize = (int) kernelWorkSize[0];
+			int workSize = ((shadowVerticeCenters.length / 3) / localWorkSize + 1)
+					* localWorkSize;
+			
+//			System.out.printf("    worksize: %4d;    actual worksize: %4d;", workSize, shadowVerticeCenters.length / 3);
+
+			long global_work_size[] = new long[] { workSize };
+			long local_work_size[] = new long[] { localWorkSize };
+
+			// Execute the kernel
+			cl_event kernelEvent = new cl_event();
+			clEnqueueNDRangeKernel(commandQueue, kernel, 1, null,
+					global_work_size, local_work_size, 0, null, kernelEvent);
+
+			// Read the output data
+			clEnqueueReadBuffer(commandQueue, hasShadowMem, CL_TRUE, 0,
+					hasShadow.length * Sizeof.cl_char, hasShadowPointer, 0,
+					null, null);
+
+			// wait for the kernel to finish
+			CL.clFinish(commandQueue);
+
+			occ.profile(kernelEvent);
+
+			writeShadowDataIntoTriangles(shadowTriangles, currentTriangle, lastTriangleIdx, hasShadow, splitAzimuth, splitHeight);
+			// System.out.println(Arrays.toString(cityVerticesCount));
+
+			clReleaseMemObject(shadowVerticesMem);
+			clReleaseMemObject(shadowTriangleCountMem);
+			clReleaseMemObject(hasShadowMem);
+			clReleaseMemObject(buildingNeighboursMem);
+			clReleaseMemObject(buildingNeighboursCountMem);
+			clReleaseMemObject(cityVerticesCountMem);
+			clReleaseMemObject(cityVerticesMem);
+			clReleaseMemObject(shadowTriangleNormalsMem);
+
+			
+			currentTriangle = currentTriangle + TRIANGLE_COUNT;
+		}
+		
+		
+		// Release kernel, program, and memory objects
+		clReleaseMemObject(sunDirectionsMem);
+
+		occ.finalizeKernel(kernel);
+		
+		for (Building b : city.getBuildings()) {
+			for (BoundarySurface surface : b.getBoundarySurfaces()) {
+				for (Polygon p : surface.getPolygons()) {
+					double [] percentageShadow = new double[splitAzimuth * splitHeight];
+					for (int i = 0; i < splitAzimuth * splitHeight; i++) {
+						int shadowCount = 0;
+						for (ShadowTriangle t : p.getShadowTriangles()) {
+							if (t.getShadowSet().get(i)) {
+								shadowCount++;
+							}
+						}
+						double shadow = (double) shadowCount / p.getShadowTriangles().size();
+						percentageShadow[i] = shadow;
+					}
+					p.setPercentageShadow(percentageShadow);
+				}
+			}
+		}
+		
+		System.out.printf("100%% done%n");
+	}
 
 	private void writeShadowDataIntoTriangles(
 			ArrayList<Building> calcBuildings, byte[] hasShadow, int splitAzimuth, int splitHeight) {
@@ -340,6 +591,28 @@ public class ShadowCalculatorOpenClBackend extends ShadowCalculatorInterface {
 			}
 		}
 	}
+	
+	private void writeShadowDataIntoTriangles(
+			ArrayList<ShadowTriangle> shadowTriangles, int beginIndex, int endIndex, byte[] hasShadow, int splitAzimuth, int splitHeight) {
+		// BitSet bs = BitSet.valueOf(hasShadow);
+		int count = 0;
+		int skymodel = splitAzimuth * splitHeight;
+		for (int shadowTriangleIdx = beginIndex; shadowTriangleIdx < endIndex; shadowTriangleIdx++) {
+			ShadowTriangle t = shadowTriangles.get(shadowTriangleIdx);
+				// BitSet new_bs = bs.get(count*144, (count+1)*144);
+				BitSet new_bs = new BitSet(skymodel);
+				for (int i = 0; i < skymodel; i++) {
+					if ((hasShadow[count * (int)Math.ceil(skymodel / 8) + i / 8] & (1 << 7 - i % 8)) > 0) {
+						new_bs.set(i, true);
+					} else {
+						new_bs.set(i, false);
+					}
+				}
+				t.setShadowSet(new_bs);
+				count++;
+		}
+	}
+
 
 	private cl_mem storeOnGPUAsReadOnly(cl_context context, int[] array) {
 		return clCreateBuffer(context, CL.CL_MEM_READ_ONLY

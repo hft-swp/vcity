@@ -34,6 +34,7 @@ import de.hft_stuttgart.swp2.model.Vertex;
 import de.hft_stuttgart.swp2.opencl.CalculatorImpl;
 import de.hft_stuttgart.swp2.opencl.CalculatorInterface;
 import de.hft_stuttgart.swp2.opencl.OpenClException;
+import de.hft_stuttgart.swp2.opencl.ShadowCalculatorOpenClBackend;
 import de.hft_stuttgart.swp2.opencl.ShadowPrecision;
 import de.hft_stuttgart.swp2.opencl.SunPositionCalculator;
 import de.hft_stuttgart.swp2.parser.Parser;
@@ -86,9 +87,9 @@ public class ShadowViewer extends JFrame implements GLEventListener,
 
 	public ShadowViewer() throws OpenClException {
 		super("Shadow view");
+		long startTotalTime = System.currentTimeMillis(); 
 		
 		// test values
-//		VolumeTest.testCity1();
 //		VolumeTest.testCity2();
 //		VolumeTest.testCity2();
 //		VolumeTest.testCity2();
@@ -134,16 +135,24 @@ public class ShadowViewer extends JFrame implements GLEventListener,
 //			}
 //		}
 		
+		System.out.println("start parsing ...");
+		long start = System.currentTimeMillis(); 		
 		ParserInterface parser = Parser.getInstance();
 		try {
-//			parser.parse("Gruenbuehl_LOD2.gml");
-			parser.parse("LB_MITTE.gml");
+			parser.parse("Gruenbuehl_LOD2.gml");
+//			parser.parse("LB_MITTE.gml");
 //			parser.parse("einHaus.gml");
 		} catch (Exception e1) {
 			e1.printStackTrace();
-		}
-		System.out.println(Parser.getInstance().getEPSG());
-
+		}		
+		long end = System.currentTimeMillis();
+		long milliParser = end - start;
+		
+//		System.out.println(Parser.getInstance().getEPSG());
+		
+		ShadowCalculatorOpenClBackend calc2 = new ShadowCalculatorOpenClBackend();
+		calc2.calculateShadow2(ShadowPrecision.HIGH, splitAzimuth, splitHeight);
+		
 		sunPositions = new SunPositionCalculator[12][24];
 		for (int j = 1; j < 13; ++j) {
 			for (int i = 0; i < sunPositions[j - 1].length; i++) {
@@ -156,15 +165,19 @@ public class ShadowViewer extends JFrame implements GLEventListener,
 		
 		CalculatorInterface calc = new CalculatorImpl();
 //		ShadowCalculatorJavaBackend calc = new ShadowCalculatorJavaBackend();
-		System.out.println("Starting shadow calculation...");
-		long start = System.currentTimeMillis(); 
-		calc.calculateShadow(ShadowPrecision.VERY_LOW, splitAzimuth, splitHeight); //VERY_LOW(5f), LOW(2.5f), MID(1.25f), HIGH(0.75f), ULTRA(0.375f), HYPER(0.1f), AWESOME(0.01f)
-		long end = System.currentTimeMillis();
-		long milli = end - start;
+		System.out.println("start shadow calculation ...\n");
+		start = System.currentTimeMillis(); 
+//		calc.calculateShadow(ShadowPrecision.VERY_LOW, splitAzimuth, splitHeight); //VERY_LOW(5f), LOW(2.5f), MID(1.25f), HIGH(0.75f), ULTRA(0.375f), HYPER(0.1f), AWESOME(0.01f)
+		end = System.currentTimeMillis();
+		long milliShadowCalculation = end - start;
+		long endTotalTime = System.currentTimeMillis();
+		long milliTotalTime = endTotalTime - startTotalTime;
 		
 		System.out.printf("\n\n"
-				+ "calculate shadow took : %7d milliseconds %s\n"
-				+ "average per building  : %5.2f milliseconds (%d buildings)\n", milli, milliseconds2string(milli), (double)milli/City.getInstance().getBuildings().size(), City.getInstance().getBuildings().size());
+				+ "               parse CityGML-file took : %d milliseconds\n"
+				+ "                 calculate shadow took : %d milliseconds %s\n"
+				+ "                  average per building : %f milliseconds (%d buildings)\n"
+				+ "                            total time : %d milliseconds %s\n", milliParser, milliShadowCalculation, milliseconds2string(milliShadowCalculation), (double)milliShadowCalculation/City.getInstance().getBuildings().size(), City.getInstance().getBuildings().size(), milliTotalTime, milliseconds2string(milliTotalTime));
 		
 		
 		halfScreenHeight = Toolkit.getDefaultToolkit().getScreenSize().height / 2;
@@ -196,6 +209,7 @@ public class ShadowViewer extends JFrame implements GLEventListener,
 		robot.mouseMove(halfScreenWidth, halfScreenHeight);
 	}
 
+	@SuppressWarnings("unused")
 	private Vertex cross(Vertex v0, Vertex v1) {
 		float x = v0.getY() * v1.getZ() - v0.getZ() * v1.getY();
 		float y = v0.getZ() * v1.getX() - v0.getX() * v1.getZ();
@@ -204,17 +218,17 @@ public class ShadowViewer extends JFrame implements GLEventListener,
 	}
 
 	private String milliseconds2string(long milli) {
-		String mytime = "( ";
+		String mytime = "(";
 		if(milli > 3600000) {
-			mytime += String.format("%d hours ",(int) ((milli / (1000*60*60)) % 24));
+			mytime += String.format("%d hours  ",(int) ((milli / (1000*60*60)) % 24));
 		}
 		if(milli > 60000) {
-			mytime += String.format("%d minutes ", (int) ((milli / (1000*60)) % 60));
+			mytime += String.format("%d minutes  ", (int) ((milli / (1000*60)) % 60));
 		}
 		if(milli > 1000) {
-			mytime += String.format("%d seconds ", (int) (milli / 1000) % 60);
+			mytime += String.format("%d seconds  ", (int) (milli / 1000) % 60);
 		}
-		mytime +=  String.format("%d milliseconds )", (int) (milli % 1000));
+		mytime +=  String.format("%d milliseconds)", (int) (milli % 1000));
 		return mytime;
 	}
 
@@ -232,7 +246,7 @@ public class ShadowViewer extends JFrame implements GLEventListener,
 				BoundarySurface surface = b.getBoundarySurfaces().get(i);
 				for (int j = 0; j < surface.getPolygons().size(); ++j) {
 					Polygon p = surface.getPolygons().get(j);
-					double grey = 0.1;
+					double grey = 0.0;
 					if (ray != -1) {
 						grey = 1.0 - p.getPercentageShadow()[ray];
 					}
@@ -434,16 +448,16 @@ public class ShadowViewer extends JFrame implements GLEventListener,
 	@Override
 	public void keyPressed(KeyEvent e) {
 		if (e.getKeyCode() == KeyEvent.VK_W) {
-			camera.moveForward(0.5d);
+			camera.moveForward(1d);
 		}
 		if (e.getKeyCode() == KeyEvent.VK_S) {
-			camera.moveBackwards(0.5d);
+			camera.moveBackwards(1d);
 		}
 		if (e.getKeyCode() == KeyEvent.VK_A) {
-			camera.strafeLeft(0.5d);
+			camera.strafeLeft(1d);
 		}
 		if (e.getKeyCode() == KeyEvent.VK_D) {
-			camera.strafeRight(0.5d);
+			camera.strafeRight(1d);
 		}
 		if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
 			System.exit(0);
