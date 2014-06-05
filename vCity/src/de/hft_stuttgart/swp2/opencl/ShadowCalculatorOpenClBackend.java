@@ -58,18 +58,7 @@ public class ShadowCalculatorOpenClBackend extends ShadowCalculatorInterface {
 		occ = OpenClContext.getInstance();
 	}
 	
-	/**
-	 * 
-	 * This method calculates the shadow of each triangle on the gpu.
-	 * 
-	 * @param precicion
-	 *            the precicsion which determins the maximum area a shadow
-	 *            triangle may have
-	 * @param splitAzimuth split the Azimuth angle in given parts
-	 * @param splitHeight split the Height angle in given parts
-	 */
-	@Override
-	public void calculateShadow(ShadowPrecision precision, int splitAzimuth, int splitHeight) {
+	public void calculateShadow2(ShadowPrecision precision, int splitAzimuth, int splitHeight) {
 		City city = City.getInstance();
 		// if no buildings are available, abort
 		if (city.getBuildings().size() == 0) {
@@ -310,7 +299,18 @@ public class ShadowCalculatorOpenClBackend extends ShadowCalculatorInterface {
 
 	}
 	
-	public void calculateShadow2(ShadowPrecision precision, int splitAzimuth, int splitHeight) {
+	/**
+	 * 
+	 * This method calculates the shadow of each triangle on the gpu.
+	 * 
+	 * @param precicion
+	 *            the precicsion which determins the maximum area a shadow
+	 *            triangle may have
+	 * @param splitAzimuth split the Azimuth angle in given parts
+	 * @param splitHeight split the Height angle in given parts
+	 */
+	@Override	
+	public void calculateShadow(ShadowPrecision precision, int splitAzimuth, int splitHeight) {
 		City city = City.getInstance();
 		// if no buildings are available, abort
 		if (city.getBuildings().size() == 0) {

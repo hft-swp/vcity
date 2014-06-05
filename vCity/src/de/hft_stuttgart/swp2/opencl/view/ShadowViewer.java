@@ -34,7 +34,6 @@ import de.hft_stuttgart.swp2.model.Vertex;
 import de.hft_stuttgart.swp2.opencl.CalculatorImpl;
 import de.hft_stuttgart.swp2.opencl.CalculatorInterface;
 import de.hft_stuttgart.swp2.opencl.OpenClException;
-import de.hft_stuttgart.swp2.opencl.ShadowCalculatorOpenClBackend;
 import de.hft_stuttgart.swp2.opencl.ShadowPrecision;
 import de.hft_stuttgart.swp2.opencl.SunPositionCalculator;
 import de.hft_stuttgart.swp2.parser.Parser;
@@ -150,9 +149,6 @@ public class ShadowViewer extends JFrame implements GLEventListener,
 		
 //		System.out.println(Parser.getInstance().getEPSG());
 		
-		ShadowCalculatorOpenClBackend calc2 = new ShadowCalculatorOpenClBackend();
-		calc2.calculateShadow2(ShadowPrecision.VERY_LOW, splitAzimuth, splitHeight);
-		
 		sunPositions = new SunPositionCalculator[12][24];
 		for (int j = 1; j < 13; ++j) {
 			for (int i = 0; i < sunPositions[j - 1].length; i++) {
@@ -167,7 +163,7 @@ public class ShadowViewer extends JFrame implements GLEventListener,
 //		ShadowCalculatorJavaBackend calc = new ShadowCalculatorJavaBackend();
 		System.out.println("start shadow calculation ...\n");
 		start = System.currentTimeMillis(); 
-//		calc.calculateShadow(ShadowPrecision.VERY_LOW, splitAzimuth, splitHeight); //VERY_LOW(5f), LOW(2.5f), MID(1.25f), HIGH(0.75f), ULTRA(0.375f), HYPER(0.1f), AWESOME(0.01f)
+		calc.calculateShadow(ShadowPrecision.VERY_LOW, splitAzimuth, splitHeight); //VERY_LOW(5f), LOW(2.5f), MID(1.25f), HIGH(0.75f), ULTRA(0.375f), HYPER(0.1f), AWESOME(0.01f)
 		end = System.currentTimeMillis();
 		long milliShadowCalculation = end - start;
 		long endTotalTime = System.currentTimeMillis();
