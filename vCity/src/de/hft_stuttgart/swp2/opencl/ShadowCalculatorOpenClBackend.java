@@ -38,7 +38,7 @@ public class ShadowCalculatorOpenClBackend extends ShadowCalculatorInterface {
 	 * This is the minimum count of triangles which are calculated at once on
 	 * the gpu
 	 */
-	private static final int TRIANGLE_COUNT = 1024;
+	private static final int TRIANGLE_COUNT = 256;
 
 	/**
 	 * This is the maximum distance in which neighbours are found
@@ -338,6 +338,7 @@ public class ShadowCalculatorOpenClBackend extends ShadowCalculatorInterface {
 		}
 		int currentTriangle = 0;
 		int triangleCount = shadowTriangles.size();
+		long begin = System.currentTimeMillis();
 		while (currentTriangle < triangleCount) {
 			System.out.printf("%.2f%% done%n", currentTriangle / (float) triangleCount * 100);
 			// calculate how many triangles have to be calculated, either TRIANGLE_COUNT or rest
@@ -495,7 +496,7 @@ public class ShadowCalculatorOpenClBackend extends ShadowCalculatorInterface {
 					CL.CL_KERNEL_WORK_GROUP_SIZE, Sizeof.size_t,
 					Pointer.to(kernelWorkSize), null);
 			int localWorkSize = (int) kernelWorkSize[0];
-			int workSize = ((shadowVerticeCenters.length / 3) / localWorkSize + 1)
+			int workSize = (((shadowVerticeCenters.length - 1) / 3) / localWorkSize + 1)
 					* localWorkSize;
 			
 //			System.out.printf("    worksize: %4d;    actual worksize: %4d;", workSize, shadowVerticeCenters.length / 3);
@@ -532,6 +533,12 @@ public class ShadowCalculatorOpenClBackend extends ShadowCalculatorInterface {
 
 			
 			currentTriangle = currentTriangle + TRIANGLE_COUNT;
+			
+			long diff = System.currentTimeMillis() - begin;
+			double timePerTriangle = diff / (double) currentTriangle;
+			int restTriangles = shadowTriangles.size() - currentTriangle;
+			long timeLeft = (long) (timePerTriangle * restTriangles);
+			System.out.println("timeleft: " + milliseconds2string(timeLeft));
 		}
 		
 		
@@ -561,6 +568,22 @@ public class ShadowCalculatorOpenClBackend extends ShadowCalculatorInterface {
 		
 		System.out.printf("100%% done%n");
 	}
+	
+	private String milliseconds2string(long milli) {
+		String mytime = "(";
+		if(milli > 3600000) {
+			mytime += String.format("%d hours  ",(int) ((milli / (1000*60*60)) % 24));
+		}
+		if(milli > 60000) {
+			mytime += String.format("%d minutes  ", (int) ((milli / (1000*60)) % 60));
+		}
+		if(milli > 1000) {
+			mytime += String.format("%d seconds  ", (int) (milli / 1000) % 60);
+		}
+		mytime +=  String.format("%d milliseconds)", (int) (milli % 1000));
+		return mytime;
+	}
+
 
 	private void writeShadowDataIntoTriangles(
 			ArrayList<Building> calcBuildings, byte[] hasShadow, int splitAzimuth, int splitHeight) {

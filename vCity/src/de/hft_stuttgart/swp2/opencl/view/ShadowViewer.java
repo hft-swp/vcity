@@ -151,7 +151,7 @@ public class ShadowViewer extends JFrame implements GLEventListener,
 //		System.out.println(Parser.getInstance().getEPSG());
 		
 		ShadowCalculatorOpenClBackend calc2 = new ShadowCalculatorOpenClBackend();
-		calc2.calculateShadow2(ShadowPrecision.HIGH, splitAzimuth, splitHeight);
+		calc2.calculateShadow2(ShadowPrecision.VERY_LOW, splitAzimuth, splitHeight);
 		
 		sunPositions = new SunPositionCalculator[12][24];
 		for (int j = 1; j < 13; ++j) {
