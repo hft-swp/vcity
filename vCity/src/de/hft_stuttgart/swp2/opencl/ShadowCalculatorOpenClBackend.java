@@ -38,7 +38,7 @@ public class ShadowCalculatorOpenClBackend extends ShadowCalculatorInterface {
 	 * This is the minimum count of triangles which are calculated at once on
 	 * the gpu
 	 */
-	private static final int TRIANGLE_COUNT = 256;
+	private static int TRIANGLE_COUNT = 256;
 
 	/**
 	 * This is the maximum distance in which neighbours are found
@@ -323,6 +323,14 @@ public class ShadowCalculatorOpenClBackend extends ShadowCalculatorInterface {
 		cl_kernel kernel = occ.createKernelFromFile(filename);
 		cl_command_queue commandQueue = occ.getClCommandQueue();
 		cl_context context = occ.getClContext();
+		
+		cl_device_id device = occ.getDevice();
+		long[] kernelWorkSize = new long[1];
+		CL.clGetKernelWorkGroupInfo(kernel, device,
+				CL.CL_KERNEL_WORK_GROUP_SIZE, Sizeof.size_t,
+				Pointer.to(kernelWorkSize), null);
+		TRIANGLE_COUNT = (int) kernelWorkSize[0];
+		System.out.println("Triangle Count: " + TRIANGLE_COUNT);
 
 		// calculate the sun directions and put them on the gpu
 		float[] sunDirections = getSunDirections(splitAzimuth, splitHeight);
@@ -490,11 +498,6 @@ public class ShadowCalculatorOpenClBackend extends ShadowCalculatorInterface {
 			clSetKernelArg(kernel, 11, Sizeof.cl_int,
 					Pointer.to(new int[] { splitAzimuth * splitHeight }));
 
-			cl_device_id device = occ.getDevice();
-			long[] kernelWorkSize = new long[1];
-			CL.clGetKernelWorkGroupInfo(kernel, device,
-					CL.CL_KERNEL_WORK_GROUP_SIZE, Sizeof.size_t,
-					Pointer.to(kernelWorkSize), null);
 			int localWorkSize = (int) kernelWorkSize[0];
 			int workSize = (((shadowVerticeCenters.length - 1) / 3) / localWorkSize + 1)
 					* localWorkSize;
