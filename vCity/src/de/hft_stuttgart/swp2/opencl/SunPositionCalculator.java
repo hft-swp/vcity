@@ -56,15 +56,15 @@ public class SunPositionCalculator {
 
 		// Julianische Tage
 		double jdn = getJulianDate(cal);
-		// Anzahl der Tage seit dem Standardäquinoktium J2000.0
+		// Anzahl der Tage seit dem Standardï¿½quinoktium J2000.0
 		double n = jdn - 2451545.0;
 
-		// mittlere ekliptikale Länge
+		// mittlere ekliptikale Lï¿½nge
 		double l = (280.460 + 0.9856474 * n) % 360;
 		// mittlere Anomalie
 		double g = (357.528 + 0.9856003 * n) % 360;
 
-		// ekliptikale Länge
+		// ekliptikale Lï¿½nge
 		double v = l + 1.915 * sin(g) + 0.020 * sin(2 * g);
 		// Schiefe der Ekliptik
 		double epsilon = 23.439 - 0.0000004 * n;
@@ -89,9 +89,9 @@ public class SunPositionCalculator {
 		// mittlere Sternzeit in Greenwich
 		double mittlereSternzeit = (6.697376 + 2400.05134 * t0 + 1.002738 * t) % 24;
 
-		// Stundenwinkel des Frühlingspunktes in Greenwich
+		// Stundenwinkel des Frï¿½hlingspunktes in Greenwich
 		double stundenWinkelG = mittlereSternzeit * 15;
-		// Stundenwinkel des Frühlingspunkts am Ort
+		// Stundenwinkel des Frï¿½hlingspunkts am Ort
 		double stundenWinkelF = stundenWinkelG + longitude;
 		// Stundenwinkel des orts
 		double stundenWinkel = stundenWinkelF - alpha;
@@ -102,32 +102,32 @@ public class SunPositionCalculator {
 		azimut = atan(sin(stundenWinkel) / azimutNenner);
 		// Falls der Nenner im Argument des Arcustangens einen Wert kleiner Null
 		// hat,
-		// sind 180° zum Ergebnis zu addieren, um den Winkel in den richtigen
+		// sind 180ï¿½ zum Ergebnis zu addieren, um den Winkel in den richtigen
 		// Quadranten zu bringen.
 		if (azimutNenner < 0) {
 			azimut += 180;
 		}
-		// Bringe azimut in bereich von -180° bis 180°
+		// Bringe azimut in bereich von -180ï¿½ bis 180ï¿½
 		// if (azimut > 180d) {
 		// azimut -= 360d;
 		// } else if (azimut < -180d) {
 		// azimut += 360d;
 		// }
-		// azimut soll von Noren aus gezählt werden
+		// azimut soll von Noren aus gezï¿½hlt werden
 		azimut += 180;
 
-		// Höhenwinkel
+		// Hï¿½henwinkel
 		double h = asin(cos(delta) * cos(stundenWinkel) * cos(latitude)
 				+ sin(delta) * sin(latitude));
 
 		// Refraktion
 		double r = 1.02 / tan(h + 10.3 / (h + 5.11));
 
-		// Refraktionsbelastete Höhe
+		// Refraktionsbelastete Hï¿½he
 		hr = h + r / 60;
 
 		// System.out.println("Azimut=" + azimut);
-		// System.out.println("Höhe=" + hr);
+		// System.out.println("Hï¿½he=" + hr);
 
 		x = cos(hr) * cos(azimut) * 10000;
 		y = sin(hr) * 10000;
@@ -135,6 +135,16 @@ public class SunPositionCalculator {
 		// System.out.printf("SunPosition: x=%f, y=%f, z=%f%n", x, y, z);
 	}
 
+	/**
+	 * 
+	 * http://de.wikipedia.org/wiki/Julianisches_Datum#Berechnung calculates two
+	 * angles to determine the position of the sun. This considers the location
+	 * too.
+	 * 
+	 * @param d
+	 * 	the time of which the sun position is to be calculated
+	 * @param parser
+	 */
 	public SunPositionCalculator(Date d, ParserInterface parser) {
 		if (parser == null || parser.getEPSG() == null) {
 			throw new IllegalArgumentException(
@@ -163,15 +173,15 @@ public class SunPositionCalculator {
 
 		// Julianische Tage
 		double jdn = getJulianDate(cal);
-		// Anzahl der Tage seit dem Standardäquinoktium J2000.0
+		// Anzahl der Tage seit dem Standardï¿½quinoktium J2000.0
 		double n = jdn - 2451545.0;
 
-		// mittlere ekliptikale Länge
+		// mittlere ekliptikale Lï¿½nge
 		double l = (280.460 + 0.9856474 * n) % 360;
 		// mittlere Anomalie
 		double g = (357.528 + 0.9856003 * n) % 360;
 
-		// ekliptikale Länge
+		// ekliptikale Lï¿½nge
 		double v = l + 1.915 * sin(g) + 0.020 * sin(2 * g);
 		// Schiefe der Ekliptik
 		double epsilon = 23.439 - 0.0000004 * n;
@@ -196,9 +206,9 @@ public class SunPositionCalculator {
 		// mittlere Sternzeit in Greenwich
 		double mittlereSternzeit = (6.697376 + 2400.05134 * t0 + 1.002738 * t) % 24;
 
-		// Stundenwinkel des Frühlingspunktes in Greenwich
+		// Stundenwinkel des Frï¿½hlingspunktes in Greenwich
 		double stundenWinkelG = mittlereSternzeit * 15;
-		// Stundenwinkel des Frühlingspunkts am Ort
+		// Stundenwinkel des Frï¿½hlingspunkts am Ort
 		double stundenWinkelF = stundenWinkelG + longitude;
 		// Stundenwinkel des orts
 		double stundenWinkel = stundenWinkelF - alpha;
@@ -209,32 +219,32 @@ public class SunPositionCalculator {
 		azimut = atan(sin(stundenWinkel) / azimutNenner);
 		// Falls der Nenner im Argument des Arcustangens einen Wert kleiner Null
 		// hat,
-		// sind 180° zum Ergebnis zu addieren, um den Winkel in den richtigen
+		// sind 180ï¿½ zum Ergebnis zu addieren, um den Winkel in den richtigen
 		// Quadranten zu bringen.
 		if (azimutNenner < 0) {
 			azimut += 180;
 		}
-		// Bringe azimut in bereich von -180° bis 180°
+		// Bringe azimut in bereich von -180ï¿½ bis 180ï¿½
 		// if (azimut > 180d) {
 		// azimut -= 360d;
 		// } else if (azimut < -180d) {
 		// azimut += 360d;
 		// }
-		// azimut soll von Noren aus gezählt werden
+		// azimut soll von Noren aus gezï¿½hlt werden
 		azimut += 180;
 
-		// Höhenwinkel
+		// Hï¿½henwinkel
 		double h = asin(cos(delta) * cos(stundenWinkel) * cos(latitude)
 				+ sin(delta) * sin(latitude));
 
 		// Refraktion
 		double r = 1.02 / tan(h + 10.3 / (h + 5.11));
 
-		// Refraktionsbelastete Höhe
+		// Refraktionsbelastete Hï¿½he
 		hr = h + r / 60;
 
 		// System.out.println("Azimut=" + azimut);
-		// System.out.println("Höhe=" + hr);
+		// System.out.println("Hï¿½he=" + hr);
 
 		x = cos(hr) * cos(azimut) * 10000;
 		y = sin(hr) * 10000;
