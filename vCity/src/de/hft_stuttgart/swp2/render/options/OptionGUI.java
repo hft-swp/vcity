@@ -9,6 +9,7 @@ import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Date;
+import java.util.GregorianCalendar;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -53,7 +54,7 @@ public class OptionGUI extends JFrame implements Refreshable{
 		return panelSettings.getBtnStartParse();
 	}
 	
-	public Date getTime(){
+	public GregorianCalendar getTime(){
 		return panelSettings.getTime();
 	}
 	

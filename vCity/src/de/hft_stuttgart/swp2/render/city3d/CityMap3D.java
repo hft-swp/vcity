@@ -5,7 +5,6 @@ import java.awt.Dimension;
 import java.awt.Robot;
 import java.awt.Toolkit;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.TimeZone;
 
@@ -20,32 +19,30 @@ import javax.swing.JFrame;
 import com.jogamp.opengl.util.FPSAnimator;
 import com.jogamp.opengl.util.gl2.GLUT;
 
-import de.hft_stuttgart.swp2.model.BoundarySurface;
 import de.hft_stuttgart.swp2.model.Building;
 import de.hft_stuttgart.swp2.model.City;
-import de.hft_stuttgart.swp2.model.Polygon;
-import de.hft_stuttgart.swp2.model.Triangle;
-import de.hft_stuttgart.swp2.model.Vertex;
 import de.hft_stuttgart.swp2.opencl.ShadowPrecision;
 import de.hft_stuttgart.swp2.opencl.SunPositionCalculator;
+import de.hft_stuttgart.swp2.parser.Parser;
 import de.hft_stuttgart.swp2.render.Main;
 import de.hft_stuttgart.swp2.render.threads.StartShadowCalculationRunnable;
-import de.hft_stuttgart.swp2.render.threads.StartVolumeCalculationRunnable;
+
 /**
  * 
  * 
  * 
- * Die Funktion glDepthFunc legt fest, wann ein Fragment den Tiefentest im Tiefenpuffer besteht.
- * Der Parameter func legt die Tiefenvergleichsfunktion fest. Die Tiefenvergleichsfunktion ist eine Bedingung, 
- * die erfüllt sein muss, damit das entsprechende Pixel/Fragment gezeichnet wird.
- * Folgende Funktionen existieren: 
- * 		GL_NEVER (Neue Fragmente bestehen niemals den Vergleich) 
- * 		GL_LESS (Neue Fragmente bestehen den Vergleich, wenn sie einen geringeren Tiefenwert haben)
- * 		und GL_EQUAL, GL_LEQUAL, GL_GREATER, GL_NOTEQUAL, GL_GEQUAL und GL_ALWAYS. Voreingestellt ist GL_LESS
+ * Die Funktion glDepthFunc legt fest, wann ein Fragment den Tiefentest im
+ * Tiefenpuffer besteht. Der Parameter func legt die Tiefenvergleichsfunktion
+ * fest. Die Tiefenvergleichsfunktion ist eine Bedingung, die erfüllt sein muss,
+ * damit das entsprechende Pixel/Fragment gezeichnet wird. Folgende Funktionen
+ * existieren: GL_NEVER (Neue Fragmente bestehen niemals den Vergleich) GL_LESS
+ * (Neue Fragmente bestehen den Vergleich, wenn sie einen geringeren Tiefenwert
+ * haben) und GL_EQUAL, GL_LEQUAL, GL_GREATER, GL_NOTEQUAL, GL_GEQUAL und
+ * GL_ALWAYS. Voreingestellt ist GL_LESS
  * 
  * 
  * @author 21ruma1bif
- *
+ * 
  */
 public class CityMap3D extends JFrame implements GLEventListener {
 
@@ -62,65 +59,51 @@ public class CityMap3D extends JFrame implements GLEventListener {
 	public boolean enableDrawCenters = false;
 	private boolean isShadowCalc = false;
 	private boolean isVolumeCalc = true;
-	private int minGroundSize = 0;
-	private int maxGroundSize = 10000;
-	private ShadowPrecision defaultShadowPrecision = ShadowPrecision.VERY_LOW;
+
 	private int splitAzimuth = Main.getSplitAzimuth();
 	private int splitHeight = Main.getSplitHeight();
 	private boolean isPerformance = true;
 	private FPSAnimator animator;
-	private Runnable startVolumeCalculationRunnable = 
-			new StartVolumeCalculationRunnable();
-	private Runnable startShadowCalculationRunnable = 
-			new StartShadowCalculationRunnable(defaultShadowPrecision,
-					splitAzimuth, splitHeight);
-	
-	private SunPositionCalculator[][] sunPositions;
-	//Sunposition vars
+
+	private SunPositionCalculator[] sunPositions;
+	// Sunposition vars
 	public Calendar utcCal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
 	private SunPositionCalculator sunPos;
 	private boolean isShowVolumeAmount = true;
 	public int month = 0;
 	private boolean isPolygon = false;
-	
-	
-	GLBuildingEntity [] glBuildings;
+
+	GLBuildingEntity[] glBuildings;
 	private boolean isFirstTimeShadowCalc = false;
 	private boolean isFirstTimeVolumeCalc = false;
 	private boolean isVolumeChange = true;
 	private boolean isShadowChange = true;
+	public boolean drawPolygons = true;
 
-	public SunPositionCalculator[][] getSunPositions() {
+	public SunPositionCalculator[] getSunPositions() {
 		return sunPositions;
 	}
-
-
-
 
 	public SunPositionCalculator getSunPos() {
 		return sunPos;
 	}
 
-
 	public int ray = 0;
 
-
 	private static boolean isShowGrid = true;
-	
+
 	private Boolean isStartCalculation = true;
+
 	public void setIsStartCalculation(Boolean isStartCalculation) {
 		this.isStartCalculation = isStartCalculation;
 	}
 
-
-
-
-	public CityMap3D(int width, int height){
+	public CityMap3D(int width, int height) {
 		super("vCity - 3D Stadtansicht");
 		this.setSize(width, height);
 		this.requestFocus();
-		//setGround(minGroundSize, maxGroundSize);
-	
+		// setGround(minGroundSize, maxGroundSize);
+
 		//
 		try {
 			robot = new Robot();
@@ -136,7 +119,7 @@ public class CityMap3D extends JFrame implements GLEventListener {
 		// draw the scene at FPS fps
 		animator = new FPSAnimator(canvas, FPS);
 		animator.start();
-		
+
 		addListeners(canvas);
 		pack();
 		this.setLocationRelativeTo(null);
@@ -145,29 +128,23 @@ public class CityMap3D extends JFrame implements GLEventListener {
 		robot.mouseMove(halfScreenWidth, halfScreenHeight);
 	}
 
-	private void initialSunPosition() {
-		sunPositions = new SunPositionCalculator[12][24];
-		for (int j = 1; j < 13; ++j) {
-			for (int i = 0; i < sunPositions[j - 1].length; i++) {
-				utcCal.set(2014, j, 1, i, 0, 0);
-				sunPositions[j - 1][i] = new SunPositionCalculator(utcCal.getTime(), 11.6, 48.1);
-			}
+	public void initialSunPosition(int month, int day) {
+		sunPositions = new SunPositionCalculator[24];
+		for (int j = 0; j < 24; ++j) {
+			utcCal.set(2014, month, day, j, 0, 0);
+			sunPositions[j] = new SunPositionCalculator(utcCal.getTime(),
+					Parser.getInstance());
 		}
 		setSunPosition(Main.getTimeForSunPosition());
 	}
 
-	
-	public void setSunPosition(Date date) {	
-		Calendar calendar = new GregorianCalendar();
-		calendar.setTime(date);
-		utcCal.set(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), 
-				calendar.get(Calendar.DAY_OF_MONTH), calendar.get(Calendar.HOUR_OF_DAY), 
-				calendar.get(Calendar.MINUTE), 0);
+	public void setSunPosition(GregorianCalendar cal) {
+		Calendar calendar = cal;
 		month = calendar.get(Calendar.MONTH);
-		sunPos = new SunPositionCalculator(utcCal.getTime(), 11.6, 48.1);
+		sunPos = new SunPositionCalculator(calendar.getTime(),
+				Parser.getInstance());
 		ray = sunPos.getSunPosition(splitAzimuth, splitHeight);
 	}
-	
 
 	private void addListeners(GLCanvas canvas) {
 		canvas.addGLEventListener(this);
@@ -182,22 +159,26 @@ public class CityMap3D extends JFrame implements GLEventListener {
 
 	/**
 	 * Starts the threads and checks whether a new calculation is needed
-	 * isVolumeCalc: Gives the information of the checkboxes in the PanelSettings
-	 * 				 if it is selected or not
-	 * isFirstTimeVolumeCalc: gives the information if the volume calculation was started or not
-	 * isVolumeChange: gives the information if the value of isVolumeCalc has changed or not 
-	 * isStartCalculation: gives the information if the calculation starts for the first time or several times
-	 * 					   with the same parsed city  
+	 * isVolumeCalc: Gives the information of the checkboxes in the
+	 * PanelSettings if it is selected or not isFirstTimeVolumeCalc: gives the
+	 * information if the volume calculation was started or not isVolumeChange:
+	 * gives the information if the value of isVolumeCalc has changed or not
+	 * isStartCalculation: gives the information if the calculation starts for
+	 * the first time or several times with the same parsed city
 	 */
-	private void calculation(){
-		if(Main.isParserSuccess()){
-			if (isVolumeCalc && isFirstTimeVolumeCalc && (isVolumeChange || isStartCalculation)) {
-				Main.executor.execute(startVolumeCalculationRunnable);
+	private void calculation() {
+		if (Main.isParserSuccess()) {
+			if (isVolumeCalc && isFirstTimeVolumeCalc
+					&& (isVolumeChange || isStartCalculation)) {
+				Main.executor.execute(Main.startVolumeCalculationRunnable);
 			}
-			if (isShadowCalc && isFirstTimeShadowCalc && (isShadowChange || isStartCalculation)) {
-				initialSunPosition();
+			if (isShadowCalc && isFirstTimeShadowCalc
+					&& (isShadowChange || isStartCalculation)) {
+				int day = Main.getTimeForSunPosition().get(Calendar.DAY_OF_MONTH);
+				int month = Main.getTimeForSunPosition().get(Calendar.MONTH);
+				initialSunPosition(month, day);
 				setSunPosition(Main.getTimeForSunPosition());
-				Main.executor.execute(startShadowCalculationRunnable);
+				Main.executor.execute(Main.startShadowCalculationRunnable);
 			}
 		}
 
@@ -211,27 +192,10 @@ public class CityMap3D extends JFrame implements GLEventListener {
 		return tmp;
 	}
 
-	@SuppressWarnings("unused")
-	private void setGround(int minSize, int maxSize) {
-		Vertex v0 = new Vertex(minSize, 0, minSize);
-		Vertex v1 = new Vertex(minSize, 0, maxSize);
-		Vertex v2 = new Vertex(maxSize, 0, maxSize);
-		Vertex v3 = new Vertex(maxSize, 0, minSize);
-		Triangle t1 = new Triangle(v0, v1, v2);
-		Triangle t2 = new Triangle(v0, v2, v3);
-		Polygon p1 = new Polygon("-1");
-		BoundarySurface bs = new BoundarySurface("-1");
-		p1.addTriangle(t1);
-		p1.addTriangle(t2);
-		bs.addPolygon(p1);
-		Building b = new Building();
-		b.addBoundarySurface(bs);
-		City.getInstance().addBuilding(b);
-	}
-
 	@Override
 	public void display(GLAutoDrawable drawable) {
-//		info();
+		splitAzimuth = Main.getSplitAzimuth();
+		splitHeight = Main.getSplitHeight();
 		gl = drawable.getGL().getGL2();
 		gl.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT);
 		gl.glLoadIdentity();
@@ -239,29 +203,31 @@ public class CityMap3D extends JFrame implements GLEventListener {
 		camera.lookAt();
 		// drawing building 0
 		gl.glColor3f(1f, 1f, 1f);
-		
-		//TODO Wenn sich der Pfad ändert alles neuberechnen, wenn nicht city Objekte speichern
-		if(isStartCalculation){
-			if(Main.isCalculateShadow()){
+
+		// TODO Wenn sich der Pfad ändert alles neuberechnen, wenn nicht city
+		// Objekte speichern
+		if (isStartCalculation) {
+			if (Main.isCalculateShadow()) {
 				isFirstTimeShadowCalc = true;
-			}else{
+			} else {
 				isFirstTimeShadowCalc = false;
 			}
-			if(Main.isCalculateVolume()){
+			if (Main.isCalculateVolume()) {
 				isFirstTimeVolumeCalc = true;
-			}else{
+			} else {
 				isFirstTimeVolumeCalc = false;
 			}
 			calculation();
-			//Berechnung der GL-Buildings
+			// Berechnung der GL-Buildings
 			if (City.getInstance().getBuildings() != null) {
-				glBuildings = new GLBuildingEntity[City.getInstance().getBuildings().size()];
+				glBuildings = new GLBuildingEntity[City.getInstance()
+						.getBuildings().size()];
 				GLBuildingEntity glBuilding;
 				int buildingCounter = 0;
 				for (Building building : City.getInstance().getBuildings()) {
-					glBuilding = new GLBuildingEntity(gl, glu, glut, building, 
-							isVolumeCalc, isShadowCalc, isPolygon, 
-							isShowGrid, isShowVolumeAmount);
+					glBuilding = new GLBuildingEntity(gl, glu, glut, building,
+							isVolumeCalc, isShadowCalc, isPolygon, isShowGrid,
+							isShowVolumeAmount);
 					glBuildings[buildingCounter] = glBuilding;
 					buildingCounter++;
 				}
@@ -270,22 +236,24 @@ public class CityMap3D extends JFrame implements GLEventListener {
 		}
 
 		if (glBuildings != null) {
-			//DRAW BUILDINGS
-			if(!isChangeValue(isShadowCalc,isVolumeCalc,Main.isCalculateShadow(),
-					Main.isCalculateVolume())){
+			// DRAW BUILDINGS
+			if (!isChangeValue(isShadowCalc, isVolumeCalc,
+					Main.isCalculateShadow(), Main.isCalculateVolume())) {
 				for (GLBuildingEntity glBuilding : glBuildings) {
 					glBuilding.draw();
 				}
-			}else{
+			} else {
 				isShadowCalc = Main.isCalculateShadow();
 				isVolumeCalc = Main.isCalculateVolume();
-				if(isFirstTimeShadowCalc == false && isShadowCalc){
-					//notice the query: if(isFirstTimeVolumeCalc == false && isVolumeCalc) 
-					//is not needed because you can't press so fast the two checkboxes
-					//as the display-Method runs 
+				if (isFirstTimeShadowCalc == false && isShadowCalc) {
+					// notice the query: if(isFirstTimeVolumeCalc == false &&
+					// isVolumeCalc)
+					// is not needed because you can't press so fast the two
+					// checkboxes
+					// as the display-Method runs
 					isFirstTimeShadowCalc = true;
 					calculation();
-				}else if(isFirstTimeVolumeCalc == false && isVolumeCalc){
+				} else if (isFirstTimeVolumeCalc == false && isVolumeCalc) {
 					isFirstTimeVolumeCalc = true;
 					calculation();
 				}
@@ -300,31 +268,50 @@ public class CityMap3D extends JFrame implements GLEventListener {
 
 		drawHemisphere(gl);
 		drawAxis(gl);
-//		setGround(minGroundSize, maxGroundSize);
+		drawSkyModel(gl);
+		// setGround(minGroundSize, maxGroundSize);
 		if (enableDrawCenters) {
 			drawCentersOfHemisphere(gl);
 		}
 	}
 
-	private boolean isChangeValue(boolean isShadowCalcOld, boolean isVolumeCalcOld,
-			Boolean calculateShadow, Boolean calculateVolume) {
-		if(isShadowCalcOld == calculateShadow){
+	private void drawSkyModel(GL2 gl2) {
+		if (sunPositions == null) {
+			return;
+		}
+		gl.glColor3f(1f, 0, 1f);
+		gl.glBegin(GL2.GL_LINE_LOOP);
+		for (int sunPositionIdx = 0; sunPositionIdx < sunPositions.length; sunPositionIdx++) {
+			gl.glVertex3d(sunPositions[sunPositionIdx].getX(),
+					sunPositions[sunPositionIdx].getY(),
+					sunPositions[sunPositionIdx].getZ());
+		}
+		gl.glEnd();
+
+		gl.glBegin(GL2.GL_LINES);
+		gl.glVertex3d(sunPos.getX(), sunPos.getY(),
+				sunPos.getZ());
+		gl.glVertex3d(0, 0, 0);
+		gl.glEnd();		
+	}
+
+	private boolean isChangeValue(boolean isShadowCalcOld,
+			boolean isVolumeCalcOld, Boolean calculateShadow,
+			Boolean calculateVolume) {
+		if (isShadowCalcOld == calculateShadow) {
 			isShadowChange = false;
-			if(isVolumeCalcOld == calculateVolume){
+			if (isVolumeCalcOld == calculateVolume) {
 				isVolumeChange = false;
 				return false;
-			}else{
+			} else {
 				isVolumeChange = true;
 				return true;
 			}
-		}else{
+		} else {
 			isShadowChange = true;
 			return true;
 		}
 	}
-
-
-
 
 	private void drawCentersOfHemisphere(GL2 gl) {
 		if (ray == -1) {
@@ -334,7 +321,7 @@ public class CityMap3D extends JFrame implements GLEventListener {
 		float dv = (float) (Math.PI / splitHeight / 2);
 		float dh = (float) (2 * Math.PI / splitAzimuth);
 		float v = dv * (ray / splitAzimuth) + dv / 2;
-		float h = dh * ((ray % splitAzimuth) - (splitAzimuth/2f)) + dh / 2;
+		float h = dh * ((ray % splitAzimuth) - (splitAzimuth / 2f)) + dh / 2;
 		double sinH = Math.sin(h);
 		double sinV = Math.sin(v);
 		double cosH = Math.cos(h);
@@ -451,13 +438,13 @@ public class CityMap3D extends JFrame implements GLEventListener {
 
 		gl.glEnable(GL.GL_DEPTH_TEST);
 		gl.glDepthFunc(GL.GL_LEQUAL);
-		
-		if(isPerformance){
+
+		if (isPerformance) {
 			gl.glHint(GL2.GL_PERSPECTIVE_CORRECTION_HINT, GL.GL_FASTEST);
-		}else{
+		} else {
 			gl.glHint(GL2.GL_PERSPECTIVE_CORRECTION_HINT, GL.GL_NICEST);
 		}
-		
+
 		gl.glShadeModel(GL2.GL_SMOOTH);
 	}
 
@@ -493,20 +480,20 @@ public class CityMap3D extends JFrame implements GLEventListener {
 			animator.resume();
 		}
 	}
-	
-	public void setStartShadowCalculationRunnable(ShadowPrecision defaultShadowPrecision,
-			int splitAzimuth, int splitHeight) {
-		startShadowCalculationRunnable = new StartShadowCalculationRunnable(defaultShadowPrecision,
-				splitAzimuth, splitHeight);
+
+	public void setStartShadowCalculationRunnable(
+			ShadowPrecision defaultShadowPrecision, int splitAzimuth,
+			int splitHeight) {
+		Main.startShadowCalculationRunnable = new StartShadowCalculationRunnable(
+				defaultShadowPrecision, splitAzimuth, splitHeight);
 	}
 
-	
-	public void info(){
-		System.out.println("Horizontal angle: "+ camera.horizontalAngle);
-		System.out.println("Vertical angle: "+camera.verticalAngle);
-		System.out.println("Pos x: "+camera.positionX);
-		System.out.println("Pos y: "+camera.positionY);
-		System.out.println("Pos z: "+camera.positionZ);
+	public void info() {
+		System.out.println("Horizontal angle: " + camera.horizontalAngle);
+		System.out.println("Vertical angle: " + camera.verticalAngle);
+		System.out.println("Pos x: " + camera.positionX);
+		System.out.println("Pos y: " + camera.positionY);
+		System.out.println("Pos z: " + camera.positionZ);
 	}
 
 }

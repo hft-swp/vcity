@@ -21,8 +21,6 @@ import javax.media.opengl.glu.GLU;
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 
-import org.jocl.CLException;
-
 import com.jogamp.opengl.util.FPSAnimator;
 
 import de.hft_stuttgart.swp2.model.BoundarySurface;
@@ -39,8 +37,8 @@ import de.hft_stuttgart.swp2.opencl.SunPositionCalculator;
 import de.hft_stuttgart.swp2.parser.Parser;
 import de.hft_stuttgart.swp2.parser.ParserInterface;
 
-public class ShadowViewer extends JFrame implements GLEventListener,
-		KeyListener, MouseListener, MouseMotionListener {
+public class GUI extends JFrame implements GLEventListener, KeyListener,
+		MouseListener, MouseMotionListener {
 
 	private static final long serialVersionUID = 6681486095144440340L;
 	private static final int FPS = 60;
@@ -69,23 +67,22 @@ public class ShadowViewer extends JFrame implements GLEventListener,
 	private ParserInterface parser = Parser.getInstance();
 
 	public static void main(String[] args) throws OpenClException {
-		// CL.setLogLevel(CL.LogLevel.LOG_DEBUGTRACE);
-		try {
-			final ShadowViewer view = new ShadowViewer();
-			SwingUtilities.invokeLater(new Runnable() {
+		SwingUtilities.invokeLater(new Runnable() {
 
-				@Override
-				public void run() {
+			@Override
+			public void run() {
+				GUI view;
+				try {
+					view = new GUI();
 					view.setVisible(true);
+				} catch (OpenClException e) {
+					e.printStackTrace();
 				}
-			});
-		} catch (CLException e) {
-			e.printStackTrace();
-			System.out.println(e.getStatus());
-		}
+			}
+		});
 	}
 
-	public ShadowViewer() throws OpenClException {
+	private GUI() throws OpenClException {
 		super("Shadow view");
 		long startTotalTime = System.currentTimeMillis();
 
@@ -319,6 +316,8 @@ public class ShadowViewer extends JFrame implements GLEventListener,
 		gl.glColor3f(1f, 1f, 0);
 		float dv = (float) (Math.PI / splitHeight / 2);
 		float dh = (float) (2 * Math.PI / splitAzimuth);
+		// for (int i = 0; i < 1; i++) {
+		// for (int j = 0; j < 1; j++) {
 		float v = dv * (ray / splitAzimuth) + dv / 2;
 		float h = dh * ((ray % splitAzimuth) - (splitAzimuth / 2f)) + dh / 2;
 		double sinH = Math.sin(h);
@@ -333,6 +332,8 @@ public class ShadowViewer extends JFrame implements GLEventListener,
 		gl.glVertex3d(0d, 0d, 0d);
 		gl.glVertex3d(posX, posY, posZ);
 		gl.glEnd();
+		// }
+		// }
 	}
 
 	private void drawHemisphere(GL2 gl) {

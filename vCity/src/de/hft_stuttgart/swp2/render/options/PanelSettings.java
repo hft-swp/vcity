@@ -7,6 +7,8 @@ import java.awt.GridLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.KeyEvent;
@@ -34,6 +36,10 @@ import javax.swing.border.TitledBorder;
 
 import org.jdesktop.swingx.JXDatePicker;
 
+import de.hft_stuttgart.swp2.model.City;
+import de.hft_stuttgart.swp2.opencl.CalculatorImpl;
+import de.hft_stuttgart.swp2.opencl.CalculatorInterface;
+import de.hft_stuttgart.swp2.opencl.OpenClException;
 import de.hft_stuttgart.swp2.opencl.ShadowPrecision;
 import de.hft_stuttgart.swp2.render.Main;
 import de.hft_stuttgart.swp2.render.Selection;
@@ -68,15 +74,14 @@ public class PanelSettings extends JPanel {
 	private Selection selectionHours = new Selection(txtHours);
 	private Selection selectionMin = new Selection(txtMin);
 	private Selection selectionAzimuth = new Selection(txtSplitAzimuth);
-	private Selection selectionHeight= new Selection(txtSplitHeight);
+	private Selection selectionHeight = new Selection(txtSplitHeight);
+	private JComboBox<ShadowPrecision> cmbShadowPrecision;
 	int tempAzimuth = Main.getSplitAzimuth();
 	int tempHeight = Main.getSplitHeight();
-	ShadowPrecision tempShadowPrecision = ShadowPrecision.VERY_LOW;
 
 	String strBtnFileChooser = "GML-Datei auswählen";
 	JFileChooser fc;
 	private String path;
-
 
 	File gmlFile;
 	Date userDate;
@@ -88,6 +93,7 @@ public class PanelSettings extends JPanel {
 	JXDatePicker jxDatePicker = new JXDatePicker(new Date());
 	GregorianCalendar gc = new GregorianCalendar();
 	private JButton btnStart;
+	private JButton btnRecalculate;
 	public int hours = 12;
 	public int minutes = 0;
 
@@ -132,7 +138,9 @@ public class PanelSettings extends JPanel {
 					gc.get(GregorianCalendar.DAY_OF_MONTH), 12, 0, 0);
 			updateTimeUI();
 		}
-		;
+		int day = gc.get(Calendar.DAY_OF_MONTH);
+		int month = gc.get(Calendar.MONTH);
+		Main.getCityMap3D().initialSunPosition(month, day);
 	}
 
 	private String getHoursToText(int hours) {
@@ -168,24 +176,24 @@ public class PanelSettings extends JPanel {
 
 	}
 
-	public Date getTime() {
+	public GregorianCalendar getTime() {
 		if (userDate != null) {
 			gc.setTime(userDate);
 			try {
 				gc.set(gc.get(GregorianCalendar.YEAR),
 						gc.get(GregorianCalendar.MONTH),
 						gc.get(GregorianCalendar.DAY_OF_MONTH), hours, minutes);
-				return gc.getTime();
+				return gc;
 			} catch (Exception e1) {
 				gc.set(gc.get(GregorianCalendar.YEAR),
 						gc.get(GregorianCalendar.MONTH),
 						gc.get(GregorianCalendar.DAY_OF_MONTH), 12, 0, 0);
 			}
 			;
-			return gc.getTime();
+			return gc;
 		} else {
 			setDefaultTime();
-			return gc.getTime();
+			return gc;
 		}
 
 	}
@@ -352,7 +360,7 @@ public class PanelSettings extends JPanel {
 		// constraints.fill = GridBagConstraints.HORIZONTAL;
 		panelShadowOptions.add(jxDatePicker, constraints);
 		JPanel panelTime = new JPanel();
-		panelTime.setLayout(new GridLayout(7, 2));
+		panelTime.setLayout(new GridLayout(8, 2));
 		JLabel lblHours = new JLabel("Stunden");
 		JLabel lblMin = new JLabel("Minuten");
 
@@ -365,34 +373,72 @@ public class PanelSettings extends JPanel {
 		txtMin.addKeyListener(getKeyListenerMinutes());
 		panelTime.add(txtHours);
 		panelTime.add(txtMin);
-		
+
 		panelTime.add(new JLabel("Unterteilung in:"));
 		panelTime.add(new JLabel());
-		JRadioButton jrbPolygon = new JRadioButton("Polygone");
+		final JRadioButton jrbPolygon = new JRadioButton("Polygone");
 		JRadioButton jrbTriangle = new JRadioButton("Dreiecke");
-		ButtonGroup groupForms = new ButtonGroup();
+		final ButtonGroup groupForms = new ButtonGroup();
 		groupForms.add(jrbPolygon);
 		groupForms.add(jrbTriangle);
+		groupForms.setSelected(jrbPolygon.getModel(), true);
+		
+		ActionListener l = new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if (groupForms.getSelection() == jrbPolygon.getModel()) {
+					Main.getCityMap3D().drawPolygons = true;
+				} else {
+					Main.getCityMap3D().drawPolygons = false;
+				}
+			}
+		};
+		jrbPolygon.addActionListener(l);
+		jrbTriangle.addActionListener(l);
+		
 		panelTime.add(jrbTriangle);
 		panelTime.add(jrbPolygon);
-		JComboBox<ShadowPrecision> cmbShadowPrecision = 
-				new JComboBox<ShadowPrecision>(ShadowPrecision.values());
-		//groupForms.isSelected(jrbTriangle.getModel());
+		cmbShadowPrecision = new JComboBox<ShadowPrecision>(
+				ShadowPrecision.values());
+		// groupForms.isSelected(jrbTriangle.getModel());
 		panelTime.add(new JLabel("Genauigkeit"));
 		panelTime.add(cmbShadowPrecision);
-		
+
 		JLabel lblSplitAzimuth = new JLabel("Azimuthwinkel");
 		JLabel lblSplitHeight = new JLabel("Hoehenwinkel");
 		panelTime.add(lblSplitAzimuth);
 		panelTime.add(lblSplitHeight);
 		txtSplitAzimuth.addFocusListener(selectionAzimuth);
 		txtSplitHeight.addFocusListener(selectionHeight);
+		
 		txtSplitAzimuth.setText(String.valueOf(Main.getSplitAzimuth()));
 		txtSplitHeight.setText(String.valueOf(Main.getSplitHeight()));
+		
 		panelTime.add(txtSplitAzimuth);
 		panelTime.add(txtSplitHeight);
 		constraints.gridx = 0; // column 0
 		constraints.gridy = 1; // row 0
+		
+		
+		btnRecalculate = new JButton("Neu berechnen");
+		btnRecalculate.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				if (City.getInstance().getBuildings().size() == 0) {
+					return;
+				}
+				ShadowPrecision prec = (ShadowPrecision) cmbShadowPrecision.getSelectedItem();
+				Main.getCityMap3D().setStartShadowCalculationRunnable(prec, Integer.parseInt(txtSplitAzimuth.getText()), Integer.parseInt(txtSplitHeight.getText()));
+				Main.setSplitHeight(Integer.parseInt(txtSplitHeight.getText()));
+				Main.setSplitAzimuth(Integer.parseInt(txtSplitAzimuth.getText()));
+				Main.executor.execute(Main.startShadowCalculationRunnable);
+			}
+		});
+		panelTime.add(btnRecalculate);
+		panelTime.add(new JLabel());
+		
 		panelShadowOptions.add(panelTime, constraints);
 		panelShadowOptions.setBorder(titledBorderShadow);
 	}
@@ -441,23 +487,25 @@ public class PanelSettings extends JPanel {
 			}
 		};
 	}
-	
+
 	private KeyListener getKeyListenerAzimuth() {
 		return new KeyListener() {
 			public boolean verifyAzimuth() {
 				String regEx = "[1-9](([0-9])*)";
 				Pattern pattern = Pattern.compile(regEx);
-				Matcher matcher = pattern.matcher(selectionAzimuth.textKomponente
-						.getText());
+				Matcher matcher = pattern
+						.matcher(selectionAzimuth.textKomponente.getText());
 				return matcher.matches();
 			}
 
 			private void setAzimuth() {
 				try {
 					if (verifyAzimuth()) {
-						tempAzimuth = Integer.parseInt(selectionAzimuth.textKomponente
-								.getText());
-						//Main.getCityMap3D().setStartShadowCalculationRunnable(defaultShadowPrecision, splitAzimuth, splitHeight)
+						tempAzimuth = Integer
+								.parseInt(selectionAzimuth.textKomponente
+										.getText());
+						// Main.getCityMap3D().setStartShadowCalculationRunnable(defaultShadowPrecision,
+						// splitAzimuth, splitHeight)
 					}
 				} catch (Exception e) {
 					// TODO Ausgabe Fehler
@@ -544,6 +592,7 @@ public class PanelSettings extends JPanel {
 
 	private ActionListener actionStartParsing() {
 		return new ActionListener() {
+
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				try {
@@ -562,6 +611,7 @@ public class PanelSettings extends JPanel {
 					lblPath.setText("Kein gültiger Pfad");
 					lblPath.setForeground(Color.RED);
 				}
+				Main.getCityMap3D().setStartShadowCalculationRunnable((ShadowPrecision) cmbShadowPrecision.getSelectedItem(), Integer.parseInt(txtSplitAzimuth.getText()), Integer.parseInt(txtSplitHeight.getText()));
 			}
 		};
 	}
@@ -613,9 +663,11 @@ public class PanelSettings extends JPanel {
 		constraints.gridx = 0; // column 0
 		constraints.gridy = 2; // row 0
 		constraints.fill = GridBagConstraints.HORIZONTAL;
+		
 		btnStart = new JButton("Start");
 		btnStart.addActionListener(actionStartParsing());
 		panelFile.add(btnStart, constraints);
+		
 	}
 
 	private void setFileChooser() {
@@ -689,7 +741,7 @@ public class PanelSettings extends JPanel {
 
 		}
 	}
-	
+
 	public String getPath() {
 		return path;
 	}

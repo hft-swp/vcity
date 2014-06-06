@@ -58,7 +58,7 @@ public class KeyEventListener implements KeyListener {
 			cityMap3D.enableDrawCenters = !cityMap3D.enableDrawCenters;
 		}
 		if (e.getKeyCode() == KeyEvent.VK_I) {
-			date = Main.getOptionGUI().getTime();
+			date = Main.getOptionGUI().getTime().getTime();
 			gc.setTime(date);
 			month = gc.get(GregorianCalendar.MONTH);
 			month++;
@@ -72,7 +72,7 @@ public class KeyEventListener implements KeyListener {
 					gc.get(GregorianCalendar.MINUTE));
 		}
 		if (e.getKeyCode() == KeyEvent.VK_K) {
-			date = Main.getOptionGUI().getTime();
+			date = Main.getOptionGUI().getTime().getTime();
 			gc.setTime(date);
 			month = gc.get(GregorianCalendar.MONTH);
 			month--;
@@ -86,7 +86,7 @@ public class KeyEventListener implements KeyListener {
 					gc.get(GregorianCalendar.MINUTE));
 		}
 		if (e.getKeyCode() == KeyEvent.VK_U) {
-			date = Main.getOptionGUI().getTime();
+			date = Main.getOptionGUI().getTime().getTime();
 			gc.setTime(date);
 			hour = gc.get(GregorianCalendar.HOUR_OF_DAY);
 			hour++;
@@ -100,7 +100,7 @@ public class KeyEventListener implements KeyListener {
 					gc.get(GregorianCalendar.MINUTE));
 		}
 		if (e.getKeyCode() == KeyEvent.VK_J) {
-			date = Main.getOptionGUI().getTime();
+			date = Main.getOptionGUI().getTime().getTime();
 			gc.setTime(date);
 			hour = gc.get(GregorianCalendar.HOUR_OF_DAY);
 			hour--;

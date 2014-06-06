@@ -22,18 +22,25 @@ import de.hft_stuttgart.swp2.parser.ParserException;
 import de.hft_stuttgart.swp2.parser.ParserInterface;
 import de.hft_stuttgart.swp2.render.city3d.CityMap3D;
 import de.hft_stuttgart.swp2.render.options.OptionGUI;
+import de.hft_stuttgart.swp2.render.threads.StartShadowCalculationRunnable;
+import de.hft_stuttgart.swp2.render.threads.StartVolumeCalculationRunnable;
 
 public class Main {
 	
 	private static OptionGUI optionGUI;
 	private static CityMap3D cityMap3D;
 	private static City city;
-	private static Boolean isParserSuccess = false;
+	private static boolean isParserSuccess = false;
 	private static Date currentDate = new Date();
 	private static CalculatorInterface backend = new CalculatorImpl();
 	public static ExecutorService executor = Executors.newFixedThreadPool(1);
 	private static int splitAzimuth = 16;
 	private static int splitHeight = 8;
+	
+	public static Runnable startVolumeCalculationRunnable = new StartVolumeCalculationRunnable();
+	public static Runnable startShadowCalculationRunnable = new StartShadowCalculationRunnable(
+			ShadowPrecision.VERY_LOW, splitAzimuth, splitHeight);
+
 	/**
 	 * @param args
 	 */
@@ -54,7 +61,7 @@ public class Main {
 		createGUI();
 	}
 
-	public static Date getTimeForSunPosition(){
+	public static GregorianCalendar getTimeForSunPosition(){
 		return optionGUI.getTime();
 	}
 	
@@ -80,7 +87,7 @@ public class Main {
 						int height = (int)Toolkit.getDefaultToolkit().getScreenSize().getHeight();
 						cityMap3D = new CityMap3D(width,height);
 						cityMap3D.setVisible(true);
-						cityMap3D.setAlwaysOnTop(true);
+//						cityMap3D.setAlwaysOnTop(true);
 					}
 
 				} catch (HeadlessException e) {
@@ -121,7 +128,7 @@ public class Main {
 			System.out.println("Starting shadow calculation...");
 			start = System.currentTimeMillis();
 			try {
-				backend.calculateShadow(ShadowPrecision.VERY_LOW, splitAzimuth, splitHeight); // VERY_LOW(5),
+				backend.calculateShadow(shadowPrecision, splitAzimuth, splitHeight); // VERY_LOW(5),
 				// LOW(2.5f),
 				// MID(1.25f),
 				// HIGH(0.75f),
@@ -138,11 +145,11 @@ public class Main {
 		}
 	}
 	
-	public static Boolean isCalculateVolume(){
+	public static boolean isCalculateVolume(){
 		return optionGUI.isCalculateVolume();
 	}
 	
-	public static Boolean isCalculateShadow(){
+	public static boolean isCalculateShadow(){
 		return optionGUI.isCalculateShadow();
 	}
 	
@@ -185,7 +192,7 @@ public class Main {
 		return cityMap3D;
 	}
 
-	public static Boolean isParserSuccess() {
+	public static boolean isParserSuccess() {
 		return isParserSuccess;
 	}
 
