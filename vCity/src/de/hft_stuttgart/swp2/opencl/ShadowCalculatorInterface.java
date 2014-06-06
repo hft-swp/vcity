@@ -85,6 +85,9 @@ public abstract class ShadowCalculatorInterface {
 		}
 	}
 	
+	/**
+	 * @param percision
+	 */
 	protected void recalculateShadowTriangles(ShadowPrecision precision) {
 		for (Building b : City.getInstance().getBuildings()) {
 			for (BoundarySurface surface : b.getBoundarySurfaces()) {
@@ -98,6 +101,11 @@ public abstract class ShadowCalculatorInterface {
 		}
 	}
 	
+	/**
+	 * @param splitAzimuth
+	 * @param splitHeight
+	 * @return Vertex[]
+	 */
 	protected Vertex[] calcDirections(int splitAzimuth, int splitHeight) {
 		Vertex[] result = new Vertex[splitAzimuth * splitHeight];
 		float dv = (float) (Math.PI / splitHeight / 2);
