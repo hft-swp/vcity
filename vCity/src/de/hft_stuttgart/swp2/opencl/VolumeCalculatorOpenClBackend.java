@@ -113,23 +113,23 @@ public class VolumeCalculatorOpenClBackend implements VolumeCalculatorInterface 
 		clSetKernelArg(kernel, 0, Sizeof.cl_mem, Pointer.to(verticesMem));
 		clSetKernelArg(kernel, 1, Sizeof.cl_mem, Pointer.to(triangleCountMem));
 		clSetKernelArg(kernel, 2, Sizeof.cl_mem, Pointer.to(volumeMem));
-		clSetKernelArg(kernel, 3, Sizeof.cl_int, Pointer.to(new int[] {n}));
-		
+		clSetKernelArg(kernel, 3, Sizeof.cl_int, Pointer.to(new int[] { n }));
+
 		cl_device_id device = occ.getDevice();
 		long[] kernelWorkSize = new long[1];
-		
- 		CL.clGetKernelWorkGroupInfo(kernel, device, CL.CL_KERNEL_WORK_GROUP_SIZE, Sizeof.size_t,
+
+		CL.clGetKernelWorkGroupInfo(kernel, device,
+				CL.CL_KERNEL_WORK_GROUP_SIZE, Sizeof.size_t,
 				Pointer.to(kernelWorkSize), null);
 		int localWorkSize = (int) kernelWorkSize[0];
-		
-		int workSize = ((n) / localWorkSize  + 1) * localWorkSize;
-		long global_work_size[] = new long[] { workSize};
-		long local_work_size[] = new long[] { localWorkSize};
 
+		int workSize = ((n) / localWorkSize + 1) * localWorkSize;
+		long global_work_size[] = new long[] { workSize };
+		long local_work_size[] = new long[] { localWorkSize };
 
 		// Set the work-item dimensions
-//		long global_work_size[] = new long[] { n };
-//		long local_work_size[] = new long[] { 1 };
+		// long global_work_size[] = new long[] { n };
+		// long local_work_size[] = new long[] { 1 };
 
 		// Execute the kernel
 		cl_event kernelEvent = new cl_event();
@@ -143,7 +143,7 @@ public class VolumeCalculatorOpenClBackend implements VolumeCalculatorInterface 
 		// wait for the kernel to finish
 		CL.clFinish(commandQueue);
 
-		occ.profile(kernelEvent);
+		// occ.profile(kernelEvent);
 
 		for (int i = 0; i < n; i++) {
 			City.getInstance().getBuildings().get(i).setVolume(volumeArray[i]);

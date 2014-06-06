@@ -7,8 +7,6 @@ import java.awt.GridLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.KeyEvent;
@@ -37,9 +35,6 @@ import javax.swing.border.TitledBorder;
 import org.jdesktop.swingx.JXDatePicker;
 
 import de.hft_stuttgart.swp2.model.City;
-import de.hft_stuttgart.swp2.opencl.CalculatorImpl;
-import de.hft_stuttgart.swp2.opencl.CalculatorInterface;
-import de.hft_stuttgart.swp2.opencl.OpenClException;
 import de.hft_stuttgart.swp2.opencl.ShadowPrecision;
 import de.hft_stuttgart.swp2.render.Main;
 import de.hft_stuttgart.swp2.render.Selection;
@@ -421,7 +416,7 @@ public class PanelSettings extends JPanel {
 		constraints.gridy = 1; // row 0
 		
 		
-		btnRecalculate = new JButton("Neu berechnen");
+		btnRecalculate = new JButton("Neu rechnen");
 		btnRecalculate.addActionListener(new ActionListener() {
 
 			@Override
@@ -488,6 +483,7 @@ public class PanelSettings extends JPanel {
 		};
 	}
 
+	@SuppressWarnings("unused")
 	private KeyListener getKeyListenerAzimuth() {
 		return new KeyListener() {
 			public boolean verifyAzimuth() {
