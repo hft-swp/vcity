@@ -9,6 +9,7 @@ import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.TimeZone;
 
@@ -65,6 +66,8 @@ public class ShadowViewer extends JFrame implements GLEventListener,
 	private int splitHeight = 8;
 	
 	private static final boolean showGrid = true;
+	
+	private ParserInterface parser = Parser.getInstance();
 
 
 	public static void main(String[] args) throws OpenClException {
@@ -136,7 +139,6 @@ public class ShadowViewer extends JFrame implements GLEventListener,
 		
 		System.out.println("start parsing ...");
 		long start = System.currentTimeMillis(); 		
-		ParserInterface parser = Parser.getInstance();
 		try {
 			parser.parse("Gruenbuehl_LOD2.gml");
 //			parser.parse("LB_MITTE.gml");
@@ -147,17 +149,17 @@ public class ShadowViewer extends JFrame implements GLEventListener,
 		long end = System.currentTimeMillis();
 		long milliParser = end - start;
 		
-//		System.out.println(Parser.getInstance().getEPSG());
-		
+		System.out.println(Parser.getInstance().getEPSG());
+		System.out.println(Arrays.toString(parser.getReference()));
 		sunPositions = new SunPositionCalculator[12][24];
 		for (int j = 1; j < 13; ++j) {
 			for (int i = 0; i < sunPositions[j - 1].length; i++) {
 				utcCal.set(2014, j, 1, i, 0, 0);
-				sunPositions[j - 1][i] = new SunPositionCalculator(utcCal.getTime(), 11.6, 48.1);
+				sunPositions[j - 1][i] = new SunPositionCalculator(utcCal.getTime(), parser);
 			}
 		}
 		utcCal.set(2014, month + 1, 1, hour, 0, 0);
-		sunPos = new SunPositionCalculator(utcCal.getTime(), 11.6, 48.1);
+		sunPos = new SunPositionCalculator(utcCal.getTime(), parser);
 		
 		CalculatorInterface calc = new CalculatorImpl();
 //		ShadowCalculatorJavaBackend calc = new ShadowCalculatorJavaBackend();
@@ -477,7 +479,7 @@ public class ShadowViewer extends JFrame implements GLEventListener,
 				month = 11;
 			}
 			utcCal.set(2014, month + 1, 1, hour, 0, 0);
-			sunPos = new SunPositionCalculator(utcCal.getTime(), 11.6, 48.1);
+			sunPos = new SunPositionCalculator(utcCal.getTime(), parser);
 			ray = sunPos.getSunPosition(splitAzimuth, splitHeight);
 		}
 		if (e.getKeyCode() == KeyEvent.VK_K) {
@@ -486,7 +488,7 @@ public class ShadowViewer extends JFrame implements GLEventListener,
 				month = 0;
 			}
 			utcCal.set(2014, month + 1, 1, hour, 0, 0);
-			sunPos = new SunPositionCalculator(utcCal.getTime(), 11.6, 48.1);
+			sunPos = new SunPositionCalculator(utcCal.getTime(), parser);
 			ray = sunPos.getSunPosition(splitAzimuth, splitHeight);
 		}
 		if (e.getKeyCode() == KeyEvent.VK_U) {
@@ -495,7 +497,7 @@ public class ShadowViewer extends JFrame implements GLEventListener,
 				hour = 0;
 			}
 			utcCal.set(2014, month + 1, 1, hour, 0, 0);
-			sunPos = new SunPositionCalculator(utcCal.getTime(), 11.6, 48.1);
+			sunPos = new SunPositionCalculator(utcCal.getTime(), parser);
 			ray = sunPos.getSunPosition(splitAzimuth, splitHeight);
 
 		}
@@ -505,7 +507,7 @@ public class ShadowViewer extends JFrame implements GLEventListener,
 				hour = 23;
 			}
 			utcCal.set(2014, month + 1, 1, hour, 0, 0);
-			sunPos = new SunPositionCalculator(utcCal.getTime(), 11.6, 48.1);
+			sunPos = new SunPositionCalculator(utcCal.getTime(), parser);
 			ray = sunPos.getSunPosition(splitAzimuth, splitHeight);
 		}
 	}

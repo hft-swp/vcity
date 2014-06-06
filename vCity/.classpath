@@ -33,5 +33,7 @@
 	<classpathentry kind="lib" path="lib/swingx/swingx-all-1.6.4.jar"/>
 	<classpathentry kind="lib" path="lib/citygml/sjsxp-1.0.1.jar"/>
 	<classpathentry kind="lib" path="lib/citygml/stax-api-1.0.jar"/>
+	<classpathentry kind="lib" path="lib/proj4j/proj4j-0.1.0.jar"/>
+	<classpathentry kind="lib" path="lib/proj4j/proj4j-support-0.1.0.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
