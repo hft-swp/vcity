@@ -66,7 +66,7 @@ public class ShadowCalculatorOpenClBackend extends ShadowCalculatorInterface {
 	 * @param splitAzimuth
 	 * @param splitHeight
 	 */
-	public void calculateShadow2(ShadowPrecision calculateShadow(ShadowPrecision precision, int splitAzimuth, int splitHeight), int splitAzimuth, int splitHeight) {
+	public void calculateShadow2(ShadowPrecision precision, int splitAzimuth, int splitHeight) {
 		City city = City.getInstance();
 		// if no buildings are available, abort
 		if (city.getBuildings().size() == 0) {
