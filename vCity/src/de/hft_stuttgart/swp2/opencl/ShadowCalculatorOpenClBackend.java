@@ -58,7 +58,15 @@ public class ShadowCalculatorOpenClBackend extends ShadowCalculatorInterface {
 		occ = OpenClContext.getInstance();
 	}
 	
-	public void calculateShadow2(ShadowPrecision precision, int splitAzimuth, int splitHeight) {
+	/**
+	 * This is the old shadow calculation method!
+	 * Please use {@link #calculateShadow(ShadowPrecision, int, int) }
+	 * 
+	 * @param precision
+	 * @param splitAzimuth
+	 * @param splitHeight
+	 */
+	public void calculateShadow2(ShadowPrecision calculateShadow(ShadowPrecision precision, int splitAzimuth, int splitHeight), int splitAzimuth, int splitHeight) {
 		City city = City.getInstance();
 		// if no buildings are available, abort
 		if (city.getBuildings().size() == 0) {
@@ -77,7 +85,7 @@ public class ShadowCalculatorOpenClBackend extends ShadowCalculatorInterface {
 		int currentBuilding = 0;
 		while (currentBuilding < city.getBuildings().size()) {
 			try {
-			// suche gebäude zusammen solange schatten dreiecke weniger als 1
+			// suche gebï¿½ude zusammen solange schatten dreiecke weniger als 1
 			// mio
 			int triangleCount = 0;
 			ArrayList<Building> calcBuildings = new ArrayList<Building>();
@@ -159,7 +167,7 @@ public class ShadowCalculatorOpenClBackend extends ShadowCalculatorInterface {
 			cl_mem cityVerticesCountMem = storeOnGPUAsReadOnly(context,
 					cityVerticesCount);
 
-			// tritt nur ein für MAX_DISTANCE = 0
+			// tritt nur ein fï¿½r MAX_DISTANCE = 0
 			if (neighbours.size() == 0) {
 				continue;
 			}
@@ -167,7 +175,7 @@ public class ShadowCalculatorOpenClBackend extends ShadowCalculatorInterface {
 			for (int i = 0; i < neigh.length; ++i) {
 				neigh[i] = indexMap.get(neighbours.get(i));
 			}
-			// System.out.println("Umgebungsgebäude: " +
+			// System.out.println("Umgebungsgebï¿½ude: " +
 			// Arrays.toString(neigh));
 
 			cl_mem buildingNeighboursMem = storeOnGPUAsReadOnly(context, neigh);
@@ -186,28 +194,28 @@ public class ShadowCalculatorOpenClBackend extends ShadowCalculatorInterface {
 			cl_mem hasShadowMem = clCreateBuffer(context, CL_MEM_READ_WRITE,
 					Sizeof.cl_char * hasShadow.length, null, null);
 
-			// Stadt in großen dreiecken
+			// Stadt in groï¿½en dreiecken
 			clSetKernelArg(kernel, 0, Sizeof.cl_mem,
 					Pointer.to(cityVerticesMem));
-			// Anzahl an Dreiecken pro Gebäude
+			// Anzahl an Dreiecken pro Gebï¿½ude
 			clSetKernelArg(kernel, 1, Sizeof.cl_mem,
 					Pointer.to(cityVerticesCountMem));
 
-			// Indizes der Nachbarn der zu rechnenden Gebäuden
+			// Indizes der Nachbarn der zu rechnenden Gebï¿½uden
 			clSetKernelArg(kernel, 2, Sizeof.cl_mem,
 					Pointer.to(buildingNeighboursMem));
 
-			// Anzahl der Nachbarn pro Gebäude
+			// Anzahl der Nachbarn pro Gebï¿½ude
 			clSetKernelArg(kernel, 3, Sizeof.cl_mem,
 					Pointer.to(buildingNeighboursCountMem));
 
-			// Alle Schattendreiecksmitten der zu rechnenden Gebäuden
+			// Alle Schattendreiecksmitten der zu rechnenden Gebï¿½uden
 			clSetKernelArg(kernel, 4, Sizeof.cl_mem,
 					Pointer.to(shadowVerticesMem));
-			// Schattendreiecksmittenanzahl pro Gebäude
+			// Schattendreiecksmittenanzahl pro Gebï¿½ude
 			clSetKernelArg(kernel, 5, Sizeof.cl_mem,
 					Pointer.to(shadowTriangleCountMem));
-			// Anzahl der der zu rechneden Gebäude
+			// Anzahl der der zu rechneden Gebï¿½ude
 			clSetKernelArg(kernel, 6, Sizeof.cl_int,
 					Pointer.to(new int[] { calcBuildings.size() }));
 
@@ -226,7 +234,7 @@ public class ShadowCalculatorOpenClBackend extends ShadowCalculatorInterface {
 			clSetKernelArg(kernel, 10, Sizeof.cl_int,
 					Pointer.to(new int[] { shadowVerticeCenters.length / 3 }));
 
-			// Azimuthwinkel * Höhenwinkel
+			// Azimuthwinkel * Hï¿½henwinkel
 			clSetKernelArg(kernel, 11, Sizeof.cl_int,
 					Pointer.to(new int[] { splitAzimuth * splitHeight }));
 
@@ -424,7 +432,7 @@ public class ShadowCalculatorOpenClBackend extends ShadowCalculatorInterface {
 			cl_mem cityVerticesMem = storeOnGPUAsReadOnly(context, cityVertices);
 			cl_mem cityVerticesCountMem = storeOnGPUAsReadOnly(context, cityVerticesCount);
 
-			// tritt nur ein für MAX_DISTANCE = 0
+			// tritt nur ein fï¿½r MAX_DISTANCE = 0
 			if (neighbours.size() == 0) {
 				continue;
 			}
@@ -454,28 +462,28 @@ public class ShadowCalculatorOpenClBackend extends ShadowCalculatorInterface {
 			cl_mem hasShadowMem = clCreateBuffer(context, CL_MEM_READ_WRITE,
 					Sizeof.cl_char * hasShadow.length, null, null);
 
-			// Stadt in großen dreiecken
+			// Stadt in groï¿½en dreiecken
 			clSetKernelArg(kernel, 0, Sizeof.cl_mem,
 					Pointer.to(cityVerticesMem));
-			// Anzahl an Dreiecken pro Gebäude
+			// Anzahl an Dreiecken pro Gebï¿½ude
 			clSetKernelArg(kernel, 1, Sizeof.cl_mem,
 					Pointer.to(cityVerticesCountMem));
 
-			// Indizes der Nachbarn der zu rechnenden Gebäuden
+			// Indizes der Nachbarn der zu rechnenden Gebï¿½uden
 			clSetKernelArg(kernel, 2, Sizeof.cl_mem,
 					Pointer.to(buildingNeighboursMem));
 
-			// Anzahl der Nachbarn pro Gebäude
+			// Anzahl der Nachbarn pro Gebï¿½ude
 			clSetKernelArg(kernel, 3, Sizeof.cl_mem,
 					Pointer.to(buildingNeighboursCountMem));
 
-			// Alle Schattendreiecksmitten der zu rechnenden Gebäuden
+			// Alle Schattendreiecksmitten der zu rechnenden Gebï¿½uden
 			clSetKernelArg(kernel, 4, Sizeof.cl_mem,
 					Pointer.to(shadowVerticesMem));
-			// Schattendreiecksmittenanzahl pro Gebäude
+			// Schattendreiecksmittenanzahl pro Gebï¿½ude
 			clSetKernelArg(kernel, 5, Sizeof.cl_mem,
 					Pointer.to(shadowTriangleCountMem));
-			// Anzahl der der zu rechneden Gebäude
+			// Anzahl der der zu rechneden Gebï¿½ude
 			clSetKernelArg(kernel, 6, Sizeof.cl_int,
 					Pointer.to(new int[] { triangleCountPerBuilding.size() }));
 
@@ -494,7 +502,7 @@ public class ShadowCalculatorOpenClBackend extends ShadowCalculatorInterface {
 			clSetKernelArg(kernel, 10, Sizeof.cl_int,
 					Pointer.to(new int[] { shadowVerticeCenters.length / 3 }));
 
-			// Azimuthwinkel * Höhenwinkel
+			// Azimuthwinkel * Hï¿½henwinkel
 			clSetKernelArg(kernel, 11, Sizeof.cl_int,
 					Pointer.to(new int[] { splitAzimuth * splitHeight }));
 
