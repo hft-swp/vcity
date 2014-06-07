@@ -2,6 +2,7 @@ package de.hft_stuttgart.swp2.render.threads;
 
 import de.hft_stuttgart.swp2.opencl.ShadowPrecision;
 import de.hft_stuttgart.swp2.render.Main;
+import de.hft_stuttgart.swp2.render.options.OptionGUI;
 
 public class StartShadowCalculationRunnable  implements Runnable{
 	private ShadowPrecision shadowPrecision;
@@ -15,10 +16,13 @@ public class StartShadowCalculationRunnable  implements Runnable{
 
 	@Override
 	public void run() {
-		//TODO Message in status bar => Now calculates the shadow, one moment please
+		String oldText = Main.getCityMap3D().getTitle();
+		Main.getCityMap3D().setTitle(oldText + " | calulate shadow");
 		Main.getCityMap3D().stopAnimator();
 		Main.calculateShadow(shadowPrecision, splitAzimuth, splitHeight);
 		Main.getCityMap3D().startAnimator();
+		Main.getCityMap3D().setTitle(oldText);
+		OptionGUI.updateCityInfo();
 	}
 
 }

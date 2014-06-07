@@ -375,6 +375,7 @@ public class ShadowCalculatorOpenClBackend extends ShadowCalculatorInterface {
 		}
 		int currentTriangle = 0;
 		int triangleCount = shadowTriangles.size();
+		City.getInstance().setTotalShadowTrianglesCount(triangleCount);
 		long begin = System.currentTimeMillis();
 		String text = "";
 		String oldText = Main.getCityMap3D().getTitle();

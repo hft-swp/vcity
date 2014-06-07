@@ -377,9 +377,9 @@ public class PanelSettings extends JPanel {
 		groupForms.add(jrbPolygon);
 		groupForms.add(jrbTriangle);
 		groupForms.setSelected(jrbPolygon.getModel(), true);
-		
+
 		ActionListener l = new ActionListener() {
-			
+
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				if (groupForms.getSelection() == jrbPolygon.getModel()) {
@@ -391,7 +391,7 @@ public class PanelSettings extends JPanel {
 		};
 		jrbPolygon.addActionListener(l);
 		jrbTriangle.addActionListener(l);
-		
+
 		panelTime.add(jrbTriangle);
 		panelTime.add(jrbPolygon);
 		cmbShadowPrecision = new JComboBox<ShadowPrecision>(
@@ -406,16 +406,15 @@ public class PanelSettings extends JPanel {
 		panelTime.add(lblSplitHeight);
 		txtSplitAzimuth.addFocusListener(selectionAzimuth);
 		txtSplitHeight.addFocusListener(selectionHeight);
-		
+
 		txtSplitAzimuth.setText(String.valueOf(Main.getSplitAzimuth()));
 		txtSplitHeight.setText(String.valueOf(Main.getSplitHeight()));
-		
+
 		panelTime.add(txtSplitAzimuth);
 		panelTime.add(txtSplitHeight);
 		constraints.gridx = 0; // column 0
 		constraints.gridy = 1; // row 0
-		
-		
+
 		btnRecalculate = new JButton("Neu rechnen");
 		btnRecalculate.addActionListener(new ActionListener() {
 
@@ -424,8 +423,11 @@ public class PanelSettings extends JPanel {
 				if (City.getInstance().getBuildings().size() == 0) {
 					return;
 				}
-				ShadowPrecision prec = (ShadowPrecision) cmbShadowPrecision.getSelectedItem();
-				Main.getCityMap3D().setStartShadowCalculationRunnable(prec, Integer.parseInt(txtSplitAzimuth.getText()), Integer.parseInt(txtSplitHeight.getText()));
+				ShadowPrecision prec = (ShadowPrecision) cmbShadowPrecision
+						.getSelectedItem();
+				Main.getCityMap3D().setStartShadowCalculationRunnable(prec,
+						Integer.parseInt(txtSplitAzimuth.getText()),
+						Integer.parseInt(txtSplitHeight.getText()));
 				Main.setSplitHeight(Integer.parseInt(txtSplitHeight.getText()));
 				Main.setSplitAzimuth(Integer.parseInt(txtSplitAzimuth.getText()));
 				Main.executor.execute(Main.startShadowCalculationRunnable);
@@ -433,7 +435,7 @@ public class PanelSettings extends JPanel {
 		});
 		panelTime.add(btnRecalculate);
 		panelTime.add(new JLabel());
-		
+
 		panelShadowOptions.add(panelTime, constraints);
 		panelShadowOptions.setBorder(titledBorderShadow);
 	}
@@ -607,7 +609,10 @@ public class PanelSettings extends JPanel {
 					lblPath.setText("Kein gültiger Pfad");
 					lblPath.setForeground(Color.RED);
 				}
-				Main.getCityMap3D().setStartShadowCalculationRunnable((ShadowPrecision) cmbShadowPrecision.getSelectedItem(), Integer.parseInt(txtSplitAzimuth.getText()), Integer.parseInt(txtSplitHeight.getText()));
+				Main.getCityMap3D().setStartShadowCalculationRunnable(
+						(ShadowPrecision) cmbShadowPrecision.getSelectedItem(),
+						Integer.parseInt(txtSplitAzimuth.getText()),
+						Integer.parseInt(txtSplitHeight.getText()));
 			}
 		};
 	}
@@ -659,11 +664,11 @@ public class PanelSettings extends JPanel {
 		constraints.gridx = 0; // column 0
 		constraints.gridy = 2; // row 0
 		constraints.fill = GridBagConstraints.HORIZONTAL;
-		
+
 		btnStart = new JButton("Start");
 		btnStart.addActionListener(actionStartParsing());
 		panelFile.add(btnStart, constraints);
-		
+
 	}
 
 	private void setFileChooser() {
@@ -733,8 +738,13 @@ public class PanelSettings extends JPanel {
 				} else {
 					panelShadowOptions.setVisible(false);
 				}
+			} else if (source == cbVolume) {
+				if (cbVolume.isSelected()) {
+					Main.getCityMap3D().setShowVolumeAmount(true);
+				} else {
+					Main.getCityMap3D().setShowVolumeAmount(false);
+				}
 			}
-
 		}
 	}
 

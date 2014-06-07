@@ -152,7 +152,7 @@ public class GLBuildingEntity extends GLEntity {
 			} else {
 				averageValueZ = ((Math.abs(maxZ) - Math.abs(minZ)) / 2f) + minZ;
 			}
-			gl.glColor3f(1, 1, 1);
+			gl.glColor3f(0, 0, 1);
 			gl.glRasterPos3f(averageValueX, maxY + 1f, averageValueZ);
 			glut.glutBitmapString(7,
 					String.valueOf(Math.round(building.getVolume())));
@@ -275,14 +275,12 @@ public class GLBuildingEntity extends GLEntity {
 		if (isShadowCalc) {
 			// Main.getCityMap3D().setSunPosition(Main.getTimeForSunPosition());
 			drawShadowBuildings(gl, building);
-			if (isShowVolumeAmount) {
-				drawBuildingVolumeAmount(gl, building);
-			}
 		} else {
 			drawVolumeBuildings(gl, building);
-			if (isShowVolumeAmount) {
-				drawBuildingVolumeAmount(gl, building);
-			}
+		}
+//		if (isShowVolumeAmount) {
+		if (Main.getCityMap3D().isShowVolumeAmount()) {
+			drawBuildingVolumeAmount(gl, building);
 		}
 	}
 }

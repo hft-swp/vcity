@@ -13,6 +13,8 @@ public class City {
 	private Vertex center;
 
 	private ArrayList<Building> buildings;
+	private double totalVolume;
+	private int totalShadowTrianglesCount;
 
 	/**
 	 * 
@@ -61,4 +63,35 @@ public class City {
 		this.center = center;
 	}
 
+	/**
+	 * set the volume of the whole city
+	 * @param totalVolume
+	 */
+	public void setTotalVolume(double totalVolume) {
+		this.totalVolume = totalVolume;		
+	}
+	
+	/**
+	 * get the volume of the whole city
+	 * @return totalVolume
+	 */
+	public double getTotalVolume() {
+		return totalVolume;
+	}
+
+	/**
+	 * set the count of all shadow triangles
+	 * @param triangleCount
+	 */
+	public void setTotalShadowTrianglesCount(int triangleCount) {
+		this.totalShadowTrianglesCount = triangleCount;		
+	}
+
+	/**
+	 * get the count of all shadow triangles
+	 * @return totalShadowTrianglesCount
+	 */
+	public int getTotalShadowTrianglesCount() {
+		return this.totalShadowTrianglesCount;
+	}
 }

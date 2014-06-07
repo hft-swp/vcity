@@ -24,6 +24,7 @@ public class ShadowCalculatorJavaBackend extends ShadowCalculatorInterface {
 	public void calculateShadow(ShadowPrecision precision, int splitAzimuth, int splitHeight) {
 		Vertex[] directions = calcDirections(splitAzimuth, splitHeight);
 		recalculateShadowTriangles(precision);
+		int totalShadowTrianglesCount = 0;
 		for (Building b : City.getInstance().getBuildings()) {
 			for (BoundarySurface surface : b.getBoundarySurfaces()) {
 				for (Polygon p : surface.getPolygons()) {
@@ -54,10 +55,12 @@ public class ShadowCalculatorJavaBackend extends ShadowCalculatorInterface {
 							}
 						}
 					}
+					totalShadowTrianglesCount += p.getShadowTriangles().size();
 					p.setPercentageShadow(percentageShadow);
 				}
 			}
 		}
+		City.getInstance().setTotalShadowTrianglesCount(totalShadowTrianglesCount);
 	}
 
 	private static Vertex cross(Vertex v0, Vertex v1) {

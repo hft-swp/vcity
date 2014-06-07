@@ -70,6 +70,14 @@ public class CityMap3D extends JFrame implements GLEventListener {
 	public Calendar utcCal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
 	private SunPositionCalculator sunPos;
 	private boolean isShowVolumeAmount = true;
+	protected boolean isShowVolumeAmount() {
+		return isShowVolumeAmount;
+	}
+
+	public void setShowVolumeAmount(boolean isShowVolumeAmount) {
+		this.isShowVolumeAmount = isShowVolumeAmount;
+	}
+
 	public int month = 0;
 	private boolean isPolygon = false;
 

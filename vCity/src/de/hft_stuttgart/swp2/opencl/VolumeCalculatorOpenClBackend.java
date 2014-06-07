@@ -145,9 +145,12 @@ public class VolumeCalculatorOpenClBackend implements VolumeCalculatorInterface 
 
 		// occ.profile(kernelEvent);
 
+		Double totalVolume = 0.0;
 		for (int i = 0; i < n; i++) {
 			City.getInstance().getBuildings().get(i).setVolume(volumeArray[i]);
+			totalVolume += volumeArray[i];
 		}
+		City.getInstance().setTotalVolume(totalVolume);
 
 		// Release kernel, program, and memory objects
 		clReleaseMemObject(verticesMem);

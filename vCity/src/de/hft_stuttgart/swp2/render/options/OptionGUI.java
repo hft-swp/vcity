@@ -17,6 +17,8 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
+import de.hft_stuttgart.swp2.model.City;
+
 
 public class OptionGUI extends JFrame implements Refreshable{
 	
@@ -97,6 +99,8 @@ public class OptionGUI extends JFrame implements Refreshable{
 		this.setLocationRelativeTo(null);
 		frameHeight = this.getHeight();
 	}
+	
+	private static JLabel cityInfo = new JLabel("Hallo Penel2");
 
 	private void setPanelContent() {
 		content_panel.setPreferredSize(new Dimension(PREF_WIDTH,PREF_HEIGHT));
@@ -111,7 +115,7 @@ public class OptionGUI extends JFrame implements Refreshable{
 		
 		//Example Data
 		panelCityInfo.setLayout(new GridLayout(1,1));
-		panelCityInfo.add(new JLabel("Hallo Panel2"));
+		panelCityInfo.add(cityInfo);
 
 		
 		panelSettings.setVisible(true);
@@ -259,6 +263,21 @@ public class OptionGUI extends JFrame implements Refreshable{
 			this.setResizable(true);
 		}
 		content_panel.revalidate();
+	}
+
+	/**
+	 * update the text in the city info panel
+	 */
+	public static void updateCityInfo() {
+		String text = "<html>anz. Gebäude: " + City.getInstance().getBuildings().size();
+		if (City.getInstance().getTotalVolume() > 0.0){
+			text += String.format("<br>Stadtvolumen: %.3f m²", City.getInstance().getTotalVolume());
+		}
+		if (City.getInstance().getTotalShadowTrianglesCount() > 0){
+			text += "<br>anz. Schattendreiecke: " + City.getInstance().getTotalShadowTrianglesCount();
+		}
+		text += "</html>";
+		cityInfo.setText(text);		
 	}
 	
 	

@@ -11,6 +11,7 @@ public class VolumeCalculatorJavaBackend implements VolumeCalculatorInterface {
 
 	@Override
 	public void calculateVolume() {
+		Double totalVolume = 0.0;
 		for(Building b: City.getInstance().getBuildings()) {
 			float sum = 0f;
 			for (BoundarySurface surface : b.getBoundarySurfaces()) {
@@ -19,10 +20,11 @@ public class VolumeCalculatorJavaBackend implements VolumeCalculatorInterface {
 						sum += det(t.getVertices()[0], t.getVertices()[1], t.getVertices()[2]);
 					}
 					b.setVolume(Math.abs(sum/6));
+					totalVolume += Math.abs(sum/6);
 				}
 			}
 		}
-
+		City.getInstance().setTotalVolume(totalVolume);
 	}
 	private float det(Vertex a, Vertex b, Vertex c) {
 		 return	(- c.getX() * b.getY() * a.getZ()
