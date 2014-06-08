@@ -431,6 +431,7 @@ public class PanelSettings extends JPanel {
 				Main.setSplitHeight(Integer.parseInt(txtSplitHeight.getText()));
 				Main.setSplitAzimuth(Integer.parseInt(txtSplitAzimuth.getText()));
 				Main.executor.execute(Main.startShadowCalculationRunnable);
+				Main.getCityMap3D().setRecalculateShadow(true);
 			}
 		});
 		panelTime.add(btnRecalculate);

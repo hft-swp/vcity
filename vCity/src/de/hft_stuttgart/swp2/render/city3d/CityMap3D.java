@@ -59,6 +59,19 @@ public class CityMap3D extends JFrame implements GLEventListener {
 	public boolean enableDrawCenters = false;
 	private boolean isShadowCalc = false;
 	private boolean isVolumeCalc = true;
+	
+	//if the checkbox for shadow isSelected and 
+	//if is isShadowCalcViaCheckBoxLock=false
+	//then it will be calculated immediately with
+	//the shadow default settings, else not,
+	//then it would be calculated, only when 
+	//the button for recalculate shadow would be pressed
+	private boolean isShadowCalcViaCheckBoxLock = true; 
+	private boolean isRecalculateShadow = false; 
+
+	public void setRecalculateShadow(boolean isRecalculateShadow) {
+		this.isRecalculateShadow = isRecalculateShadow;
+	}
 
 	private int splitAzimuth = Main.getSplitAzimuth();
 	private int splitHeight = Main.getSplitHeight();
@@ -246,13 +259,15 @@ public class CityMap3D extends JFrame implements GLEventListener {
 		if (glBuildings != null) {
 			// DRAW BUILDINGS
 			if (!isChangeValue(isShadowCalc, isVolumeCalc,
-					Main.isCalculateShadow(), Main.isCalculateVolume())) {
+					Main.isCalculateShadow(), Main.isCalculateVolume())
+					&& !isRecalculateShadow) {
 				for (GLBuildingEntity glBuilding : glBuildings) {
 					glBuilding.draw();
 				}
 			} else {
 				isShadowCalc = Main.isCalculateShadow();
 				isVolumeCalc = Main.isCalculateVolume();
+				isRecalculateShadow = false;
 				if (isFirstTimeShadowCalc == false && isShadowCalc) {
 					// notice the query: if(isFirstTimeVolumeCalc == false &&
 					// isVolumeCalc)
@@ -316,8 +331,13 @@ public class CityMap3D extends JFrame implements GLEventListener {
 				return true;
 			}
 		} else {
-			isShadowChange = true;
-			return true;
+			if(isShadowCalcViaCheckBoxLock){
+				isShadowChange = false;
+				return false;
+			}else{
+				isShadowChange = true;
+				return true;
+			}
 		}
 	}
 
