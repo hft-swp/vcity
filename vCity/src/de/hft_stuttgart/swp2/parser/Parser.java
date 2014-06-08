@@ -68,7 +68,7 @@ public class Parser implements ParserInterface {
 	 * 
 	 * @param fileName Input file name
 	 * @return List of Buildings
-	 * @throws Exception
+	 * @throws ParserException
 	 */
 	public City parse(String InputFileName) throws ParserException {
 
@@ -107,7 +107,7 @@ public class Parser implements ParserInterface {
 	}
 
 	/**
-	 * find the smallest vertex value
+	 * find the smallest vertex value based on the smallest x coordinate
 	 */
 	private void findReferenceValue() {
 
@@ -284,10 +284,10 @@ public class Parser implements ParserInterface {
 	}
 
 	/**
-	 * Calculates the norm Vertex of a triangle.
+	 * Calculates the normal vector of a triangle.
 	 * 
 	 * @param t Triangle
-	 * @return norm vertex
+	 * @return normal vector
 	 */
 	private Vertex calculateNormalVector(Triangle t) {
 

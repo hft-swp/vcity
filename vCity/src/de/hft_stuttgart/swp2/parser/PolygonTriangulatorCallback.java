@@ -4,7 +4,7 @@ import javax.media.opengl.glu.GLU;
 import javax.media.opengl.glu.GLUtessellatorCallbackAdapter;
 
 /**
- * JOGL Tessellator callback
+ * JOGL Tessellator callback implementation with callback routines
  * 
  * @author 02grst1bif
  */

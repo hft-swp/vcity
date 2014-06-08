@@ -36,6 +36,12 @@ public class PolygonTriangulatorCollector {
 		collection.clear();
 	}
 
+	/**
+	 * based on type writes the triangles into result 
+	 * <br> the orientation of the triangles is counter clock wise
+	 * @see <a href="http://profs.sci.univr.it/~colombar/html_openGL_tutorial/en/02rendering_022.html">Triangle Strips and Fans</a>
+     */
+	
 	public void end() {
 
 		ArrayList<Vertex> vertexcoll = new ArrayList<Vertex>();

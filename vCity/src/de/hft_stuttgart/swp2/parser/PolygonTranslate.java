@@ -15,10 +15,10 @@ import de.hft_stuttgart.swp2.model.VertexDouble;
 public class PolygonTranslate {
 
 	/**
-	 * Translate the Coordinates to point of Origin
+	 * Translate the coordinates to point of origin
 	 * 
-	 * @param poly List of Vertices
-	 * @param reference Smallest Vertex
+	 * @param poly list of vertices
+	 * @param reference Vertex with smallest x coordinate 
 	 * @return translated Polygon list
 	 */
 	public static ArrayList<Vertex> translateToOrigin( ArrayList<VertexDouble> poly, double[] reference) {
@@ -55,6 +55,14 @@ public class PolygonTranslate {
 		return polynew;
 	}
 
+	
+	
+	/**
+	 * Translates a vertex back to his initial value
+	 * @param vert Vertex to translate
+	 * @param reference Vertex with smallest x coordinate has to be the same as {@link #translateToOrigin(ArrayList, double[])} 
+	 * @return VertexDouble with initial value
+	 */
 	public static VertexDouble translateBack(Vertex vert, double[] reference) {
 
 		double rotateBy;

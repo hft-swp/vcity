@@ -1,7 +1,7 @@
 package de.hft_stuttgart.swp2.parser;
 
 /**
- * Exception class 
+ * Exception class, thrown when there is a error in the parsing process 
  * @author 02gasa1bif
  *
  */
