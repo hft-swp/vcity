@@ -85,6 +85,8 @@ public class PanelSettings extends JPanel {
 	JCheckBox cbGUI = new JCheckBox("Stadt 3D gerendert anzeigen");
 	JCheckBox cbVolume = new JCheckBox("Volumen berechnen");
 	JCheckBox cbShadow = new JCheckBox("Schatten berechnen");
+	JCheckBox cbShowGrid = new JCheckBox("Raster anzeigen");
+	JCheckBox cbVolumeAmount = new JCheckBox("Volumen anzeigen");
 	JXDatePicker jxDatePicker = new JXDatePicker(new Date());
 	GregorianCalendar gc = new GregorianCalendar();
 	private JButton btnStart;
@@ -273,6 +275,7 @@ public class PanelSettings extends JPanel {
 		TitledBorder titledBorderOption;
 		titledBorderOption = BorderFactory.createTitledBorder("Optionen");
 
+
 		constraints.gridx = 0; // column 0
 		constraints.gridy = 4; // row 0
 		constraints.gridwidth = 2;
@@ -297,14 +300,27 @@ public class PanelSettings extends JPanel {
 		constraints.ipady = 0;
 		constraints.fill = GridBagConstraints.BOTH;
 		constraints.weighty = 1.0; // request any extra vertical space
+		
+		TitledBorder titledBorderGraphicOption;
+		titledBorderGraphicOption = BorderFactory.createTitledBorder("Grafische Optionen");
+		JPanel panelGraphic = new JPanel();
+		panelGraphic.setBorder(titledBorderGraphicOption);
+		panelGraphic.setLayout(new GridLayout(3, 1));
+		panelGraphic.add(cbGUI);
+		panelGraphic.add(cbShowGrid);
+		panelGraphic.add(cbVolumeAmount);
 
 		CheckBoxListener cbListener = new CheckBoxListener();
 		cbGUI.setSelected(true);
 		cbGUI.addItemListener(cbListener);
+		cbShowGrid.setSelected(true);
+		cbShowGrid.addItemListener(cbListener);
+		cbVolumeAmount.setSelected(true);
+		cbVolumeAmount.addItemListener(cbListener);
 		constraints.gridx = 0; // column 0
 		constraints.gridy = 0; // row 0
 		// constraints.fill = GridBagConstraints.HORIZONTAL;
-		optionPanel.add(cbGUI, constraints);
+		optionPanel.add(panelGraphic, constraints);
 
 		cbVolume.setSelected(true);
 		cbVolume.addItemListener(cbListener);
@@ -355,7 +371,7 @@ public class PanelSettings extends JPanel {
 		// constraints.fill = GridBagConstraints.HORIZONTAL;
 		panelShadowOptions.add(jxDatePicker, constraints);
 		JPanel panelTime = new JPanel();
-		panelTime.setLayout(new GridLayout(8, 2));
+		panelTime.setLayout(new GridLayout(7, 2));
 		JLabel lblHours = new JLabel("Stunden");
 		JLabel lblMin = new JLabel("Minuten");
 
@@ -414,8 +430,8 @@ public class PanelSettings extends JPanel {
 		panelTime.add(txtSplitHeight);
 		constraints.gridx = 0; // column 0
 		constraints.gridy = 1; // row 0
+		btnRecalculate = new JButton("Schatten berechnen");
 
-		btnRecalculate = new JButton("Neu rechnen");
 		btnRecalculate.addActionListener(new ActionListener() {
 
 			@Override
@@ -432,13 +448,18 @@ public class PanelSettings extends JPanel {
 				Main.setSplitAzimuth(Integer.parseInt(txtSplitAzimuth.getText()));
 				Main.executor.execute(Main.startShadowCalculationRunnable);
 				Main.getCityMap3D().setRecalculateShadow(true);
+				btnRecalculate.setText("Neu rechnen");
 			}
 		});
-		panelTime.add(btnRecalculate);
-		panelTime.add(new JLabel());
+//		panelTime.add(btnRecalculate);
+//		panelTime.add(new JLabel());
 
 		panelShadowOptions.add(panelTime, constraints);
 		panelShadowOptions.setBorder(titledBorderShadow);
+		
+		constraints.gridx = 0; // column 0
+		constraints.gridy = 2; // row 0
+		panelShadowOptions.add(btnRecalculate, constraints);
 	}
 
 	private KeyListener getKeyListenerMinutes() {

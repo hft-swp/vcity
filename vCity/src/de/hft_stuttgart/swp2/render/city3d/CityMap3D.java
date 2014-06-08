@@ -96,6 +96,10 @@ public class CityMap3D extends JFrame implements GLEventListener {
 
 	GLBuildingEntity[] glBuildings;
 	private boolean isFirstTimeShadowCalc = false;
+	public boolean isFirstTimeShadowCalc() {
+		return isFirstTimeShadowCalc;
+	}
+
 	private boolean isFirstTimeVolumeCalc = false;
 	private boolean isVolumeChange = true;
 	private boolean isShadowChange = true;
