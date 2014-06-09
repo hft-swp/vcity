@@ -33,8 +33,6 @@ import javax.swing.SwingConstants;
 import javax.swing.border.TitledBorder;
 
 import org.jdesktop.swingx.JXDatePicker;
-
-import de.hft_stuttgart.swp2.model.City;
 import de.hft_stuttgart.swp2.opencl.ShadowPrecision;
 import de.hft_stuttgart.swp2.render.Main;
 import de.hft_stuttgart.swp2.render.Selection;
@@ -48,19 +46,26 @@ public class PanelSettings extends JPanel {
 	private static final long serialVersionUID = -8682939653068331145L;
 	private final int DEFAULT_VALUE_HOURS = 12;
 	private final int DEFAULT_VALUE_MINUTES = 0;
+	private static final String strRecalculate = "Schatten neu berechnen";
+
+	public static String getStrRecalculate() {
+		return strRecalculate;
+	}
 
 	private GridBagConstraints constraints = new GridBagConstraints();
 	private JPanel panelDatabase = new JPanel();
 	private String[] strChooseSource = { "Filesystem", "Datenbank" };
 	private final JComboBox<String> cmbChooseSource = new JComboBox<String>(
 			strChooseSource);
-	private Thread threadStartParsing;
+
 	private Runnable StartParserRunnable;
 
 	// Elements of panelFile
 	private JPanel panelFile;
 	private JPanel optionPanel;
 	private JPanel panelShadowOptions;
+	JPanel panelTriangleChoice = new JPanel();
+	
 	private JButton btnFileChooser;
 	JTextField txtHours = new JTextField(String.valueOf(DEFAULT_VALUE_HOURS));
 	JTextField txtMin = new JTextField(getMinutesToText(DEFAULT_VALUE_MINUTES));
@@ -70,6 +75,7 @@ public class PanelSettings extends JPanel {
 	private Selection selectionMin = new Selection(txtMin);
 	private Selection selectionAzimuth = new Selection(txtSplitAzimuth);
 	private Selection selectionHeight = new Selection(txtSplitHeight);
+	JLabel lblPrecision = new JLabel("Genauigkeit"); 
 	private JComboBox<ShadowPrecision> cmbShadowPrecision;
 	int tempAzimuth = Main.getSplitAzimuth();
 	int tempHeight = Main.getSplitHeight();
@@ -419,7 +425,7 @@ public class PanelSettings extends JPanel {
 		// constraints.fill = GridBagConstraints.HORIZONTAL;
 		panelShadowOptions.add(jxDatePicker, constraints);
 		JPanel panelTime = new JPanel();
-		panelTime.setLayout(new GridLayout(7, 2));
+		panelTime.setLayout(new GridLayout(4, 2));
 		JLabel lblHours = new JLabel("Stunden");
 		JLabel lblMin = new JLabel("Minuten");
 
@@ -448,8 +454,11 @@ public class PanelSettings extends JPanel {
 			public void actionPerformed(ActionEvent e) {
 				if (groupForms.getSelection() == jrbPolygon.getModel()) {
 					Main.getCityMap3D().drawPolygons = true;
+					panelTriangleChoice.setVisible(false);
 				} else {
+					
 					Main.getCityMap3D().drawPolygons = false;
+					panelTriangleChoice.setVisible(true);
 				}
 			}
 		};
@@ -458,72 +467,86 @@ public class PanelSettings extends JPanel {
 
 		panelTime.add(jrbTriangle);
 		panelTime.add(jrbPolygon);
+		
+		constraints.gridx = 0; // column 0
+		constraints.gridy = 1; // row 0
+		panelShadowOptions.add(panelTime, constraints);
+		
+		panelTriangleChoice.setLayout(new GridLayout(1, 2));
+		panelTriangleChoice.setVisible(false);
 		cmbShadowPrecision = new JComboBox<ShadowPrecision>(
 				ShadowPrecision.values());
 		// groupForms.isSelected(jrbTriangle.getModel());
-		panelTime.add(new JLabel("Genauigkeit"));
-		panelTime.add(cmbShadowPrecision);
-
+		panelTriangleChoice.add(lblPrecision);
+		panelTriangleChoice.add(cmbShadowPrecision);
+		constraints.gridx = 0; // column 0
+		constraints.gridy = 2; // row 0
+		panelShadowOptions.add(panelTriangleChoice, constraints);
+		
+		constraints.gridx = 0; // column 0
+		constraints.gridy = 3; // row 0
+		JPanel panelAzimuthAndHeight = new JPanel();
+		panelAzimuthAndHeight.setLayout(new GridLayout(2, 2));
 		JLabel lblSplitAzimuth = new JLabel("Azimuthwinkel");
 		JLabel lblSplitHeight = new JLabel("Hoehenwinkel");
-		panelTime.add(lblSplitAzimuth);
-		panelTime.add(lblSplitHeight);
+		panelAzimuthAndHeight.add(lblSplitAzimuth);
+		panelAzimuthAndHeight.add(lblSplitHeight);
 		txtSplitAzimuth.addFocusListener(selectionAzimuth);
 		txtSplitHeight.addFocusListener(selectionHeight);
 
 		txtSplitAzimuth.setText(String.valueOf(Main.getSplitAzimuth()));
 		txtSplitHeight.setText(String.valueOf(Main.getSplitHeight()));
 
-		panelTime.add(txtSplitAzimuth);
-		panelTime.add(txtSplitHeight);
-		constraints.gridx = 0; // column 0
-		constraints.gridy = 1; // row 0
+		panelAzimuthAndHeight.add(txtSplitAzimuth);
+		panelAzimuthAndHeight.add(txtSplitHeight);
+		panelShadowOptions.add(panelAzimuthAndHeight, constraints);
+
 		btnRecalculateShadow = new JButton("Schatten berechnen");
 
 		btnRecalculateShadow.addActionListener(new ActionListener() {
-
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 //				if (City.getInstance().getBuildings().size() == 0) {
 //					return;
 //				}
-				if(!Main.isParserSuccess()){
-					startParser(true);
-				}
-				ShadowPrecision prec = (ShadowPrecision) cmbShadowPrecision
-						.getSelectedItem();
-				Main.getCityMap3D().setStartShadowCalculationRunnable(prec,
-						Integer.parseInt(txtSplitAzimuth.getText()),
-						Integer.parseInt(txtSplitHeight.getText()));
-				Main.setSplitHeight(Integer.parseInt(txtSplitHeight.getText()));
-				Main.setSplitAzimuth(Integer.parseInt(txtSplitAzimuth.getText()));
-				if(Main.getCityMap3D().isFirstTimeShadowCalc()){
-					Main.executor.execute(Main.startShadowCalculationRunnable);
-				}else{
-					Main.getCityMap3D().calculation();
-				}
-//				Main.executor.execute(Main.startShadowCalculationRunnable);
-				Main.getCityMap3D().setRecalculateShadow(true);
-				setSelectShadowView(true);
-				if(Main.isParserSuccess()){
-					btnRecalculateShadow.setText("Neu rechnen");
-				}
-				
+				recalculateShadow();
 			}
 		});
-//		panelTime.add(btnRecalculate);
-//		panelTime.add(new JLabel());
 
-		panelShadowOptions.add(panelTime, constraints);
 		panelShadowOptions.setBorder(titledBorderShadow);
 		
 		constraints.gridx = 0; // column 0
-		constraints.gridy = 2; // row 0
+		constraints.gridy = 4; // row 0
 		panelShadowOptions.add(btnRecalculateShadow, constraints);
 	}
 
 	public JButton getBtnRecalculateShadow() {
 		return btnRecalculateShadow;
+	}
+	
+	
+	private void recalculateShadow() {
+		if(!Main.isParserSuccess()){
+			startParser(true);
+		}
+		ShadowPrecision prec = (ShadowPrecision) cmbShadowPrecision
+				.getSelectedItem();
+		Main.getCityMap3D().setStartShadowCalculationRunnable(prec,
+				Integer.parseInt(txtSplitAzimuth.getText()),
+				Integer.parseInt(txtSplitHeight.getText()));
+		Main.setSplitHeight(Integer.parseInt(txtSplitHeight.getText()));
+		Main.setSplitAzimuth(Integer.parseInt(txtSplitAzimuth.getText()));
+		if(Main.getCityMap3D().isFirstTimeShadowCalc()){
+			Main.executor.execute(Main.startShadowCalculationRunnable);
+		}else{
+			Main.getCityMap3D().calculation();
+		}
+//		Main.executor.execute(Main.startShadowCalculationRunnable);
+		Main.getCityMap3D().setRecalculateShadow(true);
+		setSelectShadowView(true);
+		if(Main.isParserSuccess()){
+			btnRecalculateShadow.setText("Neu rechnen");
+		}
 	}
 
 	private KeyListener getKeyListenerMinutes() {

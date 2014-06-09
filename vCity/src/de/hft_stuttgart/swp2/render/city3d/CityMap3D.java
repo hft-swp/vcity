@@ -25,7 +25,7 @@ import de.hft_stuttgart.swp2.opencl.ShadowPrecision;
 import de.hft_stuttgart.swp2.opencl.SunPositionCalculator;
 import de.hft_stuttgart.swp2.parser.Parser;
 import de.hft_stuttgart.swp2.render.Main;
-import de.hft_stuttgart.swp2.render.options.OptionGUI;
+import de.hft_stuttgart.swp2.render.options.PanelSettings;
 import de.hft_stuttgart.swp2.render.threads.StartShadowCalculationRunnable;
 
 /**
@@ -561,6 +561,7 @@ public class CityMap3D extends JFrame implements GLEventListener {
 			}
 			Main.getOptionGUI().setVolumeViewEnabled(true);
 			if(isCalculating){
+				Main.getOptionGUI().getBtnRecalculateShadow().setText(PanelSettings.getStrRecalculate());
 				Main.getOptionGUI().setSelectShadowView(true);
 			}
 		}else{
