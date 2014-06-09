@@ -85,12 +85,16 @@ public class PanelSettings extends JPanel {
 	JCheckBox cbGUI = new JCheckBox("Stadt 3D gerendert anzeigen");
 	JCheckBox cbVolume = new JCheckBox("Volumen berechnen");
 	JCheckBox cbShadow = new JCheckBox("Schatten berechnen");
+	public boolean isCbShadowIsSelected() {
+		return cbShadow.isSelected();
+	}
+
 	JCheckBox cbShowGrid = new JCheckBox("Raster anzeigen");
 	JCheckBox cbVolumeAmount = new JCheckBox("Volumen anzeigen");
 	JXDatePicker jxDatePicker = new JXDatePicker(new Date());
 	GregorianCalendar gc = new GregorianCalendar();
 	private JButton btnStart;
-	private JButton btnRecalculate;
+	private JButton btnRecalculateShadow;
 	public int hours = 12;
 	public int minutes = 0;
 
@@ -430,9 +434,9 @@ public class PanelSettings extends JPanel {
 		panelTime.add(txtSplitHeight);
 		constraints.gridx = 0; // column 0
 		constraints.gridy = 1; // row 0
-		btnRecalculate = new JButton("Schatten berechnen");
+		btnRecalculateShadow = new JButton("Schatten berechnen");
 
-		btnRecalculate.addActionListener(new ActionListener() {
+		btnRecalculateShadow.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
@@ -448,7 +452,7 @@ public class PanelSettings extends JPanel {
 				Main.setSplitAzimuth(Integer.parseInt(txtSplitAzimuth.getText()));
 				Main.executor.execute(Main.startShadowCalculationRunnable);
 				Main.getCityMap3D().setRecalculateShadow(true);
-				btnRecalculate.setText("Neu rechnen");
+				btnRecalculateShadow.setText("Neu rechnen");
 			}
 		});
 //		panelTime.add(btnRecalculate);
@@ -459,7 +463,11 @@ public class PanelSettings extends JPanel {
 		
 		constraints.gridx = 0; // column 0
 		constraints.gridy = 2; // row 0
-		panelShadowOptions.add(btnRecalculate, constraints);
+		panelShadowOptions.add(btnRecalculateShadow, constraints);
+	}
+
+	public JButton getBtnRecalculateShadow() {
+		return btnRecalculateShadow;
 	}
 
 	private KeyListener getKeyListenerMinutes() {
@@ -762,9 +770,25 @@ public class PanelSettings extends JPanel {
 				}
 			} else if (source == cbVolume) {
 				if (cbVolume.isSelected()) {
+					if(!Main.getCityMap3D().isFirstTimeVolumeCalc()){
+						if(Main.isParserSuccess()){
+							Main.executor.execute(Main.startVolumeCalculationRunnable);
+						}
+					}
+				} 
+			} else if(source == cbVolumeAmount){
+				if (cbVolumeAmount.isSelected() && Main.getCityMap3D().isFirstTimeVolumeCalc()) {
 					Main.getCityMap3D().setShowVolumeAmount(true);
 				} else {
 					Main.getCityMap3D().setShowVolumeAmount(false);
+				}
+			} else if(source == cbShowGrid){
+				if(cbShowGrid.isSelected()){
+					if (Main.isParserSuccess()) {
+						Main.getCityMap3D().setShowGrid(true);
+					}
+				}else{
+					Main.getCityMap3D().setShowGrid(false);
 				}
 			}
 		}

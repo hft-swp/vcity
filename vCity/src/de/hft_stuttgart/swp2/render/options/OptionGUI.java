@@ -25,6 +25,16 @@ public class OptionGUI extends JFrame implements Refreshable{
 	private int frameHeight; //Stores the height before refresh
 	private final int PREF_HEIGHT = 650;
 	private final int PREF_WIDTH= 300;
+	private JPanel panelCityInfo = new PanelCityInfo();
+	private JPanel panelNavigation = new PanelNavigation();
+	private JButton btn1 = new JButton("Einstellungen");
+	private JButton btn2 = new JButton("Stadtinfo");
+	private JButton btn3 = new JButton("Steuerung");
+	
+	private JScrollPane scrollPane; 
+	private GridBagConstraints constraints = new GridBagConstraints();
+
+	private static final long serialVersionUID = -2135256125525996134L;
 
 	private final int INSET_TOP_PANEL= 5;
 	private final int INSET_LEFT_PANEL= 10;
@@ -49,11 +59,15 @@ public class OptionGUI extends JFrame implements Refreshable{
 	}
 	
 	public Boolean isCalculateShadow(){
-		return panelSettings.cbShadow.isSelected();
+		return panelSettings.isCbShadowIsSelected();
 	}
 	
 	public JButton getBtnStartParseOfPanelSettings() {
 		return panelSettings.getBtnStartParse();
+	}
+	
+	public JButton getBtnRecalculateShadow() {
+		return panelSettings.getBtnRecalculateShadow();
 	}
 	
 	public GregorianCalendar getTime(){
@@ -72,16 +86,7 @@ public class OptionGUI extends JFrame implements Refreshable{
 		panelSettings.setMinutes(minutes);
 	}
 
-	private JPanel panelCityInfo = new PanelCityInfo();
-	private JPanel panelNavigation = new PanelNavigation();
-	private JButton btn1 = new JButton("Einstellungen");
-	private JButton btn2 = new JButton("Stadtinfo");
-	private JButton btn3 = new JButton("Steuerung");
-	
-	private JScrollPane scrollPane; 
-	private GridBagConstraints constraints = new GridBagConstraints();
 
-	private static final long serialVersionUID = -2135256125525996134L;
 
 	public OptionGUI() {
 		this.setTitle("vCity - Einstellungen");

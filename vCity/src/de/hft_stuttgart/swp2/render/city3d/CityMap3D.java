@@ -25,6 +25,7 @@ import de.hft_stuttgart.swp2.opencl.ShadowPrecision;
 import de.hft_stuttgart.swp2.opencl.SunPositionCalculator;
 import de.hft_stuttgart.swp2.parser.Parser;
 import de.hft_stuttgart.swp2.render.Main;
+import de.hft_stuttgart.swp2.render.options.OptionGUI;
 import de.hft_stuttgart.swp2.render.threads.StartShadowCalculationRunnable;
 
 /**
@@ -59,6 +60,7 @@ public class CityMap3D extends JFrame implements GLEventListener {
 	public boolean enableDrawCenters = false;
 	private boolean isShadowCalc = false;
 	private boolean isVolumeCalc = true;
+	private boolean isShowGrid = true, isStartCalculation = true;
 	
 	//if the checkbox for shadow isSelected and 
 	//if is isShadowCalcViaCheckBoxLock=false
@@ -83,7 +85,12 @@ public class CityMap3D extends JFrame implements GLEventListener {
 	public Calendar utcCal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
 	private SunPositionCalculator sunPos;
 	private boolean isShowVolumeAmount = true;
-	protected boolean isShowVolumeAmount() {
+	public int month = 0;
+	private boolean isPolygon = false;
+	GLBuildingEntity[] glBuildings;
+	private boolean isFirstTimeShadowCalc = false;
+	
+	public boolean isShowVolumeAmount() {
 		return isShowVolumeAmount;
 	}
 
@@ -91,11 +98,9 @@ public class CityMap3D extends JFrame implements GLEventListener {
 		this.isShowVolumeAmount = isShowVolumeAmount;
 	}
 
-	public int month = 0;
-	private boolean isPolygon = false;
 
-	GLBuildingEntity[] glBuildings;
-	private boolean isFirstTimeShadowCalc = false;
+
+
 	public boolean isFirstTimeShadowCalc() {
 		return isFirstTimeShadowCalc;
 	}
@@ -104,6 +109,12 @@ public class CityMap3D extends JFrame implements GLEventListener {
 	private boolean isVolumeChange = true;
 	private boolean isShadowChange = true;
 	public boolean drawPolygons = true;
+	
+	
+	public boolean isFirstTimeVolumeCalc() {
+		return isFirstTimeVolumeCalc;
+	}
+
 
 	public SunPositionCalculator[] getSunPositions() {
 		return sunPositions;
@@ -115,14 +126,22 @@ public class CityMap3D extends JFrame implements GLEventListener {
 
 	public int ray = 0;
 
-	private static boolean isShowGrid = true;
 
-	private Boolean isStartCalculation = true;
+
 
 	public void setIsStartCalculation(Boolean isStartCalculation) {
 		this.isStartCalculation = isStartCalculation;
 	}
 
+	public void setShowGrid(boolean isShowGrid) {
+		this.isShowGrid = isShowGrid;
+	}
+	
+	public boolean isShowGrid() {
+		return isShowGrid;
+	}
+
+	
 	public CityMap3D(int width, int height) {
 		super("vCity - 3D Stadtansicht");
 		this.setSize(width, height);
@@ -259,18 +278,18 @@ public class CityMap3D extends JFrame implements GLEventListener {
 			}
 			isStartCalculation = false;
 		}
-
 		if (glBuildings != null) {
 			// DRAW BUILDINGS
 			if (!isChangeValue(isShadowCalc, isVolumeCalc,
-					Main.isCalculateShadow(), Main.isCalculateVolume())
+					Main.getOptionGUI().isCalculateShadow(), 
+					Main.getOptionGUI().isCalculateVolume())
 					&& !isRecalculateShadow) {
 				for (GLBuildingEntity glBuilding : glBuildings) {
 					glBuilding.draw();
 				}
 			} else {
-				isShadowCalc = Main.isCalculateShadow();
-				isVolumeCalc = Main.isCalculateVolume();
+				isShadowCalc = Main.getOptionGUI().isCalculateShadow();
+				isVolumeCalc = Main.getOptionGUI().isCalculateVolume();
 				isRecalculateShadow = false;
 				if (isFirstTimeShadowCalc == false && isShadowCalc) {
 					// notice the query: if(isFirstTimeVolumeCalc == false &&
@@ -285,8 +304,8 @@ public class CityMap3D extends JFrame implements GLEventListener {
 					calculation();
 				}
 				for (GLBuildingEntity glBuilding : glBuildings) {
-					glBuilding.setShadowCalc(Main.isCalculateShadow());
-					glBuilding.setVolumeCalc(Main.isCalculateVolume());
+					glBuilding.setShadowCalc(isShadowCalc);
+					glBuilding.setVolumeCalc(isVolumeCalc);
 					glBuilding.draw();
 				}
 			}
@@ -300,6 +319,10 @@ public class CityMap3D extends JFrame implements GLEventListener {
 		if (enableDrawCenters) {
 			drawCentersOfHemisphere(gl);
 		}
+		
+		isShadowCalc = Main.getOptionGUI().isCalculateShadow();
+		isVolumeCalc = Main.getOptionGUI().isCalculateVolume();
+
 	}
 
 	private void drawSkyModel(GL2 gl2) {
@@ -325,6 +348,7 @@ public class CityMap3D extends JFrame implements GLEventListener {
 	private boolean isChangeValue(boolean isShadowCalcOld,
 			boolean isVolumeCalcOld, Boolean calculateShadow,
 			Boolean calculateVolume) {
+		
 		if (isShadowCalcOld == calculateShadow) {
 			isShadowChange = false;
 			if (isVolumeCalcOld == calculateVolume) {
@@ -336,7 +360,7 @@ public class CityMap3D extends JFrame implements GLEventListener {
 			}
 		} else {
 			if(isShadowCalcViaCheckBoxLock){
-				isShadowChange = false;
+				isShadowChange = true;
 				return false;
 			}else{
 				isShadowChange = true;

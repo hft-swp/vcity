@@ -17,10 +17,14 @@ public class StartShadowCalculationRunnable  implements Runnable{
 	@Override
 	public void run() {
 		String oldText = Main.getCityMap3D().getTitle();
+		Main.getOptionGUI().getBtnStartParseOfPanelSettings().setEnabled(false);
+		Main.getOptionGUI().getBtnRecalculateShadow().setEnabled(false);
 		Main.getCityMap3D().setTitle(oldText + " | calulate shadow");
 		Main.getCityMap3D().stopAnimator();
 		Main.calculateShadow(shadowPrecision, splitAzimuth, splitHeight);
 		Main.getCityMap3D().startAnimator();
+		Main.getOptionGUI().getBtnRecalculateShadow().setEnabled(true);
+		Main.getOptionGUI().getBtnStartParseOfPanelSettings().setEnabled(true);
 		Main.getCityMap3D().setTitle(oldText);
 		OptionGUI.updateCityInfo();
 	}

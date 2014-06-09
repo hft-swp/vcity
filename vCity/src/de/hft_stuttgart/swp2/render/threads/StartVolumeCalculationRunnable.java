@@ -9,9 +9,13 @@ public class StartVolumeCalculationRunnable implements Runnable{
 	public void run() {
 		String oldText = Main.getCityMap3D().getTitle();
 		Main.getCityMap3D().setTitle(oldText + " | calculate volume");
+		Main.getOptionGUI().getBtnStartParseOfPanelSettings().setEnabled(false);
+		Main.getOptionGUI().getBtnRecalculateShadow().setEnabled(false);
 		Main.getCityMap3D().stopAnimator();
 		Main.calculateVolume();
 		Main.getCityMap3D().startAnimator();
+		Main.getOptionGUI().getBtnStartParseOfPanelSettings().setEnabled(true);
+		Main.getOptionGUI().getBtnRecalculateShadow().setEnabled(true);
 		Main.getCityMap3D().setTitle(oldText);
 		OptionGUI.updateCityInfo();
 	}

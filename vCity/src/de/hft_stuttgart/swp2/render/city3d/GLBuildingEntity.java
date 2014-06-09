@@ -272,6 +272,11 @@ public class GLBuildingEntity extends GLEntity {
 	}
 
 	public void _draw() {
+		if(Main.getCityMap3D().isShowGrid()){
+			isShowGrid = true;
+		}else{
+			isShowGrid = false;
+		}
 		if (isShadowCalc) {
 			// Main.getCityMap3D().setSunPosition(Main.getTimeForSunPosition());
 			drawShadowBuildings(gl, building);
@@ -282,5 +287,6 @@ public class GLBuildingEntity extends GLEntity {
 		if (Main.getCityMap3D().isShowVolumeAmount()) {
 			drawBuildingVolumeAmount(gl, building);
 		}
+		
 	}
 }
