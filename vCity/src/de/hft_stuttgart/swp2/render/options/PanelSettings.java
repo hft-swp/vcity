@@ -74,6 +74,7 @@ public class PanelSettings extends JPanel {
 	int tempAzimuth = Main.getSplitAzimuth();
 	int tempHeight = Main.getSplitHeight();
 
+	private final ButtonGroup groupFormView = new ButtonGroup();
 	String strBtnFileChooser = "GML-Datei auswählen";
 	JFileChooser fc;
 	private String path;
@@ -85,12 +86,47 @@ public class PanelSettings extends JPanel {
 	JCheckBox cbGUI = new JCheckBox("Stadt 3D gerendert anzeigen");
 	JCheckBox cbVolume = new JCheckBox("Volumen berechnen");
 	JCheckBox cbShadow = new JCheckBox("Schatten berechnen");
+	JRadioButton jrbVolumeView = new JRadioButton("in Volumen-Ansicht wechseln");
+	JRadioButton jrbShadowView = new JRadioButton("in Schatten-Ansicht wechseln");
+	
+	public boolean isVolumeViewSelected(){
+		if(jrbVolumeView.isSelected()){
+			return true;
+		}else{
+			return false;
+		}
+	}
+	
+	public boolean isShadowViewSelected(){
+		if(jrbShadowView.isSelected()){
+			return true;
+		}else{
+			return false;
+		}
+	}
+	
+	public void setSelectVolumeView(boolean select){
+		groupFormView.setSelected(jrbVolumeView.getModel(), select);
+	}
+	
+	public void setSelectShadowView(boolean select){
+		groupFormView.setSelected(jrbShadowView.getModel(), select);
+	}
+	
+	public void setVolumeViewEnabled(boolean enabled){
+		jrbVolumeView.setEnabled(enabled);
+	}
+	
+	public void setShadowViewEnabled(boolean enabled){
+		jrbShadowView.setEnabled(enabled);
+	}
+	
 	public boolean isCbShadowIsSelected() {
 		return cbShadow.isSelected();
 	}
 
 	JCheckBox cbShowGrid = new JCheckBox("Raster anzeigen");
-	JCheckBox cbVolumeAmount = new JCheckBox("Volumen anzeigen");
+	JCheckBox cbVolumeAmount = new JCheckBox("Volumen über Gebäude anzeigen");
 	JXDatePicker jxDatePicker = new JXDatePicker(new Date());
 	GregorianCalendar gc = new GregorianCalendar();
 	private JButton btnStart;
@@ -309,10 +345,18 @@ public class PanelSettings extends JPanel {
 		titledBorderGraphicOption = BorderFactory.createTitledBorder("Grafische Optionen");
 		JPanel panelGraphic = new JPanel();
 		panelGraphic.setBorder(titledBorderGraphicOption);
-		panelGraphic.setLayout(new GridLayout(3, 1));
+		panelGraphic.setLayout(new GridLayout(5, 1));
 		panelGraphic.add(cbGUI);
 		panelGraphic.add(cbShowGrid);
 		panelGraphic.add(cbVolumeAmount);
+		panelGraphic.add(jrbVolumeView);
+		panelGraphic.add(jrbShadowView);
+
+		groupFormView.add(jrbVolumeView);
+		groupFormView.add(jrbShadowView);
+		jrbVolumeView.setEnabled(false);
+		jrbShadowView.setEnabled(false);
+
 
 		CheckBoxListener cbListener = new CheckBoxListener();
 		cbGUI.setSelected(true);
@@ -440,8 +484,11 @@ public class PanelSettings extends JPanel {
 
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				if (City.getInstance().getBuildings().size() == 0) {
-					return;
+//				if (City.getInstance().getBuildings().size() == 0) {
+//					return;
+//				}
+				if(!Main.isParserSuccess()){
+					startParser(true);
 				}
 				ShadowPrecision prec = (ShadowPrecision) cmbShadowPrecision
 						.getSelectedItem();
@@ -450,9 +497,18 @@ public class PanelSettings extends JPanel {
 						Integer.parseInt(txtSplitHeight.getText()));
 				Main.setSplitHeight(Integer.parseInt(txtSplitHeight.getText()));
 				Main.setSplitAzimuth(Integer.parseInt(txtSplitAzimuth.getText()));
-				Main.executor.execute(Main.startShadowCalculationRunnable);
+				if(Main.getCityMap3D().isFirstTimeShadowCalc()){
+					Main.executor.execute(Main.startShadowCalculationRunnable);
+				}else{
+					Main.getCityMap3D().calculation();
+				}
+//				Main.executor.execute(Main.startShadowCalculationRunnable);
 				Main.getCityMap3D().setRecalculateShadow(true);
-				btnRecalculateShadow.setText("Neu rechnen");
+				setSelectShadowView(true);
+				if(Main.isParserSuccess()){
+					btnRecalculateShadow.setText("Neu rechnen");
+				}
+				
 			}
 		});
 //		panelTime.add(btnRecalculate);
@@ -620,29 +676,9 @@ public class PanelSettings extends JPanel {
 
 	private ActionListener actionStartParsing() {
 		return new ActionListener() {
-
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				try {
-					if (!gmlFile.getPath().isEmpty()) {
-						lblPath.setForeground(Color.black);
-						StartParserRunnable = new StartParserRunnable(
-								gmlFile.getPath());
-						threadStartParsing = new Thread(StartParserRunnable);
-						threadStartParsing.start();
-						path = gmlFile.getPath();
-					} else {
-						lblPath.setText("Kein gültiger Pfad");
-						lblPath.setForeground(Color.RED);
-					}
-				} catch (Exception e1) {
-					lblPath.setText("Kein gültiger Pfad");
-					lblPath.setForeground(Color.RED);
-				}
-				Main.getCityMap3D().setStartShadowCalculationRunnable(
-						(ShadowPrecision) cmbShadowPrecision.getSelectedItem(),
-						Integer.parseInt(txtSplitAzimuth.getText()),
-						Integer.parseInt(txtSplitHeight.getText()));
+				startParser(false);
 			}
 		};
 	}
@@ -663,6 +699,29 @@ public class PanelSettings extends JPanel {
 				}
 			}
 		};
+	}
+	
+	private void startParser(boolean isShadowCalculationButtonPressed) {
+		try {
+			if (!gmlFile.getPath().isEmpty()) {
+				lblPath.setForeground(Color.black);
+				StartParserRunnable = new StartParserRunnable(gmlFile.getPath());
+//				threadStartParsing = new Thread(StartParserRunnable);
+//				threadStartParsing.start();
+				Main.executor.execute(StartParserRunnable);
+				path = gmlFile.getPath();
+			} else {
+				lblPath.setText("Kein gültiger Pfad");
+				lblPath.setForeground(Color.RED);
+			}
+		} catch (Exception e1) {
+			lblPath.setText("Kein gültiger Pfad");
+			lblPath.setForeground(Color.RED);
+		}
+		Main.getCityMap3D().setStartShadowCalculationRunnable(
+				(ShadowPrecision) cmbShadowPrecision.getSelectedItem(),
+				Integer.parseInt(txtSplitAzimuth.getText()),
+				Integer.parseInt(txtSplitHeight.getText()));
 	}
 
 	private void generatePanelFile() {

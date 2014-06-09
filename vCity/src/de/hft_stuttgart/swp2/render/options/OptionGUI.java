@@ -62,6 +62,30 @@ public class OptionGUI extends JFrame implements Refreshable{
 		return panelSettings.isCbShadowIsSelected();
 	}
 	
+	public boolean isVolumeViewSelected(){
+		return panelSettings.isVolumeViewSelected();
+	}
+	
+	public void setVolumeViewEnabled(boolean enabled){
+		panelSettings.setVolumeViewEnabled(enabled);
+	}
+	
+	public void setShadowViewEnabled(boolean enabled){
+		panelSettings.setShadowViewEnabled(enabled);
+	}
+	
+	public void setSelectVolumeView(boolean select){
+		panelSettings.setSelectVolumeView(select);
+	}
+	
+	public void setSelectShadowView(boolean select){
+		panelSettings.setSelectShadowView(select);
+	}
+	
+	public boolean isShadowViewSelected(){
+		return panelSettings.isShadowViewSelected();
+	}
+	
 	public JButton getBtnStartParseOfPanelSettings() {
 		return panelSettings.getBtnStartParse();
 	}

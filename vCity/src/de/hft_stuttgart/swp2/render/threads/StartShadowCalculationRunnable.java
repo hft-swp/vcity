@@ -6,6 +6,7 @@ import de.hft_stuttgart.swp2.render.options.OptionGUI;
 
 public class StartShadowCalculationRunnable  implements Runnable{
 	private ShadowPrecision shadowPrecision;
+	private static boolean isShadowCalculated = false;
 	private int splitAzimuth;
 	private int splitHeight;
 	public StartShadowCalculationRunnable(ShadowPrecision shadowPrecision, int splitAzimuth, int splitHeight){
@@ -16,6 +17,7 @@ public class StartShadowCalculationRunnable  implements Runnable{
 
 	@Override
 	public void run() {
+		setShadowCalculated(true);
 		String oldText = Main.getCityMap3D().getTitle();
 		Main.getOptionGUI().getBtnStartParseOfPanelSettings().setEnabled(false);
 		Main.getOptionGUI().getBtnRecalculateShadow().setEnabled(false);
@@ -25,8 +27,17 @@ public class StartShadowCalculationRunnable  implements Runnable{
 		Main.getCityMap3D().startAnimator();
 		Main.getOptionGUI().getBtnRecalculateShadow().setEnabled(true);
 		Main.getOptionGUI().getBtnStartParseOfPanelSettings().setEnabled(true);
+		oldText = "vCity - 3D Stadtansicht";
 		Main.getCityMap3D().setTitle(oldText);
 		OptionGUI.updateCityInfo();
+	}
+
+	public static boolean isShadowCalculated() {
+		return isShadowCalculated;
+	}
+
+	public static void setShadowCalculated(boolean isShadowCalculated) {
+		StartShadowCalculationRunnable.isShadowCalculated = isShadowCalculated;
 	}
 
 }

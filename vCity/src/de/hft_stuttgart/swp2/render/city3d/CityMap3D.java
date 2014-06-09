@@ -87,6 +87,7 @@ public class CityMap3D extends JFrame implements GLEventListener {
 	private boolean isShowVolumeAmount = true;
 	public int month = 0;
 	private boolean isPolygon = false;
+	private boolean isCalculating = false;
 	GLBuildingEntity[] glBuildings;
 	private boolean isFirstTimeShadowCalc = false;
 	
@@ -131,6 +132,10 @@ public class CityMap3D extends JFrame implements GLEventListener {
 
 	public void setIsStartCalculation(Boolean isStartCalculation) {
 		this.isStartCalculation = isStartCalculation;
+	}
+	
+	public void setIsFirstTimeShadowCalculation(boolean isFirstTimeShadowCalc) {
+		this.isFirstTimeShadowCalc= isFirstTimeShadowCalc;
 	}
 
 	public void setShowGrid(boolean isShowGrid) {
@@ -210,7 +215,8 @@ public class CityMap3D extends JFrame implements GLEventListener {
 	 * isStartCalculation: gives the information if the calculation starts for
 	 * the first time or several times with the same parsed city
 	 */
-	private void calculation() {
+	public void calculation() {
+		isCalculating = true;
 		if (Main.isParserSuccess()) {
 			if (isVolumeCalc && isFirstTimeVolumeCalc
 					&& (isVolumeChange || isStartCalculation)) {
@@ -251,6 +257,7 @@ public class CityMap3D extends JFrame implements GLEventListener {
 		// TODO Wenn sich der Pfad ändert alles neuberechnen, wenn nicht city
 		// Objekte speichern
 		if (isStartCalculation) {
+			StartShadowCalculationRunnable.setShadowCalculated(false);
 			if (Main.isCalculateShadow()) {
 				isFirstTimeShadowCalc = true;
 			} else {
@@ -278,13 +285,18 @@ public class CityMap3D extends JFrame implements GLEventListener {
 			}
 			isStartCalculation = false;
 		}
+		changeView();
 		if (glBuildings != null) {
+			boolean isViewShadow = Main.getOptionGUI().isShadowViewSelected();
+			boolean isViewVolume = Main.getOptionGUI().isVolumeViewSelected();
 			// DRAW BUILDINGS
 			if (!isChangeValue(isShadowCalc, isVolumeCalc,
 					Main.getOptionGUI().isCalculateShadow(), 
 					Main.getOptionGUI().isCalculateVolume())
 					&& !isRecalculateShadow) {
 				for (GLBuildingEntity glBuilding : glBuildings) {
+					glBuilding.setShadowCalc(isViewShadow);
+					glBuilding.setVolumeCalc(isViewVolume);
 					glBuilding.draw();
 				}
 			} else {
@@ -303,9 +315,10 @@ public class CityMap3D extends JFrame implements GLEventListener {
 					isFirstTimeVolumeCalc = true;
 					calculation();
 				}
+				//View boolean values
 				for (GLBuildingEntity glBuilding : glBuildings) {
-					glBuilding.setShadowCalc(isShadowCalc);
-					glBuilding.setVolumeCalc(isVolumeCalc);
+					glBuilding.setShadowCalc(isViewShadow);
+					glBuilding.setVolumeCalc(isViewVolume);
 					glBuilding.draw();
 				}
 			}
@@ -322,7 +335,7 @@ public class CityMap3D extends JFrame implements GLEventListener {
 		
 		isShadowCalc = Main.getOptionGUI().isCalculateShadow();
 		isVolumeCalc = Main.getOptionGUI().isCalculateVolume();
-
+		isCalculating = false; //Variable must stand on the end
 	}
 
 	private void drawSkyModel(GL2 gl2) {
@@ -361,7 +374,11 @@ public class CityMap3D extends JFrame implements GLEventListener {
 		} else {
 			if(isShadowCalcViaCheckBoxLock){
 				isShadowChange = true;
-				return false;
+				if(isFirstTimeShadowCalc){
+					return true;
+				}else{
+					return false;
+				}
 			}else{
 				isShadowChange = true;
 				return true;
@@ -535,6 +552,36 @@ public class CityMap3D extends JFrame implements GLEventListener {
 		if (animator != null) {
 			animator.resume();
 		}
+	}
+	
+	public void changeView(){
+		if(isFirstTimeShadowCalc && isFirstTimeVolumeCalc && Main.isParserSuccess()){
+			if(StartShadowCalculationRunnable.isShadowCalculated()){
+				Main.getOptionGUI().setShadowViewEnabled(true);
+			}
+			Main.getOptionGUI().setVolumeViewEnabled(true);
+			if(isCalculating){
+				Main.getOptionGUI().setSelectShadowView(true);
+			}
+		}else{
+			if(isFirstTimeShadowCalc && Main.isParserSuccess()){
+				Main.getOptionGUI().setShadowViewEnabled(true);
+				if(isCalculating){
+					Main.getOptionGUI().setSelectShadowView(true);
+				}
+			}else{
+				Main.getOptionGUI().setShadowViewEnabled(false);
+			}
+			if(isFirstTimeVolumeCalc && Main.isParserSuccess()){
+				Main.getOptionGUI().setVolumeViewEnabled(true);
+				if(isCalculating){
+					Main.getOptionGUI().setSelectVolumeView(true);
+				}
+			}else{
+				Main.getOptionGUI().setVolumeViewEnabled(false);
+			}
+		}
+
 	}
 
 	public void setStartShadowCalculationRunnable(
