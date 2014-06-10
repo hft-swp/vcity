@@ -8,6 +8,7 @@ import java.util.GregorianCalendar;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
@@ -90,6 +91,7 @@ public class Main {
 						int height = (int)Toolkit.getDefaultToolkit().getScreenSize().getHeight();
 						cityMap3D = new CityMap3D(width,height);
 						cityMap3D.setVisible(true);
+						cityMap3D.setExtendedState(JFrame.MAXIMIZED_BOTH);
 //						cityMap3D.setAlwaysOnTop(true);
 					}
 

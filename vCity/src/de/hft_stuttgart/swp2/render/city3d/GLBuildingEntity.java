@@ -6,6 +6,7 @@ import javax.media.opengl.glu.GLU;
 import com.jogamp.opengl.util.gl2.GLUT;
 
 import de.hft_stuttgart.swp2.model.BoundarySurface;
+import de.hft_stuttgart.swp2.model.BoundarySurface.SurfaceType;
 import de.hft_stuttgart.swp2.model.Building;
 import de.hft_stuttgart.swp2.model.Polygon;
 import de.hft_stuttgart.swp2.model.ShadowTriangle;
@@ -230,14 +231,21 @@ public class GLBuildingEntity extends GLEntity {
 				BoundarySurface surface = building.getBoundarySurfaces().get(i);
 				for (int j = 0; j < surface.getPolygons().size(); ++j) {
 					Polygon polygon = surface.getPolygons().get(j);
-					double grey = 0.0;
+					double red = 0.0, green = 0.0, blue = 0.0;					
 					if (ray != -1) {
-						grey = 1.0 - polygon.getPercentageShadow()[ray];
+						red = green = blue = 1.0 - polygon.getPercentageShadow()[ray] * 0.9;
+						if (surface.getType() == SurfaceType.ROOF) {
+							green = blue = 0.0;
+						} else if (surface.getType() == SurfaceType.GROUND) {
+							red = blue = 0.0;
+						} else if (surface.getType() == SurfaceType.OTHER) {
+							red = green = 0.0;
+						}
 					}
 					// for (ShadowTriangle t : polygon.getShadowTriangles()) {
 					for (Triangle t : polygon.getTriangles()) {
 						gl.glBegin(GL2.GL_TRIANGLES);
-						gl.glColor3d(grey, grey, grey);
+						gl.glColor3d(red, green, blue);
 						// if (ray != -1 && !t.getShadowSet().get(ray)) {
 						// gl.glColor3d(0.0, grey, 0.0);
 						// }
