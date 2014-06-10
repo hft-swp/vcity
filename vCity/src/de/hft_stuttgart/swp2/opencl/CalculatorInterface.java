@@ -27,6 +27,9 @@ public interface CalculatorInterface {
 	 */
 	public void calculateShadow(ShadowPrecision precision, int splitAzimuth, int splitHeight) throws OpenClException;
 	
+	/**
+	 * Calculates the area for each polygon
+	 */
 	public void calculateArea();
 	
 	
