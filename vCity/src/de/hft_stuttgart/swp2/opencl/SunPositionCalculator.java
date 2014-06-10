@@ -42,6 +42,8 @@ public class SunPositionCalculator {
 	 * angles to determine the position of the sun. This considers the location
 	 * too.
 	 * 
+	 * -x Achse = norden
+	 * 
 	 * @param d
 	 *            the time of which the sun position is to be calculated
 	 * @param longitude
@@ -114,7 +116,7 @@ public class SunPositionCalculator {
 		// azimut += 360d;
 		// }
 		// azimut soll von Noren aus gez�hlt werden
-		azimut += 180;
+//		azimut += 90;
 
 		// H�henwinkel
 		double h = asin(cos(delta) * cos(stundenWinkel) * cos(latitude)
@@ -231,7 +233,7 @@ public class SunPositionCalculator {
 		// azimut += 360d;
 		// }
 		// azimut soll von Noren aus gez�hlt werden
-		azimut += 180;
+		azimut += 90;
 
 		// H�henwinkel
 		double h = asin(cos(delta) * cos(stundenWinkel) * cos(latitude)
@@ -296,7 +298,7 @@ public class SunPositionCalculator {
 		}
 		int result = 0;
 		result += ((int) (hr / (90.0 / splitHeight))) * splitAzimuth;
-		result += splitAzimuth - (azimut + 90) / (360.0 / splitAzimuth);
+		result += splitAzimuth - 1 - (int) (((azimut + 90) % 360) / (360.0 / splitAzimuth));
 		if (result < -1 || result > splitAzimuth * splitHeight) {
 			result = -1;
 		}
