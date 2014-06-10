@@ -21,6 +21,8 @@ import de.hft_stuttgart.swp2.parser.Parser;
 import de.hft_stuttgart.swp2.parser.ParserException;
 import de.hft_stuttgart.swp2.parser.ParserInterface;
 import de.hft_stuttgart.swp2.render.city3d.CityMap3D;
+import de.hft_stuttgart.swp2.render.city3d.Message;
+import de.hft_stuttgart.swp2.render.city3d.Message.Style;
 import de.hft_stuttgart.swp2.render.options.OptionGUI;
 import de.hft_stuttgart.swp2.render.threads.StartShadowCalculationRunnable;
 import de.hft_stuttgart.swp2.render.threads.StartVolumeCalculationRunnable;
@@ -107,9 +109,11 @@ public class Main {
 		if (Main.isParserSuccess()) {
 			long start;
 			long end;
-			System.out.println("Starting volume calculation...");
+			System.out.println("Starting volume calculation...");			
 			start = System.currentTimeMillis();
 			try {
+				Message message = new Message(cityMap3D);
+				message.makeText(cityMap3D,"Starting volume calculation...",Style.NORMAL).display();
 				backend.calculateVolume();
 			} catch (OpenClException e) {
 				// TODO Auto-generated catch block
