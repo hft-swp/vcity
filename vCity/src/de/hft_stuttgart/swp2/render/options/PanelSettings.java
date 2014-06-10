@@ -1,6 +1,7 @@
 package de.hft_stuttgart.swp2.render.options;
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
@@ -28,6 +29,7 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
+import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.border.TitledBorder;
@@ -64,9 +66,12 @@ public class PanelSettings extends JPanel {
 	private JPanel panelFile;
 	private JPanel optionPanel;
 	private JPanel panelShadowOptions;
+	private JScrollPane jspPanelShadowOptions;
 	JPanel panelTriangleChoice = new JPanel();
 	
 	private JButton btnFileChooser;
+	final JButton btnInformation = new JButton("Programminformationen >");
+	final JButton btnExport = new JButton("Export >");
 	JTextField txtHours = new JTextField(String.valueOf(DEFAULT_VALUE_HOURS));
 	JTextField txtMin = new JTextField(getMinutesToText(DEFAULT_VALUE_MINUTES));
 	JTextField txtSplitAzimuth = new JTextField();
@@ -270,10 +275,39 @@ public class PanelSettings extends JPanel {
 	}
 
 	private void setContent() {
-
-		JLabel lblChooseSource = new JLabel("Quelle wählen");
-		constraints.insets = new Insets(10, 10, 0, 0);
+		constraints.insets = new Insets(0, 10, 0, 0);
+		constraints.anchor = GridBagConstraints.PAGE_START;
+		constraints.weightx = 1.0;// components
 		constraints.fill = GridBagConstraints.HORIZONTAL;
+		constraints.weighty = 0.3; // request any extra vertical space
+		constraints.gridx = 0; // column 0
+		constraints.gridy = 0; // row 0
+		constraints.gridwidth = 2;
+		JPanel panelParser = generatePanelParser();
+		this.add(panelParser, constraints);
+
+
+		TitledBorder titledBorderOption;
+		titledBorderOption = BorderFactory.createTitledBorder("Optionen");
+		constraints.gridx = 0; // column 0
+		constraints.gridy = 1; // row 0
+		constraints.weighty = 0.7; // request any extra vertical space
+		constraints.gridwidth = 2;
+		constraints.anchor = GridBagConstraints.PAGE_END; //bottom of space
+		constraints.fill = GridBagConstraints.BOTH;
+		setJPanelOptions();
+		optionPanel.setBorder(titledBorderOption);
+		this.add(optionPanel, constraints);
+
+	}
+
+	private JPanel generatePanelParser() {
+		JPanel panelParser = new JPanel(new GridBagLayout());
+		GridBagConstraints constraints = new GridBagConstraints();
+		JLabel lblChooseSource = new JLabel("Quelle wählen");
+		constraints.insets = new Insets(0, 10, 0, 0);
+		constraints.ipady = 15;
+		constraints.fill = GridBagConstraints.BOTH;
 		constraints.weightx = 1.0;// components
 		constraints.fill = GridBagConstraints.BOTH;
 		constraints.weighty = 1.0; // request any extra vertical space
@@ -282,54 +316,38 @@ public class PanelSettings extends JPanel {
 		constraints.gridwidth = 1;
 		lblChooseSource.setHorizontalAlignment(SwingConstants.LEFT);
 		// constraints.fill = GridBagConstraints.HORIZONTAL;
-		this.add(lblChooseSource, constraints);
+		panelParser.add(lblChooseSource, constraints);
 		// lblChooseSource.setHorizontalAlignment(SwingConstants.LEFT);
 		// constraints.weighty = 0; //request any extra vertical space
 		constraints.gridx = 1; // column 0
 		constraints.gridwidth = 1;
 		constraints.ipady = 0;
-		constraints.insets = new Insets(10, 10, 0, 0);
-		constraints.fill = GridBagConstraints.HORIZONTAL;
+		constraints.fill = GridBagConstraints.BOTH;
 		constraints.gridy = 0; // row 0
 		// constraints.fill = GridBagConstraints.NONE;
 		// constraints.anchor = GridBagConstraints.LINE_END;
 		cmbChooseSource.setSelectedIndex(0);
 		cmbChooseSource.addActionListener(chooseSourceAction());
-		this.add(cmbChooseSource, constraints);
+		panelParser.add(cmbChooseSource, constraints);
 
 		generatePanelFile();
 		generatePanelDataBase();
-		constraints.insets = new Insets(10, 10, 0, 0);
 		// constraints.gridwidth = GridBagConstraints.REMAINDER;
 		constraints.gridheight = 1;
 		// constraints.weighty = 0.1; //request any extra vertical space
 		constraints.gridx = 0; // column 0
 		constraints.gridy = 1; // row 0
+		constraints.ipady = 0;
 		constraints.gridwidth = 2;
 		constraints.fill = GridBagConstraints.BOTH;
 		if (cmbChooseSource.getSelectedItem().equals("Filesystem")) {
-			this.add(panelFile, constraints);
+			panelParser.add(panelFile, constraints);
 		} else if (cmbChooseSource.getSelectedItem().equals("Datenbank")) {
-			this.add(panelDatabase, constraints);
+			panelParser.add(panelDatabase, constraints);
 		} else {
-			this.add(panelFile, constraints);
+			panelParser.add(panelFile, constraints);
 		}
-
-		constraints.gridx = 0; // column 0
-		constraints.gridy = 3; // row 0
-		constraints.gridwidth = 2;
-		TitledBorder titledBorderOption;
-		titledBorderOption = BorderFactory.createTitledBorder("Optionen");
-
-
-		constraints.gridx = 0; // column 0
-		constraints.gridy = 4; // row 0
-		constraints.gridwidth = 2;
-		constraints.fill = GridBagConstraints.BOTH;
-		setJPanelOptions();
-		optionPanel.setBorder(titledBorderOption);
-		this.add(optionPanel, constraints);
-
+		return panelParser;
 	}
 
 	private void generatePanelDataBase() {
@@ -373,6 +391,7 @@ public class PanelSettings extends JPanel {
 		cbVolumeAmount.addItemListener(cbListener);
 		constraints.gridx = 0; // column 0
 		constraints.gridy = 0; // row 0
+		constraints.weighty = 0.2; 
 		// constraints.fill = GridBagConstraints.HORIZONTAL;
 		optionPanel.add(panelGraphic, constraints);
 
@@ -380,20 +399,28 @@ public class PanelSettings extends JPanel {
 		cbVolume.addItemListener(cbListener);
 		constraints.gridx = 0; // column 0
 		constraints.gridy = 1; // row 0
+		constraints.weighty = 0.1; 
 		optionPanel.add(cbVolume, constraints);
 
 		cbShadow.setSelected(false);
 		cbShadow.addItemListener(cbListener);
 		constraints.gridx = 0; // column 0
 		constraints.gridy = 2; // row 0
+		constraints.weighty = 0.1; 
 		optionPanel.add(cbShadow, constraints);
 
 		generatePanelShadowOptions();
 		constraints.gridx = 0; // column 0
 		constraints.gridy = 3; // row 0
-		optionPanel.add(panelShadowOptions, constraints);
+		constraints.ipady = 80;
+		constraints.weighty = 4.0; // request any extra vertical space
+		panelShadowOptions.setPreferredSize(new Dimension(200,300));
+		jspPanelShadowOptions = new JScrollPane(panelShadowOptions);
+		jspPanelShadowOptions.setMinimumSize(new Dimension(150,100));
+		optionPanel.add(jspPanelShadowOptions, constraints);
 		if (!cbShadow.isSelected()) {
 			panelShadowOptions.setVisible(false);
+			jspPanelShadowOptions.setVisible(false);
 		}
 
 		return optionPanel;
@@ -409,7 +436,7 @@ public class PanelSettings extends JPanel {
 		constraints.anchor = GridBagConstraints.PAGE_START;
 		constraints.weightx = 1.0;// components
 		constraints.ipady = 0;
-		constraints.fill = GridBagConstraints.HORIZONTAL;
+		constraints.fill = GridBagConstraints.BOTH;
 		constraints.weighty = 1.0; // request any extra vertical space
 		jxDatePicker.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -751,13 +778,13 @@ public class PanelSettings extends JPanel {
 		panelFile = new JPanel();
 		panelFile.setLayout(new GridBagLayout());
 		GridBagConstraints constraints = new GridBagConstraints();
-		constraints.insets = new Insets(0, 0, 5, 0);
+		constraints.insets = new Insets(0, 0, 0, 0);
 		constraints.weightx = 1.0;// components
 		constraints.weighty = 1.0; // request any extra vertical space
 		constraints.gridx = 0; // column 0
 		constraints.gridy = 0; // row 0
 		// constraints.anchor = GridBagConstraints.PAGE_START;
-		constraints.fill = GridBagConstraints.HORIZONTAL;
+		constraints.fill = GridBagConstraints.BOTH;
 		btnFileChooser = new JButton(strBtnFileChooser);
 		btnFileChooser.addActionListener(new ActionListener() {
 			@Override
@@ -767,7 +794,7 @@ public class PanelSettings extends JPanel {
 		});
 		panelFile.add(btnFileChooser, constraints);
 
-		constraints.insets = new Insets(5, 0, 5, 0);
+		constraints.insets = new Insets(0, 0, 0, 0);
 		constraints.gridx = 0;
 		constraints.gridy = 1;
 		lblPath = new JLabel(strPathContent);
@@ -775,14 +802,77 @@ public class PanelSettings extends JPanel {
 
 		constraints.gridx = 0; // column 0
 		constraints.gridy = 2; // row 0
-		constraints.fill = GridBagConstraints.HORIZONTAL;
+		constraints.fill = GridBagConstraints.BOTH;
 
 		btnStart = new JButton("Start");
 		btnStart.addActionListener(actionStartParsing());
 		panelFile.add(btnStart, constraints);
+		
+		constraints.gridx = 0; // column 0
+		constraints.gridy = 3; // row 0
+		constraints.insets = new Insets(10, 0, 0, 0);
+		
+		btnExport.setEnabled(false);
+		btnExport.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if(!Main.getOptionGUI().isPanelExportVisible()){
+					openPanelExport();
+					closePanelInformation();
+				}else{
+					closePanelExport();
+				}
 
+			}
+		});
+		panelFile.add(btnExport, constraints);
+		
+		constraints.insets = new Insets(0, 0, 0, 0);
+		constraints.gridx = 0; // column 0
+		constraints.gridy = 4; // row 0
+		btnInformation.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if(!Main.getOptionGUI().isPanelInformationVisible()){
+					openPanelInformation();
+					closePanelExport();
+				}else{
+					closePanelInformation();
+				}
+			}
+		});
+		panelFile.add(btnInformation, constraints);
+	}
+	
+	public void setBtnExportEnabled(boolean enabled){
+		btnExport.setEnabled(enabled);
 	}
 
+	private void closePanelExport() {
+		Main.getOptionGUI().setPanelExportVisible(false);
+		Main.getOptionGUI().removePanelExport();
+		btnExport.setText("Export >");
+	}
+
+	private void openPanelExport() {
+		Main.getOptionGUI().addPanelExport();
+		Main.getOptionGUI().setPanelExportVisible(true);
+		btnExport.setText("< Export");
+	}
+	
+	private void closePanelInformation() {
+		Main.getOptionGUI().setPanelInformationVisible(false);
+		Main.getOptionGUI().removePanelInformation();
+		btnInformation.setText("Programminformationen >");
+	}
+
+	private void openPanelInformation() {
+		Main.getOptionGUI().addPanelInformation();
+		Main.getOptionGUI().setPanelInformationVisible(true);
+		btnInformation.setText("< Programminformationen");
+	}
 	private void setFileChooser() {
 		// Set up the file chooser.
 		if (fc == null) {
@@ -847,8 +937,12 @@ public class PanelSettings extends JPanel {
 			} else if (source == cbShadow) {
 				if (cbShadow.isSelected()) {
 					panelShadowOptions.setVisible(true);
+					jspPanelShadowOptions.setVisible(true);
+					Main.getOptionGUI().refresh();
 				} else {
 					panelShadowOptions.setVisible(false);
+					jspPanelShadowOptions.setVisible(false);
+					Main.getOptionGUI().refresh();
 				}
 			} else if (source == cbVolume) {
 				if (cbVolume.isSelected()) {

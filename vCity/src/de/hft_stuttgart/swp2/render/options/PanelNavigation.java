@@ -46,7 +46,7 @@ public class PanelNavigation extends JPanel implements ItemListener, ChangeListe
 	    // add elements in the hashtable
 	    dict.put(20, new JLabel("20"));
 	    dict.put(60, new JLabel("50"));
-	    dict.put(100, new JLabel("100"));
+	    dict.put(100, new JLabel("100m"));
 		jSliderZoom.setLabelTable(dict);
 		// Standardmarkierungen werden erzeugt 
 		//jSliderZoom.createStandardLabels(1);

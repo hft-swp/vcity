@@ -20,6 +20,7 @@ public class StartParserRunnable implements Runnable{
 		Main.getCityMap3D().startAnimator();
 		Main.getOptionGUI().getBtnStartParseOfPanelSettings().setEnabled(true);
 		Main.getOptionGUI().getBtnRecalculateShadow().setEnabled(true);
+		Main.getOptionGUI().setBtnExportEnabled(true);
 		oldText = "vCity - 3D Stadtansicht";
 		Main.getCityMap3D().setTitle(oldText);
 		OptionGUI.updateCityInfo();

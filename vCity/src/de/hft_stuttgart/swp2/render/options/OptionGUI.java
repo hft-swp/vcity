@@ -1,6 +1,7 @@
 package de.hft_stuttgart.swp2.render.options;
 
 import java.awt.BorderLayout;
+import java.awt.ComponentOrientation;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -23,10 +24,11 @@ import de.hft_stuttgart.swp2.model.City;
 public class OptionGUI extends JFrame implements Refreshable{
 	
 	private int frameHeight; //Stores the height before refresh
-	private final int PREF_HEIGHT = 650;
+	private final int PREF_HEIGHT = this.getToolkit().getScreenSize().height;
 	private final int PREF_WIDTH= 300;
 	private JPanel panelCityInfo = new PanelCityInfo();
 	private JPanel panelNavigation = new PanelNavigation();
+	private JPanel panelInformation = new PanelInformation();
 	private JButton btn1 = new JButton("Einstellungen");
 	private JButton btn2 = new JButton("Stadtinfo");
 	private JButton btn3 = new JButton("Steuerung");
@@ -94,6 +96,10 @@ public class OptionGUI extends JFrame implements Refreshable{
 		return panelSettings.getBtnRecalculateShadow();
 	}
 	
+	public void setBtnExportEnabled(boolean enabled){
+		panelSettings.setBtnExportEnabled(enabled);
+	}
+	
 	public GregorianCalendar getTime(){
 		return panelSettings.getTime();
 	}
@@ -110,17 +116,20 @@ public class OptionGUI extends JFrame implements Refreshable{
 		panelSettings.setMinutes(minutes);
 	}
 
-
+	JPanel panelExport = new PanelExport();
 
 	public OptionGUI() {
 		this.setTitle("vCity - Einstellungen");
-		this.setAlwaysOnTop(true);
 		scrollPane = new JScrollPane( JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
                 JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED );
 		scrollPane.setViewportView( content_panel );
 		this.setLayout(new BorderLayout());
 		setPanelContent();
-		this.add(scrollPane, BorderLayout.CENTER);
+		this.add(content_panel, BorderLayout.CENTER);
+		this.setMaximumSize(new Dimension(500,2000));
+//		this.add(panelExport, BorderLayout.EAST);
+		panelExport.setVisible(false);
+		panelInformation.setVisible(false);
 		content_panel.setVisible(true);
 		this.setVisible(true);
 		this.pack();
@@ -186,11 +195,15 @@ public class OptionGUI extends JFrame implements Refreshable{
 	}	
 
 	private void addPanelSettings() {
+		panelSettings.setPreferredSize(new Dimension(350,550));
+		panelSettings.setMinimumSize(new Dimension(350,500));
+		JScrollPane jspSettings = new JScrollPane(panelSettings);
+		jspSettings.setComponentOrientation(ComponentOrientation.RIGHT_TO_LEFT);
 		constraints.insets = INSET_PANEL;
 		constraints.gridx = 0;
 		constraints.gridy = 1;
 		constraints.gridheight = 1;
-		constraints.weighty = 1.0; //request any extra vertical space  
+		constraints.weighty = 2.0; //request any extra vertical space  
 		constraints.fill = GridBagConstraints.BOTH;
 		content_panel.add(panelSettings, constraints);
 	}
@@ -253,6 +266,57 @@ public class OptionGUI extends JFrame implements Refreshable{
 	public String getPath() {
 		return panelSettings.getPath();
 	}
+	public void removePanelInformation(){
+		this.remove(panelInformation);
+		this.pack();
+	}
+	public boolean isPanelInformationVisible(){
+		return panelInformation.isVisible();
+	}
+	public void addPanelInformation(){
+		if(!panelInformation.isVisible()){
+			int currentHeight = this.getHeight();
+			int currentWidth = this.getWidth();
+			panelInformation.setVisible(true);
+			this.add(panelInformation, BorderLayout.EAST);
+			this.pack();
+			this.setSize(new Dimension(currentWidth, currentHeight));
+		}
+	}
+	
+	public void setPanelInformationVisible(boolean visible){
+		if(visible == true){
+			panelInformation.setVisible(true);
+		}else {
+			panelInformation.setVisible(false);
+		}
+	}
+	
+	public void setPanelExportVisible(boolean visible){
+		if(visible == true){
+			panelExport.setVisible(true);
+		}else {
+			panelExport.setVisible(false);
+		}
+	}
+	
+	public void removePanelExport(){
+		this.remove(panelExport);
+		this.pack();
+	}
+	public boolean isPanelExportVisible(){
+		return panelExport.isVisible();
+	}
+	public void addPanelExport(){
+		if(!panelExport.isVisible()){
+			int currentHeight = this.getHeight();
+			int currentWidth = this.getWidth();
+			panelExport.setVisible(true);
+			this.add(panelExport, BorderLayout.EAST);
+			this.pack();
+			this.setSize(new Dimension(currentWidth, currentHeight));
+		}
+	}
 	
 	@Override
 	public void refresh(){
@@ -292,6 +356,7 @@ public class OptionGUI extends JFrame implements Refreshable{
 			this.setResizable(true);
 		}
 		content_panel.revalidate();
+	
 	}
 
 	/**

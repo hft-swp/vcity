@@ -36,6 +36,7 @@ public class Main {
 	public static ExecutorService executor = Executors.newFixedThreadPool(1);
 	private static int splitAzimuth = 16;
 	private static int splitHeight = 8;
+	public static String newline = System.getProperty("line.separator"); 
 	
 	public static Runnable startVolumeCalculationRunnable = new StartVolumeCalculationRunnable();
 	public static Runnable startShadowCalculationRunnable = new StartShadowCalculationRunnable(
