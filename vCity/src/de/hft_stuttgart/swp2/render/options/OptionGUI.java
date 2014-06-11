@@ -19,6 +19,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
 import de.hft_stuttgart.swp2.model.City;
+import de.hft_stuttgart.swp2.render.options.navigation.PanelNavigation;
 
 
 public class OptionGUI extends JFrame implements Refreshable{
