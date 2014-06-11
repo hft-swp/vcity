@@ -45,6 +45,7 @@ public class Main {
 	public static Runnable startVolumeCalculationRunnable = new StartVolumeCalculationRunnable();
 	public static Runnable startShadowCalculationRunnable = new StartShadowCalculationRunnable(
 			ShadowPrecision.VERY_LOW, splitAzimuth, splitHeight);
+	static Message message = new Message(cityMap3D);
 
 	/**
 	 * @param args
@@ -64,6 +65,7 @@ public class Main {
 		}
 		
 		createGUI();
+		
 	}
 
 	/**
@@ -132,8 +134,7 @@ public class Main {
 			long end;
 			System.out.println("Starting volume calculation...");			
 			start = System.currentTimeMillis();
-			try {
-				Message message = new Message(cityMap3D);
+			try {				
 				message.makeText(cityMap3D,"Starting volume calculation...",Style.NORMAL).display();
 				backend.calculateVolume();
 			} catch (OpenClException e) {
@@ -176,6 +177,11 @@ public class Main {
 		}
 	}
 	
+	/**
+	 * 
+	 * 
+	 * @return 
+	 */
 	public static boolean isCalculateVolume(){
 		return optionGUI.isCalculateVolume();
 	}
@@ -188,10 +194,15 @@ public class Main {
 		cityMap3D = null;
 	}
 
+	/**
+	 * starts the parser, path is the path to the CityGML file
+	 * @param path
+	 */
 	public static void startParser(String path) {
 		long start;
 		long end;
-		System.out.println("Starting parsing...");			
+		System.out.println("Starting parsing...");
+		message.makeText(cityMap3D, "Start parsing...", Style.NORMAL).display();
 		start = System.currentTimeMillis();
 		try {
 			ParserInterface parser = Parser.getInstance();
@@ -231,6 +242,11 @@ public class Main {
 		return cityMap3D;
 	}
 
+	/**
+	 * returns true if parser was successful
+	 * @return
+	 */
+	
 	public static boolean isParserSuccess() {
 		return isParserSuccess;
 	}

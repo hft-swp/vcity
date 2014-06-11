@@ -6,6 +6,7 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.Insets;
+import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
@@ -35,6 +36,7 @@ import javax.swing.SwingConstants;
 import javax.swing.border.TitledBorder;
 
 import org.jdesktop.swingx.JXDatePicker;
+
 import de.hft_stuttgart.swp2.opencl.ShadowPrecision;
 import de.hft_stuttgart.swp2.render.Main;
 import de.hft_stuttgart.swp2.render.Selection;
@@ -68,9 +70,9 @@ public class PanelSettings extends JPanel {
 	private JPanel panelShadowOptions;
 	private JScrollPane jspPanelShadowOptions;
 	JPanel panelTriangleChoice = new JPanel();
-	
+
 	private JButton btnFileChooser;
-	final JButton btnInformation = new JButton("Programminformationen >");
+	final JButton btnInformation = new JButton("< Programminformationen");
 	final JButton btnExport = new JButton("Export >");
 	JTextField txtHours = new JTextField(String.valueOf(DEFAULT_VALUE_HOURS));
 	JTextField txtMin = new JTextField(getMinutesToText(DEFAULT_VALUE_MINUTES));
@@ -80,7 +82,7 @@ public class PanelSettings extends JPanel {
 	private Selection selectionMin = new Selection(txtMin);
 	private Selection selectionAzimuth = new Selection(txtSplitAzimuth);
 	private Selection selectionHeight = new Selection(txtSplitHeight);
-	JLabel lblPrecision = new JLabel("Genauigkeit"); 
+	JLabel lblPrecision = new JLabel("Genauigkeit");
 	private JComboBox<ShadowPrecision> cmbShadowPrecision;
 	int tempAzimuth = Main.getSplitAzimuth();
 	int tempHeight = Main.getSplitHeight();
@@ -98,40 +100,41 @@ public class PanelSettings extends JPanel {
 	JCheckBox cbVolume = new JCheckBox("Volumen berechnen");
 	JCheckBox cbShadow = new JCheckBox("Schatten berechnen");
 	JRadioButton jrbVolumeView = new JRadioButton("in Volumen-Ansicht wechseln");
-	JRadioButton jrbShadowView = new JRadioButton("in Schatten-Ansicht wechseln");
-	
-	public boolean isVolumeViewSelected(){
-		if(jrbVolumeView.isSelected()){
+	JRadioButton jrbShadowView = new JRadioButton(
+			"in Schatten-Ansicht wechseln");
+
+	public boolean isVolumeViewSelected() {
+		if (jrbVolumeView.isSelected()) {
 			return true;
-		}else{
+		} else {
 			return false;
 		}
 	}
-	
-	public boolean isShadowViewSelected(){
-		if(jrbShadowView.isSelected()){
+
+	public boolean isShadowViewSelected() {
+		if (jrbShadowView.isSelected()) {
 			return true;
-		}else{
+		} else {
 			return false;
 		}
 	}
-	
-	public void setSelectVolumeView(boolean select){
+
+	public void setSelectVolumeView(boolean select) {
 		groupFormView.setSelected(jrbVolumeView.getModel(), select);
 	}
-	
-	public void setSelectShadowView(boolean select){
+
+	public void setSelectShadowView(boolean select) {
 		groupFormView.setSelected(jrbShadowView.getModel(), select);
 	}
-	
-	public void setVolumeViewEnabled(boolean enabled){
+
+	public void setVolumeViewEnabled(boolean enabled) {
 		jrbVolumeView.setEnabled(enabled);
 	}
-	
-	public void setShadowViewEnabled(boolean enabled){
+
+	public void setShadowViewEnabled(boolean enabled) {
 		jrbShadowView.setEnabled(enabled);
 	}
-	
+
 	public boolean isCbShadowIsSelected() {
 		return cbShadow.isSelected();
 	}
@@ -286,14 +289,13 @@ public class PanelSettings extends JPanel {
 		JPanel panelParser = generatePanelParser();
 		this.add(panelParser, constraints);
 
-
 		TitledBorder titledBorderOption;
 		titledBorderOption = BorderFactory.createTitledBorder("Optionen");
 		constraints.gridx = 0; // column 0
 		constraints.gridy = 1; // row 0
 		constraints.weighty = 0.7; // request any extra vertical space
 		constraints.gridwidth = 2;
-		constraints.anchor = GridBagConstraints.PAGE_END; //bottom of space
+		constraints.anchor = GridBagConstraints.PAGE_END; // bottom of space
 		constraints.fill = GridBagConstraints.BOTH;
 		setJPanelOptions();
 		optionPanel.setBorder(titledBorderOption);
@@ -364,9 +366,10 @@ public class PanelSettings extends JPanel {
 		constraints.ipady = 0;
 		constraints.fill = GridBagConstraints.BOTH;
 		constraints.weighty = 1.0; // request any extra vertical space
-		
+
 		TitledBorder titledBorderGraphicOption;
-		titledBorderGraphicOption = BorderFactory.createTitledBorder("Grafische Optionen");
+		titledBorderGraphicOption = BorderFactory
+				.createTitledBorder("Grafische Optionen");
 		JPanel panelGraphic = new JPanel();
 		panelGraphic.setBorder(titledBorderGraphicOption);
 		panelGraphic.setLayout(new GridLayout(5, 1));
@@ -381,7 +384,6 @@ public class PanelSettings extends JPanel {
 		jrbVolumeView.setEnabled(false);
 		jrbShadowView.setEnabled(false);
 
-
 		CheckBoxListener cbListener = new CheckBoxListener();
 		cbGUI.setSelected(true);
 		cbGUI.addItemListener(cbListener);
@@ -391,7 +393,7 @@ public class PanelSettings extends JPanel {
 		cbVolumeAmount.addItemListener(cbListener);
 		constraints.gridx = 0; // column 0
 		constraints.gridy = 0; // row 0
-		constraints.weighty = 0.2; 
+		constraints.weighty = 0.2;
 		// constraints.fill = GridBagConstraints.HORIZONTAL;
 		optionPanel.add(panelGraphic, constraints);
 
@@ -399,14 +401,14 @@ public class PanelSettings extends JPanel {
 		cbVolume.addItemListener(cbListener);
 		constraints.gridx = 0; // column 0
 		constraints.gridy = 1; // row 0
-		constraints.weighty = 0.1; 
+		constraints.weighty = 0.1;
 		optionPanel.add(cbVolume, constraints);
 
 		cbShadow.setSelected(false);
 		cbShadow.addItemListener(cbListener);
 		constraints.gridx = 0; // column 0
 		constraints.gridy = 2; // row 0
-		constraints.weighty = 0.1; 
+		constraints.weighty = 0.1;
 		optionPanel.add(cbShadow, constraints);
 
 		generatePanelShadowOptions();
@@ -414,9 +416,9 @@ public class PanelSettings extends JPanel {
 		constraints.gridy = 3; // row 0
 		constraints.ipady = 80;
 		constraints.weighty = 4.0; // request any extra vertical space
-		panelShadowOptions.setPreferredSize(new Dimension(200,300));
+		panelShadowOptions.setPreferredSize(new Dimension(200, 300));
 		jspPanelShadowOptions = new JScrollPane(panelShadowOptions);
-		jspPanelShadowOptions.setMinimumSize(new Dimension(150,100));
+		jspPanelShadowOptions.setMinimumSize(new Dimension(150, 100));
 		optionPanel.add(jspPanelShadowOptions, constraints);
 		if (!cbShadow.isSelected()) {
 			panelShadowOptions.setVisible(false);
@@ -483,7 +485,7 @@ public class PanelSettings extends JPanel {
 					Main.getCityMap3D().drawPolygons = true;
 					panelTriangleChoice.setVisible(false);
 				} else {
-					
+
 					Main.getCityMap3D().drawPolygons = false;
 					panelTriangleChoice.setVisible(true);
 				}
@@ -494,11 +496,11 @@ public class PanelSettings extends JPanel {
 
 		panelTime.add(jrbTriangle);
 		panelTime.add(jrbPolygon);
-		
+
 		constraints.gridx = 0; // column 0
 		constraints.gridy = 1; // row 0
 		panelShadowOptions.add(panelTime, constraints);
-		
+
 		panelTriangleChoice.setLayout(new GridLayout(1, 2));
 		panelTriangleChoice.setVisible(false);
 		cmbShadowPrecision = new JComboBox<ShadowPrecision>(
@@ -509,7 +511,7 @@ public class PanelSettings extends JPanel {
 		constraints.gridx = 0; // column 0
 		constraints.gridy = 2; // row 0
 		panelShadowOptions.add(panelTriangleChoice, constraints);
-		
+
 		constraints.gridx = 0; // column 0
 		constraints.gridy = 3; // row 0
 		JPanel panelAzimuthAndHeight = new JPanel();
@@ -533,15 +535,15 @@ public class PanelSettings extends JPanel {
 		btnRecalculateShadow.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-//				if (City.getInstance().getBuildings().size() == 0) {
-//					return;
-//				}
+				// if (City.getInstance().getBuildings().size() == 0) {
+				// return;
+				// }
 				recalculateShadow();
 			}
 		});
 
 		panelShadowOptions.setBorder(titledBorderShadow);
-		
+
 		constraints.gridx = 0; // column 0
 		constraints.gridy = 4; // row 0
 		panelShadowOptions.add(btnRecalculateShadow, constraints);
@@ -550,10 +552,9 @@ public class PanelSettings extends JPanel {
 	public JButton getBtnRecalculateShadow() {
 		return btnRecalculateShadow;
 	}
-	
-	
+
 	private void recalculateShadow() {
-		if(!Main.isParserSuccess()){
+		if (!Main.isParserSuccess()) {
 			startParser(true);
 		}
 		ShadowPrecision prec = (ShadowPrecision) cmbShadowPrecision
@@ -563,15 +564,15 @@ public class PanelSettings extends JPanel {
 				Integer.parseInt(txtSplitHeight.getText()));
 		Main.setSplitHeight(Integer.parseInt(txtSplitHeight.getText()));
 		Main.setSplitAzimuth(Integer.parseInt(txtSplitAzimuth.getText()));
-		if(Main.getCityMap3D().isFirstTimeShadowCalc()){
+		if (Main.getCityMap3D().isFirstTimeShadowCalc()) {
 			Main.executor.execute(Main.startShadowCalculationRunnable);
-		}else{
+		} else {
 			Main.getCityMap3D().calculation();
 		}
-//		Main.executor.execute(Main.startShadowCalculationRunnable);
+		// Main.executor.execute(Main.startShadowCalculationRunnable);
 		Main.getCityMap3D().setRecalculateShadow(true);
 		setSelectShadowView(true);
-		if(Main.isParserSuccess()){
+		if (Main.isParserSuccess()) {
 			btnRecalculateShadow.setText("Neu rechnen");
 		}
 	}
@@ -751,14 +752,14 @@ public class PanelSettings extends JPanel {
 			}
 		};
 	}
-	
+
 	private void startParser(boolean isShadowCalculationButtonPressed) {
 		try {
 			if (!gmlFile.getPath().isEmpty()) {
 				lblPath.setForeground(Color.black);
 				StartParserRunnable = new StartParserRunnable(gmlFile.getPath());
-//				threadStartParsing = new Thread(StartParserRunnable);
-//				threadStartParsing.start();
+				// threadStartParsing = new Thread(StartParserRunnable);
+				// threadStartParsing.start();
 				Main.executor.execute(StartParserRunnable);
 				path = gmlFile.getPath();
 			} else {
@@ -808,72 +809,88 @@ public class PanelSettings extends JPanel {
 		btnStart = new JButton("Start");
 		btnStart.addActionListener(actionStartParsing());
 		panelFile.add(btnStart, constraints);
-		
+
 		constraints.gridx = 0; // column 0
 		constraints.gridy = 3; // row 0
 		constraints.insets = new Insets(10, 0, 0, 0);
-		
+
 		btnExport.setEnabled(false);
 		btnExport.addActionListener(new ActionListener() {
-			
+
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				if(!Main.getOptionGUI().isPanelExportVisible()){
+				Point point = Main.getOptionGUI().getLocation();
+				if (!Main.getOptionGUI().isPanelExportVisible()) {
+
+					Main.getOptionGUI().setLocation(point.x - 135, point.y);
 					openPanelExport();
+					if (Main.getOptionGUI().isPanelInformationVisible()) {
+						Main.getOptionGUI().setLocation(point.x + 350-135, point.y);
+					}
 					closePanelInformation();
-				}else{
+				} else {
+					Main.getOptionGUI().setLocation(point.x + 135, point.y);
 					closePanelExport();
 				}
 
 			}
 		});
 		panelFile.add(btnExport, constraints);
-		
+
 		constraints.insets = new Insets(0, 0, 0, 0);
 		constraints.gridx = 0; // column 0
 		constraints.gridy = 4; // row 0
 		btnInformation.addActionListener(new ActionListener() {
-			
+
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				if(!Main.getOptionGUI().isPanelInformationVisible()){
+				Point point = Main.getOptionGUI().getLocation();
+				if (!Main.getOptionGUI().isPanelInformationVisible()) {
+
+					Main.getOptionGUI().setLocation(point.x - 350, point.y);
 					openPanelInformation();
+					if (Main.getOptionGUI().isPanelExportVisible()) {
+						Main.getOptionGUI().setLocation(point.x + 135-350, point.y);
+					}
 					closePanelExport();
-				}else{
+
+				} else {
+					Main.getOptionGUI().setLocation(point.x + 350, point.y);
 					closePanelInformation();
 				}
 			}
 		});
 		panelFile.add(btnInformation, constraints);
 	}
-	
-	public void setBtnExportEnabled(boolean enabled){
+
+	public void setBtnExportEnabled(boolean enabled) {
 		btnExport.setEnabled(enabled);
 	}
 
 	private void closePanelExport() {
 		Main.getOptionGUI().setPanelExportVisible(false);
 		Main.getOptionGUI().removePanelExport();
-		btnExport.setText("Export >");
+		btnExport.setText("< Export");
 	}
 
 	private void openPanelExport() {
 		Main.getOptionGUI().addPanelExport();
 		Main.getOptionGUI().setPanelExportVisible(true);
-		btnExport.setText("< Export");
+		btnExport.setText("> Export");
 	}
-	
+
 	private void closePanelInformation() {
 		Main.getOptionGUI().setPanelInformationVisible(false);
 		Main.getOptionGUI().removePanelInformation();
-		btnInformation.setText("Programminformationen >");
+		btnInformation.setText("< Programminformationen");
 	}
 
 	private void openPanelInformation() {
 		Main.getOptionGUI().addPanelInformation();
 		Main.getOptionGUI().setPanelInformationVisible(true);
-		btnInformation.setText("< Programminformationen");
+		btnInformation.setText("> Programminformationen");
 	}
+
 	private void setFileChooser() {
 		// Set up the file chooser.
 		if (fc == null) {
@@ -947,24 +964,26 @@ public class PanelSettings extends JPanel {
 				}
 			} else if (source == cbVolume) {
 				if (cbVolume.isSelected()) {
-					if(!Main.getCityMap3D().isFirstTimeVolumeCalc()){
-						if(Main.isParserSuccess()){
-							Main.executor.execute(Main.startVolumeCalculationRunnable);
+					if (!Main.getCityMap3D().isFirstTimeVolumeCalc()) {
+						if (Main.isParserSuccess()) {
+							Main.executor
+									.execute(Main.startVolumeCalculationRunnable);
 						}
 					}
-				} 
-			} else if(source == cbVolumeAmount){
-				if (cbVolumeAmount.isSelected() && Main.getCityMap3D().isFirstTimeVolumeCalc()) {
+				}
+			} else if (source == cbVolumeAmount) {
+				if (cbVolumeAmount.isSelected()
+						&& Main.getCityMap3D().isFirstTimeVolumeCalc()) {
 					Main.getCityMap3D().setShowVolumeAmount(true);
 				} else {
 					Main.getCityMap3D().setShowVolumeAmount(false);
 				}
-			} else if(source == cbShowGrid){
-				if(cbShowGrid.isSelected()){
+			} else if (source == cbShowGrid) {
+				if (cbShowGrid.isSelected()) {
 					if (Main.isParserSuccess()) {
 						Main.getCityMap3D().setShowGrid(true);
 					}
-				}else{
+				} else {
 					Main.getCityMap3D().setShowGrid(false);
 				}
 			}

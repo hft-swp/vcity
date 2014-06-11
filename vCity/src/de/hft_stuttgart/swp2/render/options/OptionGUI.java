@@ -25,7 +25,7 @@ import de.hft_stuttgart.swp2.render.options.navigation.PanelNavigation;
 public class OptionGUI extends JFrame implements Refreshable{
 	
 	private int frameHeight; //Stores the height before refresh
-	private final int PREF_HEIGHT = this.getToolkit().getScreenSize().height;
+	private final int PREF_HEIGHT = this.getToolkit().getScreenSize().height-70;
 	private final int PREF_WIDTH= 300;
 	private JPanel panelCityInfo = new PanelCityInfo();
 	private JPanel panelNavigation = new PanelNavigation();
@@ -120,6 +120,7 @@ public class OptionGUI extends JFrame implements Refreshable{
 	JPanel panelExport = new PanelExport();
 
 	public OptionGUI() {
+		this.setLocation(this.getToolkit().getScreenSize().width- 315, 0);
 		this.setTitle("vCity - Einstellungen");
 		scrollPane = new JScrollPane( JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
                 JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED );
@@ -135,7 +136,7 @@ public class OptionGUI extends JFrame implements Refreshable{
 		this.setVisible(true);
 		this.pack();
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		this.setLocationRelativeTo(null);
+//		this.setLocationRelativeTo(null);
 		frameHeight = this.getHeight();
 	}
 	
@@ -279,7 +280,7 @@ public class OptionGUI extends JFrame implements Refreshable{
 			int currentHeight = this.getHeight();
 			int currentWidth = this.getWidth();
 			panelInformation.setVisible(true);
-			this.add(panelInformation, BorderLayout.EAST);
+			this.add(panelInformation, BorderLayout.WEST);
 			this.pack();
 			this.setSize(new Dimension(currentWidth, currentHeight));
 		}
@@ -313,7 +314,7 @@ public class OptionGUI extends JFrame implements Refreshable{
 			int currentHeight = this.getHeight();
 			int currentWidth = this.getWidth();
 			panelExport.setVisible(true);
-			this.add(panelExport, BorderLayout.EAST);
+			this.add(panelExport, BorderLayout.WEST);
 			this.pack();
 			this.setSize(new Dimension(currentWidth, currentHeight));
 		}

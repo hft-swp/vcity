@@ -29,9 +29,6 @@ import de.hft_stuttgart.swp2.render.options.PanelSettings;
 import de.hft_stuttgart.swp2.render.threads.StartShadowCalculationRunnable;
 
 /**
- * 
- * 
- * 
  * Die Funktion glDepthFunc legt fest, wann ein Fragment den Tiefentest im
  * Tiefenpuffer besteht. Der Parameter func legt die Tiefenvergleichsfunktion
  * fest. Die Tiefenvergleichsfunktion ist eine Bedingung, die erfüllt sein muss,
@@ -40,13 +37,11 @@ import de.hft_stuttgart.swp2.render.threads.StartShadowCalculationRunnable;
  * (Neue Fragmente bestehen den Vergleich, wenn sie einen geringeren Tiefenwert
  * haben) und GL_EQUAL, GL_LEQUAL, GL_GREATER, GL_NOTEQUAL, GL_GEQUAL und
  * GL_ALWAYS. Voreingestellt ist GL_LESS
- * 
- * 
  * @author 21ruma1bif
  * 
  */
 public class CityMap3D extends JFrame implements GLEventListener {
-
+	
 	private static final long serialVersionUID = 6681486095144440340L;
 	private static final int FPS = 40;
 	private GL2 gl;
@@ -98,9 +93,6 @@ public class CityMap3D extends JFrame implements GLEventListener {
 	public void setShowVolumeAmount(boolean isShowVolumeAmount) {
 		this.isShowVolumeAmount = isShowVolumeAmount;
 	}
-
-
-
 
 	public boolean isFirstTimeShadowCalc() {
 		return isFirstTimeShadowCalc;
@@ -176,7 +168,11 @@ public class CityMap3D extends JFrame implements GLEventListener {
 		halfScreenWidth = Toolkit.getDefaultToolkit().getScreenSize().width / 2;
 		robot.mouseMove(halfScreenWidth, halfScreenHeight);
 	}
-
+/**
+ * initializes the sun position by month and day
+ * @param month
+ * @param day
+ */
 	public void initialSunPosition(int month, int day) {
 		sunPositions = new SunPositionCalculator[24];
 		for (int j = 0; j < 24; ++j) {
