@@ -160,6 +160,10 @@ public class ParserExport implements ParserExportInterface {
 
 		try {
 			
+			if (City.getInstance().getBuildings().isEmpty()) {
+				throw new ParserException("City is empty.");
+			}
+			
 			// Calculate area of a polygon
 			CalculatorInterface calc = new CalculatorImpl();
 			calc.calculateArea();
