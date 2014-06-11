@@ -25,6 +25,7 @@ import de.hft_stuttgart.swp2.render.city3d.CityMap3D;
 import de.hft_stuttgart.swp2.render.city3d.Message;
 import de.hft_stuttgart.swp2.render.city3d.Message.Style;
 import de.hft_stuttgart.swp2.render.options.OptionGUI;
+import de.hft_stuttgart.swp2.render.options.PanelInformation;
 import de.hft_stuttgart.swp2.render.threads.StartShadowCalculationRunnable;
 import de.hft_stuttgart.swp2.render.threads.StartVolumeCalculationRunnable;
 
@@ -188,6 +189,10 @@ public class Main {
 	}
 
 	public static void startParser(String path) {
+		long start;
+		long end;
+		System.out.println("Starting parsing...");			
+		start = System.currentTimeMillis();
 		try {
 			ParserInterface parser = Parser.getInstance();
 			City.getInstance().getBuildings().clear();
@@ -195,14 +200,18 @@ public class Main {
 			isParserSuccess = true;
 			Main.cityMap3D.setIsStartCalculation(true);
 		} catch (ParserException e) {
-			// TODO Auto-generated catch block
 			if(City.getInstance().getBuildings().size() > 1){
 				isParserSuccess = true;
 			}else{
 				isParserSuccess = false;
 			}
-			e.getMessage(); // Contains the error message
+			PanelInformation.addNewTopic("Importieren von Parser-Daten");
+			PanelInformation.addProgrammInfo("Die Daten konnten nicht erfolgreich eingelesen werden.");
+			PanelInformation.addProgrammInfo(e.getMessage());
 		}
+		end = System.currentTimeMillis();
+		System.out.printf("parsing took %d milliseconds\n",
+				(end - start));
 	}
 
 

@@ -37,6 +37,8 @@ import de.hft_stuttgart.swp2.model.BoundarySurface;
 import de.hft_stuttgart.swp2.model.Building;
 import de.hft_stuttgart.swp2.model.City;
 import de.hft_stuttgart.swp2.model.Polygon;
+import de.hft_stuttgart.swp2.opencl.CalculatorImpl;
+import de.hft_stuttgart.swp2.opencl.CalculatorInterface;
 import de.hft_stuttgart.swp2.render.Main;
 
 /**
@@ -157,7 +159,11 @@ public class ParserExport implements ParserExportInterface {
 	public boolean exportToXml(String outputFileName) throws ParserException {
 
 		try {
-
+			
+			// Calculate area of a polygon
+			CalculatorInterface calc = new CalculatorImpl();
+			calc.calculateArea();
+			
 			DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
 			DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
 			Document doc = docBuilder.newDocument();

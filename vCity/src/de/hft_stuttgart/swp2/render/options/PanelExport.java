@@ -96,8 +96,8 @@ public class PanelExport extends JPanel {
 									}
 									programInfo = filePath
 											+ Main.newline + "wurde erfolgreich erstellt";
-								} catch (ParserException parserException) {
-									programInfo = "Fehler beim Exportieren - Parserfehler";
+								} catch (ParserException pex) {
+									programInfo = "Fehler beim Exportieren - Parserfehler: \n" + pex.getMessage();
 								}
 
 							} else {
