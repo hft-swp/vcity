@@ -20,16 +20,25 @@ public class MyIcon implements Icon {
 		}
 	}
 
+	/**
+	 * Returns the height of the icon in px.
+	 */
 	@Override
 	public int getIconHeight() {
 		return 75;
 	}
 
+	/**
+	 * Returns the width of the icon in px.
+	 */
 	@Override
 	public int getIconWidth() {
 		return 75;
 	}
 
+	/**
+	 * Method for drawing the icon/picture.
+	 */
 	@Override
 	public void paintIcon(Component c, Graphics g, int x, int y) {
 		g.drawImage(this.img, 0, 0, c);

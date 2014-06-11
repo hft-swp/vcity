@@ -15,7 +15,7 @@ import de.hft_stuttgart.swp2.render.options.navigation.ML;
 
 import de.hft_stuttgart.swp2.render.Main;
 
-public class PanelNavigation extends JPanel implements ItemListener, ChangeListener {
+public class PanelNavigation extends JPanel implements  ChangeListener {
 	private void addActionListeners() {
 		this.btnUP.addMouseListener(new ML(Direction.up));
 		this.btnDown.addMouseListener(new ML(Direction.down));
@@ -33,6 +33,10 @@ public class PanelNavigation extends JPanel implements ItemListener, ChangeListe
 	private JSlider jSliderZoom = new JSlider(JSlider.HORIZONTAL, 20, 100, 60);
 //	private ActionThread at;
 
+	/**
+	 * Constructor of the navigation part of the GUI.
+	 * Initializes and formats the arrow-buttons and zoom-slider.
+	 */
 	public PanelNavigation() {
 //		at = new ActionThread();
 //		at.start();
@@ -74,15 +78,9 @@ public class PanelNavigation extends JPanel implements ItemListener, ChangeListe
 		addActionListeners();
 	}
 
-
-
-
-	@Override
-	public void itemStateChanged(ItemEvent e) {
-		System.out.println(ItemEvent.SELECTED);
-		Object source = e.getSource();
-	}
-
+	/**
+	 * Method for the zoom-function via the slider.
+	 */
 	@Override
 	public void stateChanged(ChangeEvent e) {
 		Object source = e.getSource();

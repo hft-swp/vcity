@@ -65,10 +65,18 @@ public class Main {
 		createGUI();
 	}
 
+	/**
+	 * Returns the time needed for calculating the sun position from the gregorian calender.
+	 * @return
+	 */
 	public static GregorianCalendar getTimeForSunPosition(){
 		return optionGUI.getTime();
 	}
 	
+	/**
+	 * Sets the time needed for calculation the sun position.
+	 * @param date
+	 */
 	public static void setTimeForSunPosition(Date date){
 		Calendar calendar = new GregorianCalendar();
 		calendar.setTime(date);
@@ -76,10 +84,17 @@ public class Main {
 				calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE));
 	}
 	
+	/**
+	 * Returns the current date.
+	 * @return
+	 */
 	public static Date getCurrentTime(){
 		return currentDate;
 	}
 
+	/**
+	 * Creates the GUI of the program.
+	 */
 	public static void createGUI() {
 		// Willkommensfenster aufrufen und Fehlerfenster initialisieren
 		SwingUtilities.invokeLater(new Runnable() {
@@ -107,6 +122,9 @@ public class Main {
 		});
 	}
 	
+	/**
+	 * Method for starting volume-calculation of the city.
+	 */
 	public static void calculateVolume(){
 		if (Main.isParserSuccess()) {
 			long start;
@@ -127,7 +145,12 @@ public class Main {
 		}
 	}
 	
-	
+	/**
+	 * Method for starting the shadow-calculation of the city.
+	 * @param shadowPrecision
+	 * @param splitAzimuth
+	 * @param splitHeight
+	 */
 	public static void calculateShadow(ShadowPrecision shadowPrecision, int splitAzimuth, int splitHeight){
 		if (Main.isParserSuccess()) {
 			long start;

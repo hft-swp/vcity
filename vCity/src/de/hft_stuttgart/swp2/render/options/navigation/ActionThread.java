@@ -6,11 +6,19 @@ public class ActionThread extends Thread {
 	Direction btn;
 	Boolean run;
 
+	/**
+	 * Constructor of the ActionThread.
+	 * Needs the direction in form of an direction-enum.
+	 * @param btn
+	 */
 	public ActionThread(Direction btn) {
 		this.btn = btn;
 		this.run = true;
 	}
 
+	/**
+	 * Logic for moving the Camera if a arrow-button is clicked.
+	 */
 	@Override
 	public void run() {
 		System.out.println(this.btn + " Thread gestartet");
@@ -33,6 +41,9 @@ public class ActionThread extends Thread {
 		System.out.println(this.btn + " Thread beendet");
 	}
 
+	/**
+	 * Stops and ends the thread.
+	 */
 	public void stopThread() {
 		this.run = false;
 	}

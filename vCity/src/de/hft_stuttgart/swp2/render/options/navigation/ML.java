@@ -26,12 +26,18 @@ public class ML implements MouseListener {
 		// TODO Auto-generated method stub
 	}
 
+	/**
+	 * Initializes and starts the movement-thread if arrow-button is pressed.
+	 */
 	@Override
 	public void mousePressed(MouseEvent arg0) {
 		this.at = new ActionThread(this.btn);
 		this.at.start();
 	}
 
+	/**
+	 * Stops/Ends the movement-thread if mouse-button is released.
+	 */
 	@Override
 	public void mouseReleased(MouseEvent arg0) {
 		this.at.stopThread();
