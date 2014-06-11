@@ -88,7 +88,7 @@ public class ParserExport implements ParserExportInterface {
 			writer.flush();
 			writer.close();
 		} catch (IOException e) {
-			throw new ParserException(e.getCause().getMessage());
+			throw new ParserException(e.getMessage());
 		}
 
 		return true;

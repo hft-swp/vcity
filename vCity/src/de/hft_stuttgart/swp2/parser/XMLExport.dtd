@@ -20,7 +20,7 @@
 		  type (GROUND|ROOF|WALL|OTHER) #REQUIRED
 		  >
 
-			<!ELEMENT Polygon (area, shadow)>
+			<!ELEMENT Polygon (Area, Shadow)>
 			<!ATTLIST Polygon 
 		 	  id CDATA #REQUIRED
 		  	  >
