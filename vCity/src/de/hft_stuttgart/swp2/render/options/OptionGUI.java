@@ -77,6 +77,10 @@ public class OptionGUI extends JFrame implements Refreshable{
 		panelSettings.setShadowViewEnabled(enabled);
 	}
 	
+	public void setCbVolumeAmount(boolean isVisible){
+		panelSettings.setCbVolumeAmount(isVisible);
+	}
+	
 	public void setSelectVolumeView(boolean select){
 		panelSettings.setSelectVolumeView(select);
 	}

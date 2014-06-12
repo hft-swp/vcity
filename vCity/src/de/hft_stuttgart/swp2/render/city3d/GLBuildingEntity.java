@@ -14,6 +14,7 @@ import de.hft_stuttgart.swp2.model.ShadowTriangle;
 import de.hft_stuttgart.swp2.model.Triangle;
 import de.hft_stuttgart.swp2.model.Vertex;
 import de.hft_stuttgart.swp2.render.Main;
+import de.hft_stuttgart.swp2.render.options.OptionGUI;
 import de.hft_stuttgart.swp2.render.options.PanelInformation;
 
 public class GLBuildingEntity extends GLEntity {
@@ -21,6 +22,7 @@ public class GLBuildingEntity extends GLEntity {
 	private boolean isShowVolumeAmount = true;
 	private boolean isVolumeCalc;
 	private boolean isShadowCalc;
+	private boolean isErrorVolumeAmount = false;
 
 	public boolean isShowGrid() {
 		return isShowGrid;
@@ -157,12 +159,13 @@ public class GLBuildingEntity extends GLEntity {
 			} else {
 				averageValueZ = ((Math.abs(maxZ) - Math.abs(minZ)) / 2f) + minZ;
 			}
-			gl.glColor3f(0, 0, 1);
-			gl.glRasterPos3f(averageValueX, maxY + 1f, averageValueZ);
 			try{
+				gl.glColor3f(0, 0, 1);
+				gl.glRasterPos3f(averageValueX, maxY + 1f, averageValueZ);
 				glut.glutBitmapString(7,
 						String.valueOf(Math.round(building.getVolume())));
 			}catch(GLException e){
+				Main.getOptionGUI().setCbVolumeAmount(false);
 				PanelInformation.addNewTopic("OPEN GL PROBLEM");
 				PanelInformation.addProgrammInfo("Problem mit OpenGL die Texturen scheinen");
 				PanelInformation.addProgrammInfo("im Moment zu aufwendig zu sein");

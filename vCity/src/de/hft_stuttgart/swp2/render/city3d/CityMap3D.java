@@ -274,6 +274,14 @@ public class CityMap3D extends JFrame implements GLEventListener {
 		// apply camera modifications
 		camera.lookAt();
 		// drawing building 0
+		drawHemisphere(gl);
+		drawAxis(gl);
+		drawSkyModel(gl);
+		// setGround(minGroundSize, maxGroundSize);
+		if (enableDrawCenters) {
+			drawCentersOfHemisphere(gl);
+		}
+		
 		gl.glColor3f(1f, 1f, 1f);
 		
 
@@ -350,13 +358,7 @@ public class CityMap3D extends JFrame implements GLEventListener {
 			disableZBuffer(gl);
 		}
 
-		drawHemisphere(gl);
-		drawAxis(gl);
-		drawSkyModel(gl);
-		// setGround(minGroundSize, maxGroundSize);
-		if (enableDrawCenters) {
-			drawCentersOfHemisphere(gl);
-		}
+
 		
 		isShadowCalc = Main.getOptionGUI().isCalculateShadow();
 		isVolumeCalc = Main.getOptionGUI().isCalculateVolume();
