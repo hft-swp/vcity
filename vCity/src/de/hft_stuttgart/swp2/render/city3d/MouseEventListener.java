@@ -10,6 +10,16 @@ public class MouseEventListener implements MouseListener, MouseWheelListener,
 		MouseMotionListener {
 
 	CityMap3D cityMap3D;
+	private double mouse_x;
+	public double getMouse_x() {
+		return mouse_x;
+	}
+
+	private double mouse_y;
+
+	public double getMouse_y() {
+		return mouse_y;
+	}
 
 	public MouseEventListener(CityMap3D cityMap3D) {
 		this.cityMap3D = cityMap3D;
@@ -17,7 +27,14 @@ public class MouseEventListener implements MouseListener, MouseWheelListener,
 
 	@Override
 	public void mouseClicked(MouseEvent e) {
-
+		mouse_x = e.getX();
+		mouse_y = e.getY();
+		cityMap3D.setCmd(CityMap3D.getSelect());
+//		if(e.getClickCount() == 2){
+//			mouse_x = e.getX();
+//			mouse_y = e.getY();
+//			cityMap3D.setCmd(CityMap3D.getSelect());
+//		}
 	}
 
 	@Override

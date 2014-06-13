@@ -14,7 +14,7 @@ import de.hft_stuttgart.swp2.model.Building;
  */
 public abstract class GLEntity {
 
-	static int idCounter = 1;
+	static int idCounter = 0;
 	Building building;
 	int id;
 	GL2 gl;

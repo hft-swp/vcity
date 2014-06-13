@@ -7,6 +7,7 @@ import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
 import java.awt.Robot;
 import java.awt.Toolkit;
+import java.nio.IntBuffer;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.TimeZone;
@@ -21,6 +22,7 @@ import javax.media.opengl.awt.GLCanvas;
 import javax.media.opengl.glu.GLU;
 import javax.swing.JFrame;
 
+import com.jogamp.common.nio.Buffers;
 import com.jogamp.opengl.util.FPSAnimator;
 import com.jogamp.opengl.util.gl2.GLUT;
 
@@ -34,6 +36,9 @@ import de.hft_stuttgart.swp2.render.options.PanelSettings;
 import de.hft_stuttgart.swp2.render.threads.StartShadowCalculationRunnable;
 
 /**
+ * 
+ * 
+ * 
  * Die Funktion glDepthFunc legt fest, wann ein Fragment den Tiefentest im
  * Tiefenpuffer besteht. Der Parameter func legt die Tiefenvergleichsfunktion
  * fest. Die Tiefenvergleichsfunktion ist eine Bedingung, die erfüllt sein muss,
@@ -42,11 +47,13 @@ import de.hft_stuttgart.swp2.render.threads.StartShadowCalculationRunnable;
  * (Neue Fragmente bestehen den Vergleich, wenn sie einen geringeren Tiefenwert
  * haben) und GL_EQUAL, GL_LEQUAL, GL_GREATER, GL_NOTEQUAL, GL_GEQUAL und
  * GL_ALWAYS. Voreingestellt ist GL_LESS
+ * 
+ * 
  * @author 21ruma1bif
  * 
  */
 public class CityMap3D extends JFrame implements GLEventListener {
-	
+
 	private static final long serialVersionUID = 6681486095144440340L;
 	private static final int FPS = 40;
 	private GL2 gl;
@@ -57,6 +64,7 @@ public class CityMap3D extends JFrame implements GLEventListener {
 	public int halfScreenHeight;
 	public int halfScreenWidth;
 	private float r = 10000;
+	private MouseEventListener mouseEvent;
 	public boolean enableDrawCenters = false;
 	private boolean isShadowCalc = false;
 	private boolean isVolumeCalc = true;
@@ -93,6 +101,10 @@ public class CityMap3D extends JFrame implements GLEventListener {
 	private GLCapabilities caps;
 	private GLCanvas canvas;
 	
+	public GLCanvas getCanvas() {
+		return canvas;
+	}
+
 	public boolean isShowVolumeAmount() {
 		return isShowVolumeAmount;
 	}
@@ -100,6 +112,9 @@ public class CityMap3D extends JFrame implements GLEventListener {
 	public void setShowVolumeAmount(boolean isShowVolumeAmount) {
 		this.isShowVolumeAmount = isShowVolumeAmount;
 	}
+
+
+
 
 	public boolean isFirstTimeShadowCalc() {
 		return isFirstTimeShadowCalc;
@@ -190,11 +205,12 @@ public class CityMap3D extends JFrame implements GLEventListener {
 		robot.mouseMove(halfScreenWidth, halfScreenHeight);
 		pack();
 	}
-/**
- * initializes the sun position by month and day
- * @param month
- * @param day
- */
+
+	/**
+	 * initializes the sun position by month and day
+	 * @param month
+	 * @param day
+	 */
 	public void initialSunPosition(int month, int day) {
 		sunPositions = new SunPositionCalculator[24];
 		for (int j = 0; j < 24; ++j) {
@@ -218,7 +234,7 @@ public class CityMap3D extends JFrame implements GLEventListener {
 		KeyEventListener keyEvent = new KeyEventListener(this);
 		this.addKeyListener(keyEvent);
 		canvas.addKeyListener(keyEvent);
-		MouseEventListener mouseEvent = new MouseEventListener(this);
+		mouseEvent = new MouseEventListener(this);
 		canvas.addMouseListener(mouseEvent);
 		canvas.addMouseMotionListener(mouseEvent);
 		canvas.addMouseWheelListener(mouseEvent);
@@ -262,9 +278,120 @@ public class CityMap3D extends JFrame implements GLEventListener {
 
 	@Override
 	public void display(GLAutoDrawable drawable) {
+		GL2 gl = drawable.getGL().getGL2();
+		switch (cmd) {
+		case UPDATE:
+			drawScene(gl);
+			break;
+		case SELECT:
+			pickBuildingArea(gl);
+			break;
+		}
+	}
+	
+	public int getCmd() {
+		return cmd;
+	}
+
+	private static final int NOTHING = 0, UPDATE = 1, SELECT = 2;
+	public static int getSelect() {
+		return SELECT;
+	}
+
+	private int cmd = UPDATE;
+	public void setCmd(int cmd) {
+		this.cmd = cmd;
+	}
+	
+	public int viewPortWidth(GL2 gl) {
+		int[] viewPort = new int[4];
+		gl.glGetIntegerv(GL2.GL_VIEWPORT, viewPort, 0);
+		return viewPort[2];
+	}
+
+	public int viewPortHeight(GL2 gl) {
+		int[] viewPort = new int[4];
+		gl.glGetIntegerv(GL2.GL_VIEWPORT, viewPort, 0);
+		return viewPort[3];
+	}
+
+	private void pickBuildingArea(GL2 gl){
+		gl.glEnable(GL2.GL_CULL_FACE);
+		gl.glEnable(GL2.GL_DEPTH_TEST);
+		gl.glEnable(GL2.GL_NORMALIZE);
+		int buffsize = 1024;
+		double x = mouseEvent.getMouse_x();
+		double y = mouseEvent.getMouse_y();
+		int[] viewPort = new int[4];
+		IntBuffer selectBuffer = Buffers.newDirectIntBuffer(buffsize);
+		int hits = 0;
+
+
+		gl.glGetIntegerv(GL2.GL_VIEWPORT, viewPort, 0);
+		gl.glSelectBuffer(buffsize, selectBuffer);
+		gl.glRenderMode(GL2.GL_SELECT);
+		gl.glInitNames();
+		gl.glMatrixMode(GL2.GL_PROJECTION);
+		gl.glPushMatrix();
+		gl.glLoadIdentity();
+		System.out.println("x " + x + " " + (double) viewPort[3] + " -" + y + " viewport: "+ viewPort);
+		glu.gluPickMatrix(x, (double) viewPort[3] - y, 20d, 20d,
+				viewPort, 0);
+//		camera.setPerspective((int)x, (int)y);
+		glu.gluPerspective(60, (double) x / y, 0.1, 20000);
+		drawScene(gl);
+		gl.glMatrixMode(GL2.GL_PROJECTION);
+		gl.glPopMatrix();
+		gl.glFlush();
+		hits = gl.glRenderMode(GL2.GL_RENDER);
+		processHits(hits, selectBuffer);
+		cmd = UPDATE;
+		
+		gl.glMatrixMode(GL2.GL_MODELVIEW);
+		gl.glLoadIdentity();
+		
+//		camera = tempCamera[0];
+	}
+
+	public void processHits(int hits, IntBuffer buffer) {
+		System.out.println("---------------------------------");
+		System.out.println(" HITS: " + hits);
+		int offset = 0;
+		int names;
+		float z1, z2;
+		for (int i = 0; i < hits; i++) {
+			System.out.println("- - - - - - - - - - - -");
+			System.out.println(" hit: " + (i + 1));
+			names = buffer.get(offset);
+			offset++;
+			System.out.println("0xffffffffL " + 0xffffffffL);
+			System.out.println("offset " + offset);
+			System.out.println("buffer.get(offset) " + buffer.get(offset));
+			z1 = (float) (buffer.get(offset) & 0xffffffffL) / 0x7fffffff;
+			offset++;
+			z2 = (float) (buffer.get(offset) & 0xffffffffL) / 0x7fffffff;
+			offset++;
+			System.out.println(" number of names: " + names);
+			System.out.println(" z1: " + z1);
+			System.out.println(" z2: " + z2);
+			System.out.println(" names: ");
+			System.out.println(names);
+			for (int j = 0; j < names; j++) {
+				System.out.print("       " + buffer.get(offset));
+				if (j == (names - 1))
+					System.out.println("<-");
+				else
+					System.out.println();
+				offset++;
+			}
+			System.out.println("- - - - - - - - - - - -");
+		}
+		System.out.println("---------------------------------");
+	}
+
+	private void drawScene(GL2 gl) {
 		splitAzimuth = Main.getSplitAzimuth();
 		splitHeight = Main.getSplitHeight();
-		gl = drawable.getGL().getGL2();
 		gl.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT);
 		gl.glLoadIdentity();
 		// apply camera modifications

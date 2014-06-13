@@ -14,7 +14,6 @@ import de.hft_stuttgart.swp2.model.ShadowTriangle;
 import de.hft_stuttgart.swp2.model.Triangle;
 import de.hft_stuttgart.swp2.model.Vertex;
 import de.hft_stuttgart.swp2.render.Main;
-import de.hft_stuttgart.swp2.render.options.OptionGUI;
 import de.hft_stuttgart.swp2.render.options.PanelInformation;
 
 public class GLBuildingEntity extends GLEntity {
@@ -22,7 +21,6 @@ public class GLBuildingEntity extends GLEntity {
 	private boolean isShowVolumeAmount = true;
 	private boolean isVolumeCalc;
 	private boolean isShadowCalc;
-	private boolean isErrorVolumeAmount = false;
 
 	public boolean isShowGrid() {
 		return isShowGrid;
@@ -79,7 +77,7 @@ public class GLBuildingEntity extends GLEntity {
 	}
 
 	private void drawGrid(GL2 gl, Triangle triangle) {
-		if (isShowGrid) {
+		if (isShowGrid && !(Main.getCityMap3D().getCmd()== CityMap3D.getSelect())) {
 			gl.glColor3f(0.1216f, 0.0588f, 0.0078f);
 			gl.glBegin(GL2.GL_LINE_LOOP);
 			for (Vertex v : triangle.getVertices()) {
@@ -299,7 +297,7 @@ public class GLBuildingEntity extends GLEntity {
 	}
 
 	public void _draw() {
-		if(Main.getCityMap3D().isShowGrid()){
+		if(Main.getCityMap3D().isShowGrid() && !(Main.getCityMap3D().getCmd()== CityMap3D.getSelect())){
 			isShowGrid = true;
 		}else{
 			isShowGrid = false;
