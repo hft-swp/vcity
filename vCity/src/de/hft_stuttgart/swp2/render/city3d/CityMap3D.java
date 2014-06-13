@@ -2,6 +2,9 @@ package de.hft_stuttgart.swp2.render.city3d;
 
 import java.awt.AWTException;
 import java.awt.Dimension;
+import java.awt.DisplayMode;
+import java.awt.GraphicsDevice;
+import java.awt.GraphicsEnvironment;
 import java.awt.Robot;
 import java.awt.Toolkit;
 import java.util.Calendar;
@@ -11,7 +14,9 @@ import java.util.TimeZone;
 import javax.media.opengl.GL;
 import javax.media.opengl.GL2;
 import javax.media.opengl.GLAutoDrawable;
+import javax.media.opengl.GLCapabilities;
 import javax.media.opengl.GLEventListener;
+import javax.media.opengl.GLProfile;
 import javax.media.opengl.awt.GLCanvas;
 import javax.media.opengl.glu.GLU;
 import javax.swing.JFrame;
@@ -72,7 +77,7 @@ public class CityMap3D extends JFrame implements GLEventListener {
 
 	private int splitAzimuth = Main.getSplitAzimuth();
 	private int splitHeight = Main.getSplitHeight();
-	private boolean isPerformance = true;
+	private boolean isPerformance = false;
 	private FPSAnimator animator;
 
 	private SunPositionCalculator[] sunPositions;
@@ -85,6 +90,8 @@ public class CityMap3D extends JFrame implements GLEventListener {
 	private boolean isCalculating = false;
 	GLBuildingEntity[] glBuildings;
 	private boolean isFirstTimeShadowCalc = false;
+	private GLCapabilities caps;
+	private GLCanvas canvas;
 	
 	public boolean isShowVolumeAmount() {
 		return isShowVolumeAmount;
@@ -153,7 +160,22 @@ public class CityMap3D extends JFrame implements GLEventListener {
 
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		// set up the drawing canvas
-		GLCanvas canvas = new GLCanvas();
+		caps = new GLCapabilities(GLProfile.getDefault());
+		caps.setSampleBuffers(true);
+	    GraphicsDevice device = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
+	    DisplayMode mode = device.getDisplayMode();
+		final int bitDepth = mode.getBitDepth();
+		caps.setNumSamples(16); 
+		caps.setStencilBits(bitDepth);
+		caps.setAccumAlphaBits(bitDepth);
+		caps.setAccumBlueBits(bitDepth);
+		caps.setAccumGreenBits(bitDepth);
+		caps.setAccumRedBits(bitDepth);
+		caps.setDoubleBuffered(true);
+		caps.setHardwareAccelerated(true);
+
+
+		canvas = new GLCanvas(caps);
 		canvas.setPreferredSize(new Dimension(width, height));
 		getContentPane().add(canvas);
 
@@ -162,11 +184,11 @@ public class CityMap3D extends JFrame implements GLEventListener {
 		animator.start();
 
 		addListeners(canvas);
-		pack();
 		this.setLocationRelativeTo(null);
 		halfScreenHeight = Toolkit.getDefaultToolkit().getScreenSize().height / 2;
 		halfScreenWidth = Toolkit.getDefaultToolkit().getScreenSize().width / 2;
 		robot.mouseMove(halfScreenWidth, halfScreenHeight);
+		pack();
 	}
 /**
  * initializes the sun position by month and day
@@ -248,7 +270,17 @@ public class CityMap3D extends JFrame implements GLEventListener {
 		// apply camera modifications
 		camera.lookAt();
 		// drawing building 0
+		drawHemisphere(gl);
+		drawAxis(gl);
+		drawSkyModel(gl);
+		// setGround(minGroundSize, maxGroundSize);
+		if (enableDrawCenters) {
+			drawCentersOfHemisphere(gl);
+		}
+		
 		gl.glColor3f(1f, 1f, 1f);
+		
+
 
 		// TODO Wenn sich der Pfad ändert alles neuberechnen, wenn nicht city
 		// Objekte speichern
@@ -283,6 +315,7 @@ public class CityMap3D extends JFrame implements GLEventListener {
 		}
 		changeView();
 		if (glBuildings != null) {
+			setZBuffer(gl);
 			boolean isViewShadow = Main.getOptionGUI().isShadowViewSelected();
 			boolean isViewVolume = Main.getOptionGUI().isVolumeViewSelected();
 			// DRAW BUILDINGS
@@ -318,20 +351,19 @@ public class CityMap3D extends JFrame implements GLEventListener {
 					glBuilding.draw();
 				}
 			}
-
+			disableZBuffer(gl);
 		}
 
-		drawHemisphere(gl);
-		drawAxis(gl);
-		drawSkyModel(gl);
-		// setGround(minGroundSize, maxGroundSize);
-		if (enableDrawCenters) {
-			drawCentersOfHemisphere(gl);
-		}
+
 		
 		isShadowCalc = Main.getOptionGUI().isCalculateShadow();
 		isVolumeCalc = Main.getOptionGUI().isCalculateVolume();
 		isCalculating = false; //Variable must stand on the end
+		
+//	    gl.glStencilFunc(GL.GL_EQUAL, 1, 0xFF); // Pass test if stencil value is 1
+//	    gl.glStencilMask(0x00); // Don't write anything to stencil buffer
+	    gl.glDepthMask(true); // Write to depth buffer
+	    gl.glFlush();
 	}
 
 	private void drawSkyModel(GL2 gl2) {
@@ -494,33 +526,78 @@ public class CityMap3D extends JFrame implements GLEventListener {
 	public void dispose(GLAutoDrawable drawable) {
 
 	}
+	
+	public void setZBuffer(GL2 gl){
+		gl.glEnable(GL2.GL_MULTISAMPLE);
+		gl.glEnable(GL2.GL_BLEND);
+		gl.glBlendFunc(GL2.GL_SRC_ALPHA, GL2.GL_ONE_MINUS_SRC_ALPHA);
+		gl.glEnable(GL2.GL_DEPTH_TEST);
+		gl.glDepthFunc(GL2.GL_LEQUAL );
+		gl.glEnable(GL2.GL_NORMALIZE);
+		gl.glShadeModel(GL2.GL_SMOOTH);
+		gl.glMatrixMode(GL2.GL_MODELVIEW);
+//		gl.glEnable(GL2.GL_PERSPECTIVE_CORRECTION_HINT);
+//		gl.glDepthRangef(-50.0f, 50.0f);
+		gl.glClearDepth(1.0f);
+//		gl.glClearColor(0.3333f, 0.3961f, 0.4941f, 0.0f);
+//
+		gl.glClearColor(0.3333f, 0.3961f, 0.4941f, 0.0f);
+
+
+		gl.glEnable(GL2.GL_CULL_FACE);
+		gl.glCullFace(GL2.GL_BACK);
+//		
+		//--------------Stencil
+		gl.glClear(GL2.GL_DEPTH_BUFFER_BIT);
+		
+		
+//		  gl.glEnable(GL2.GL_STENCIL_TEST);
+//		  gl.glStencilFunc(GL2.GL_LESS, 2, 0xFF); // Set any stencil to 1
+//		  gl.glStencilOp(GL2.GL_KEEP, GL2.GL_KEEP, GL2.GL_REPLACE);
+//		  gl.glStencilMask(0xFF); // Write to stencil buffer
+//		  gl.glDepthMask(true); // Don't write to depth buffer
+//		  gl.glClear(GL2.GL_STENCIL_BUFFER_BIT); // Clear stencil buffer (0 by default)
+//		gl.glPolygonOffset(-20.0f, 20.0f) ;
+		gl.glEnable(GL2.GL_POLYGON_SMOOTH);      
+//	    gl.glEnable(GL2.GL_POLYGON_SMOOTH);
+//		gl.glPolygonMode( GL2.GL_BACK, GL2.GL_FILL );
+
+		
+		if (isPerformance) {
+			gl.glEnable(GL2.GL_PERSPECTIVE_CORRECTION_HINT);
+			gl.glHint(GL2.GL_PERSPECTIVE_CORRECTION_HINT, GL2.GL_FASTEST);
+		} else {
+//			gl.glHint(GL2.GL_POINT_SMOOTH_HINT, GL2.GL_NICEST);
+			gl.glEnable(GL2.GL_POLYGON_SMOOTH_HINT);
+			gl.glHint(GL2.GL_POLYGON_SMOOTH_HINT, GL2.GL_NICEST);
+		}
+	}
+	
+	public void disableZBuffer(GL2 gl){
+		gl.glDisable(GL2.GL_DEPTH_TEST);
+//		gl.glDisable(GL2.GL_PERSPECTIVE_CORRECTION_HINT);
+//		gl.glDisable(GL2.GL_CULL_FACE);
+//		gl.glDisable(GL2.GL_POLYGON_SMOOTH);
+		gl.glDisable(GL2.GL_BLEND);
+//		  gl.glDisable(GL2.GL_STENCIL_TEST);
+	}
 
 	@Override
 	public void init(GLAutoDrawable drawable) {
-		GL2 gl = drawable.getGL().getGL2();
+		gl = drawable.getGL().getGL2();
 		glu = new GLU();
 		camera = new Camera(glu);
 		camera.turnRight(-1.2);
 		camera.turnDown(0.3);
-		gl.glClearColor(0.3333f, 0.3961f, 0.4941f, 0.0f);
-		gl.glClearDepth(1.0f);
 
-		gl.glEnable(GL.GL_DEPTH_TEST);
-		gl.glDepthFunc(GL.GL_LEQUAL);
-
-		if (isPerformance) {
-			gl.glHint(GL2.GL_PERSPECTIVE_CORRECTION_HINT, GL.GL_FASTEST);
-		} else {
-			gl.glHint(GL2.GL_PERSPECTIVE_CORRECTION_HINT, GL.GL_NICEST);
-		}
-
-		gl.glShadeModel(GL2.GL_SMOOTH);
+		
+		setZBuffer(gl);
 	}
 
 	@Override
 	public void reshape(GLAutoDrawable drawable, int x, int y, int width,
 			int height) {
-		GL2 gl = drawable.getGL().getGL2();
+		gl = drawable.getGL().getGL2();
 
 		if (height == 0) {
 			height = 1;

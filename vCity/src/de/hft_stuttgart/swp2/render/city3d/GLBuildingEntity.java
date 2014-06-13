@@ -1,6 +1,7 @@
 package de.hft_stuttgart.swp2.render.city3d;
 
 import javax.media.opengl.GL2;
+import javax.media.opengl.GLException;
 import javax.media.opengl.glu.GLU;
 
 import com.jogamp.opengl.util.gl2.GLUT;
@@ -13,12 +14,15 @@ import de.hft_stuttgart.swp2.model.ShadowTriangle;
 import de.hft_stuttgart.swp2.model.Triangle;
 import de.hft_stuttgart.swp2.model.Vertex;
 import de.hft_stuttgart.swp2.render.Main;
+import de.hft_stuttgart.swp2.render.options.OptionGUI;
+import de.hft_stuttgart.swp2.render.options.PanelInformation;
 
 public class GLBuildingEntity extends GLEntity {
 	private boolean isShowGrid = true;
 	private boolean isShowVolumeAmount = true;
 	private boolean isVolumeCalc;
 	private boolean isShadowCalc;
+	private boolean isErrorVolumeAmount = false;
 
 	public boolean isShowGrid() {
 		return isShowGrid;
@@ -79,6 +83,7 @@ public class GLBuildingEntity extends GLEntity {
 			gl.glColor3f(0.1216f, 0.0588f, 0.0078f);
 			gl.glBegin(GL2.GL_LINE_LOOP);
 			for (Vertex v : triangle.getVertices()) {
+				gl.glNormal3fv(triangle.getNormalVector().getCoordinates(), 0);
 				gl.glVertex3fv(v.getCoordinates(), 0);
 			}
 			gl.glEnd();
@@ -86,6 +91,7 @@ public class GLBuildingEntity extends GLEntity {
 	}
 
 	private void drawBuildingVolumeAmount(GL2 gl, Building building) {
+		gl.glMatrixMode(GL2.GL_TEXTURE);
 		float minZ = Float.MAX_VALUE;
 		float minY = Float.MAX_VALUE;
 		float minX = Float.MAX_VALUE;
@@ -153,10 +159,20 @@ public class GLBuildingEntity extends GLEntity {
 			} else {
 				averageValueZ = ((Math.abs(maxZ) - Math.abs(minZ)) / 2f) + minZ;
 			}
-			gl.glColor3f(0, 0, 1);
-			gl.glRasterPos3f(averageValueX, maxY + 1f, averageValueZ);
-			glut.glutBitmapString(7,
-					String.valueOf(Math.round(building.getVolume())));
+			try{
+				gl.glColor3f(0, 0, 1);
+				gl.glRasterPos3f(averageValueX, maxY + 1f, averageValueZ);
+				glut.glutBitmapString(7,
+						String.valueOf(Math.round(building.getVolume())));
+			}catch(GLException e){
+				Main.getOptionGUI().setCbVolumeAmount(false);
+				PanelInformation.addNewTopic("OPEN GL PROBLEM");
+				PanelInformation.addProgrammInfo("Problem mit OpenGL die Texturen scheinen");
+				PanelInformation.addProgrammInfo("im Moment zu aufwendig zu sein");
+				PanelInformation.addProgrammInfo("die Volumen-Anzeige wurde automatisch" +
+						" ausgeschaltet und kann ggfs später angeschalten werden.");
+			}
+			gl.glMatrixMode(GL2.GL_MODELVIEW);
 		}
 	}
 
@@ -171,6 +187,7 @@ public class GLBuildingEntity extends GLEntity {
 					for (Vertex v : t.getVertices()) {
 						// green
 						gl.glColor3f(0, 1, 0);
+						gl.glNormal3fv(t.getNormalVector().getCoordinates(), 0);
 						gl.glVertex3fv(v.getCoordinates(), 0);
 					}
 					gl.glEnd();
@@ -201,6 +218,7 @@ public class GLBuildingEntity extends GLEntity {
 							gl.glColor3d(0f, grey, 0f);
 						}
 						for (Vertex v : t.getVertices()) {
+							gl.glNormal3fv(t.getNormalVector().getCoordinates(), 0);
 							gl.glVertex3fv(v.getCoordinates(), 0);
 						}
 						gl.glEnd();
@@ -251,6 +269,7 @@ public class GLBuildingEntity extends GLEntity {
 						// }
 
 						for (Vertex v : t.getVertices()) {
+							gl.glNormal3fv(t.getNormalVector().getCoordinates(), 0);
 							gl.glVertex3fv(v.getCoordinates(), 0);
 						}
 						gl.glEnd();

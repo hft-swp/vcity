@@ -88,7 +88,7 @@ public class ParserExport implements ParserExportInterface {
 			writer.flush();
 			writer.close();
 		} catch (IOException e) {
-			throw new ParserException(e.getCause().getMessage());
+			throw new ParserException(e.getMessage());
 		}
 
 		return true;
@@ -159,6 +159,10 @@ public class ParserExport implements ParserExportInterface {
 	public boolean exportToXml(String outputFileName) throws ParserException {
 
 		try {
+			
+			if (City.getInstance().getBuildings().isEmpty()) {
+				throw new ParserException("City is empty.");
+			}
 			
 			// Calculate area of a polygon
 			CalculatorInterface calc = new CalculatorImpl();

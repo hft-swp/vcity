@@ -40,6 +40,7 @@ import org.jdesktop.swingx.JXDatePicker;
 import de.hft_stuttgart.swp2.opencl.ShadowPrecision;
 import de.hft_stuttgart.swp2.render.Main;
 import de.hft_stuttgart.swp2.render.Selection;
+import de.hft_stuttgart.swp2.render.city3d.CityMap3D;
 import de.hft_stuttgart.swp2.render.threads.StartParserRunnable;
 
 public class PanelSettings extends JPanel {
@@ -426,6 +427,11 @@ public class PanelSettings extends JPanel {
 		}
 
 		return optionPanel;
+	}
+
+	public void setCbVolumeAmount(Boolean isVisible) {
+		cbVolumeAmount.setSelected(isVisible);
+		Main.getCityMap3D().setShowVolumeAmount(isVisible);
 	}
 
 	private void generatePanelShadowOptions() {
