@@ -4,7 +4,9 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.util.Date;
 import java.util.GregorianCalendar;
+
 import de.hft_stuttgart.swp2.render.Main;
+import de.hft_stuttgart.swp2.render.city3d.Message.Style;
 
 public class KeyEventListener implements KeyListener {
 	private CityMap3D cityMap3D;
@@ -94,7 +96,7 @@ public class KeyEventListener implements KeyListener {
 				hour = 0;
 				gc.add(GregorianCalendar.DAY_OF_MONTH, 1);
 			}
-			gc.set(GregorianCalendar.HOUR_OF_DAY, hour);
+			gc.set(GregorianCalendar.HOUR_OF_DAY, hour);			
 			Main.getOptionGUI().setTime(gc.getTime(),
 					gc.get(GregorianCalendar.HOUR_OF_DAY),
 					gc.get(GregorianCalendar.MINUTE));
