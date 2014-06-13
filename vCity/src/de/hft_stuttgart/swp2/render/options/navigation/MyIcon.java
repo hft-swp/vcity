@@ -25,7 +25,7 @@ public class MyIcon implements Icon {
 	 */
 	@Override
 	public int getIconHeight() {
-		return 75;
+		return 50;
 	}
 
 	/**
@@ -33,7 +33,7 @@ public class MyIcon implements Icon {
 	 */
 	@Override
 	public int getIconWidth() {
-		return 75;
+		return 50;
 	}
 
 	/**
@@ -41,7 +41,8 @@ public class MyIcon implements Icon {
 	 */
 	@Override
 	public void paintIcon(Component c, Graphics g, int x, int y) {
-		g.drawImage(this.img, 0, 0, c);
+//		g.drawImage(this.img, 0, 0, c);
+		g.drawImage(this.img, 0, 0, 50, 50, c);
 	}
 
 }

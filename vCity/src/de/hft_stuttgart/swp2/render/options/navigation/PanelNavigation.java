@@ -1,5 +1,6 @@
 package de.hft_stuttgart.swp2.render.options.navigation;
 
+import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.ItemEvent;
@@ -43,13 +44,28 @@ public class PanelNavigation extends JPanel implements  ChangeListener {
 		this.setMaximumSize(new Dimension(225, 225));
 		this.setMinimumSize(new Dimension(225, 225));
 
-		this.setLayout(new GridLayout(3, 3));
-		this.add(new JLabel());
+		
+		this.setLayout(new BorderLayout());
+		
+		
+		JPanel panelNaviElements = new JPanel();
+		panelNaviElements.setLayout(new GridLayout(3,3));
+		panelNaviElements.add(new JLabel());
 		this.btnUP.setIcon(new MyIcon(".\\src\\de\\hft_stuttgart\\swp2\\render\\images\\up.png"));
-		this.add(btnUP);
-		this.add(new JLabel());
+		panelNaviElements.add(btnUP);
+		panelNaviElements.add(new JLabel());
 		this.btnLeft.setIcon(new MyIcon(".\\src\\de\\hft_stuttgart\\swp2\\render\\images\\left.png"));
-		this.add(btnLeft);
+		panelNaviElements.add(btnLeft);
+		panelNaviElements.add(new JLabel());
+		this.btnRight.setIcon(new MyIcon(".\\src\\de\\hft_stuttgart\\swp2\\render\\images\\right.png"));
+		panelNaviElements.add(btnRight);
+		panelNaviElements.add(new JLabel());
+		this.btnDown.setIcon(new MyIcon(".\\src\\de\\hft_stuttgart\\swp2\\render\\images\\down.png"));
+		panelNaviElements.add(btnDown);
+		panelNaviElements.add(new JLabel());
+		addActionListeners();
+		
+		this.add(panelNaviElements, BorderLayout.CENTER);
 		// Die Abstände zwischen den
 		// Teilmarkierungen werden festgelegt
 		jSliderZoom.addChangeListener(this);
@@ -68,14 +84,9 @@ public class PanelNavigation extends JPanel implements  ChangeListener {
 		jSliderZoom.setPaintTicks(true);
 		// Zeichnen der Labels wird aktiviert
 		jSliderZoom.setPaintLabels(true);
-		this.add(jSliderZoom);
-		this.btnRight.setIcon(new MyIcon(".\\src\\de\\hft_stuttgart\\swp2\\render\\images\\right.png"));
-		this.add(btnRight);
-		this.add(new JLabel());
-		this.btnDown.setIcon(new MyIcon(".\\src\\de\\hft_stuttgart\\swp2\\render\\images\\down.png"));
-		this.add(btnDown);
-		this.add(new JLabel());
-		addActionListeners();
+		jSliderZoom.setOrientation(JSlider.VERTICAL);
+		this.add(jSliderZoom, BorderLayout.EAST);
+		
 	}
 
 	/**

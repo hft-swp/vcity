@@ -144,7 +144,7 @@ public class OptionGUI extends JFrame implements Refreshable{
 		frameHeight = this.getHeight();
 	}
 	
-	private static JLabel cityInfo = new JLabel("Hallo Penel2");
+
 
 	private void setPanelContent() {
 		content_panel.setPreferredSize(new Dimension(PREF_WIDTH,PREF_HEIGHT));
@@ -157,9 +157,6 @@ public class OptionGUI extends JFrame implements Refreshable{
 		addBtn3();
 		addPanelNavigation();
 		
-		//Example Data
-		panelCityInfo.setLayout(new GridLayout(1,1));
-		panelCityInfo.add(cityInfo);
 
 		
 		panelSettings.setVisible(true);
@@ -219,9 +216,9 @@ public class OptionGUI extends JFrame implements Refreshable{
 		constraints.gridx = 0;
 		constraints.gridy = 3;
 		constraints.gridheight = 1;
+		constraints.weighty = 2.0; //request any extra vertical space 
 		constraints.fill = GridBagConstraints.BOTH;
-		constraints.weighty = 1.0;
-		constraints.weighty = 1.0; //request any extra vertical space  
+		panelCityInfo.setMinimumSize(new Dimension(200,200));
 		content_panel.add(panelCityInfo, constraints);
 	}
 	
@@ -233,6 +230,7 @@ public class OptionGUI extends JFrame implements Refreshable{
 		constraints.gridx = 0;       //aligned with button 2
 		constraints.gridwidth = 1;   //2 columns wide
 		constraints.gridy = 5;       //third row
+		panelNavigation.setMinimumSize(new Dimension(200,200));
 		content_panel.add(panelNavigation, constraints);
 	}
 	
@@ -364,23 +362,6 @@ public class OptionGUI extends JFrame implements Refreshable{
 		content_panel.revalidate();
 	
 	}
-
-	/**
-	 * update the text in the city info panel
-	 */
-	public static void updateCityInfo() {
-		String text = "<html>anz. Gebäude: " + City.getInstance().getBuildings().size();
-		if (City.getInstance().getTotalVolume() > 0.0){
-			text += String.format("<br>Stadtvolumen: %.3f m²", City.getInstance().getTotalVolume());
-		}
-		if (City.getInstance().getTotalShadowTrianglesCount() > 0){
-			text += "<br>anz. Schattendreiecke: " + City.getInstance().getTotalShadowTrianglesCount();
-		}
-		text += "</html>";
-		cityInfo.setText(text);		
-	}
-	
-	
 
 
 }

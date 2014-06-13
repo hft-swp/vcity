@@ -1,7 +1,7 @@
 package de.hft_stuttgart.swp2.render.threads;
 
 import de.hft_stuttgart.swp2.render.Main;
-import de.hft_stuttgart.swp2.render.options.OptionGUI;
+import de.hft_stuttgart.swp2.render.options.PanelCityInfo;
 
 public class StartParserRunnable implements Runnable{
 	private String pathToGmlFile;
@@ -23,7 +23,7 @@ public class StartParserRunnable implements Runnable{
 		Main.getOptionGUI().setBtnExportEnabled(true);
 		oldText = "vCity - 3D Stadtansicht";
 		Main.getCityMap3D().setTitle(oldText);
-		OptionGUI.updateCityInfo();
+		PanelCityInfo.updateCityInfo();
 	}
 
 }

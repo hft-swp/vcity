@@ -489,11 +489,8 @@ public class PanelSettings extends JPanel {
 			public void actionPerformed(ActionEvent e) {
 				if (groupForms.getSelection() == jrbPolygon.getModel()) {
 					Main.getCityMap3D().drawPolygons = true;
-					panelTriangleChoice.setVisible(false);
 				} else {
-
 					Main.getCityMap3D().drawPolygons = false;
-					panelTriangleChoice.setVisible(true);
 				}
 			}
 		};
@@ -508,7 +505,7 @@ public class PanelSettings extends JPanel {
 		panelShadowOptions.add(panelTime, constraints);
 
 		panelTriangleChoice.setLayout(new GridLayout(1, 2));
-		panelTriangleChoice.setVisible(false);
+		panelTriangleChoice.setVisible(true);
 		cmbShadowPrecision = new JComboBox<ShadowPrecision>(
 				ShadowPrecision.values());
 		// groupForms.isSelected(jrbTriangle.getModel());
