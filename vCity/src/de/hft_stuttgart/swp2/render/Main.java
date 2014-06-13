@@ -135,8 +135,9 @@ public class Main {
 			System.out.println("Starting volume calculation...");			
 			start = System.currentTimeMillis();
 			try {				
-				message.makeText(cityMap3D,"Starting volume calculation...",Style.NORMAL).display();
+//				message.makeText(cityMap3D,"Starting volume calculation...",Style.NORMAL).display();
 				backend.calculateVolume();
+				Message.makeText(cityMap3D,"Volume calculation successful",Style.SUCCESS).display(); 
 			} catch (OpenClException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -161,6 +162,7 @@ public class Main {
 			start = System.currentTimeMillis();
 			try {
 				backend.calculateShadow(shadowPrecision, splitAzimuth, splitHeight); // VERY_LOW(5),
+				Message.makeText(cityMap3D,"Shadow calculation successful",Style.SUCCESS).display();
 				// LOW(2.5f),
 				// MID(1.25f),
 				// HIGH(0.75f),

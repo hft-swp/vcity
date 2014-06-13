@@ -31,25 +31,17 @@ public class PanelExport extends JPanel {
 
 	private class ExportFormatFilter extends javax.swing.filechooser.FileFilter {
 		public boolean accept(File f) {
-			// Auch Unterverzeichnisse anzeigen
+			// Also shows subdirectories
 			if (f.isFile()) {
 				return true;
 			} else {
 				return false;
 			}
-
 		}
-
 		public String getDescription() {
 			return (String) cmbFormat.getSelectedItem();
 		}
-
 	}
-	
-
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 7774736827577623532L;
 
 	public PanelExport() {
@@ -63,25 +55,25 @@ public class PanelExport extends JPanel {
 				JFileChooser chooserExport = new JFileChooser(new File(System
 						.getProperty("user.home")));
 
-				// Erstellung eines FileFilters für CSV/XML/CGML files
+				// creation of file filter for CSV/XML/CGML files
 				FileFilter filter = new ExportFormatFilter();
-				// Filter wird in JFileChooser hinzugefügt
+				// Add filter to JFileChooser
 				chooserExport.setAcceptAllFileFilterUsed(false);
 				chooserExport.setFileFilter(filter);
 
 				int rueckgabeWert = chooserExport.showDialog(null, "Speichern");
 
-				/* Abfrage, ob auf "Oeffnen" geklickt wurde */
+				// query whether button "Oeffnen" was clicked or not
 				if (rueckgabeWert == JFileChooser.APPROVE_OPTION) {
-					// Ausgabe der ausgewaehlten Datei
+					// output chosen file
 					String filePath = chooserExport.getSelectedFile().getPath()
 							+ "." + (String) cmbFormat.getSelectedItem();
 					File exportFile = new File(filePath);
 					if (!exportFile.exists()) {
 						try {
-							// Erstelle Datei auf Festplatte
+							// build file on hard drive
 							boolean isCreated = exportFile.createNewFile();
-							// Überprüfung, ob die Datei erstellt wurde
+							// check whether file was builded or not
 							if (isCreated) {
 								ParserExport parserExport = new ParserExport();
 								String exportEnding = (String) cmbFormat
@@ -105,7 +97,7 @@ public class PanelExport extends JPanel {
 										+ Main.newline +  "wurde nicht erfolgreich erstellt";
 							}
 						} catch (IOException ex) {
-							// Ein Fehler ist aufgetreten.
+							// failure
 							programInfo = filePath
 									+ Main.newline + "wurde nicht erfolgreich erstellt";
 							ex.printStackTrace();

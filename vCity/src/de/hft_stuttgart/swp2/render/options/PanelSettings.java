@@ -420,6 +420,9 @@ public class PanelSettings extends JPanel {
 		panelShadowOptions.setPreferredSize(new Dimension(200, 300));
 		jspPanelShadowOptions = new JScrollPane(panelShadowOptions);
 		jspPanelShadowOptions.setMinimumSize(new Dimension(150, 100));
+		jspPanelShadowOptions.setWheelScrollingEnabled(true);
+		jspPanelShadowOptions.getVerticalScrollBar().setUnitIncrement(14); 
+		
 		optionPanel.add(jspPanelShadowOptions, constraints);
 		if (!cbShadow.isSelected()) {
 			panelShadowOptions.setVisible(false);
