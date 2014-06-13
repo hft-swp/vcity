@@ -101,6 +101,11 @@ public class GLBuildingEntity extends GLEntity {
 			// System.out.println("Um das Volumen der Gebaeude anzeigen zu lassen "
 			// +
 			// "muss es erst berechnet werden.");
+			Main.getOptionGUI().setCbVolumeAmount(false);
+			PanelInformation.addNewTopic("Benutzer Problem");
+			PanelInformation.addProgrammInfo("Um das Volumen der Gebaeude anzeigen zu lassen");
+			PanelInformation.addProgrammInfo("muss es erst berechnet werden.");
+			PanelInformation.addProgrammInfo(Main.newline + "Die Volumen Anzeige Checkbox wurde deaktiviert");
 		}
 		if (building.getVolume() > 0) {
 			for (int i = 0; i < building.getBoundarySurfaces().size(); ++i) {
