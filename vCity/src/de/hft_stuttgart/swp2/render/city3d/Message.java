@@ -39,12 +39,16 @@ public class Message extends JDialog {
 	private int messageSize= 0;
 	private Color mBackgroundColor = Color.BLACK;
 	private Color mForegroundColor = Color.WHITE;
-    
+   
     public Message(JFrame owner){
     	super(owner);
     	mOwner = owner;
     }
-
+/**
+ * creates the toast 
+ * sets the length of the toast by the length of the text
+ * toast default background color  
+ */
     private void createGUI(){
         setLayout(new GridBagLayout());
         addComponentListener(new ComponentAdapter() {
@@ -66,7 +70,9 @@ public class Message extends JDialog {
         label.setForeground(mForegroundColor);
         add(label);
     }
-
+/**
+ * fades the toast in
+ */
 	public void fadeIn() {
 		final Timer timer = new Timer(FADE_REFRESH_RATE, null);
 		timer.setRepeats(true);
@@ -87,7 +93,9 @@ public class Message extends JDialog {
 		setLocation(getToastLocation());		
 		setVisible(true);
 	}
-
+/**
+ * fades the toast out
+ */
 	public void fadeOut() {
 		final Timer timer = new Timer(FADE_REFRESH_RATE, null);
 		timer.setRepeats(true);
@@ -107,43 +115,92 @@ public class Message extends JDialog {
 		setOpacity(MAX_OPACITY);
 		timer.start();
 	}
-
+/**
+ * sets the point where the toast is shown
+ * @return
+ */
 	private Point getToastLocation(){		
 		int x = (int) (mOwner.getBounds().getWidth()/2- messageSize/2); 
-		int y = (int) (mOwner.getBounds().getHeight()-(mOwner.getBounds().getHeight()-700));
+		int y = (int) (mOwner.getBounds().getHeight()-100);
 		return new Point(x, y);
 	}
-
+/**
+ * set the text
+ * @param text
+ */
 	public void setText(String text){
 		mText = text;
 	}
-
+/**
+ * set the duration
+ * @param duration
+ */
 	public void setDuration(int duration){
 		mDuration = duration;
 	}
-
+/**
+ * set the background color
+ */
 	@Override
 	public void setBackground(Color backgroundColor){
 		mBackgroundColor = backgroundColor;
 	}
-
+/**
+ * set the foreground color
+ */
 	@Override
 	public void setForeground(Color foregroundColor){
 		mForegroundColor = foregroundColor;
 	}
-
+/**
+ * Set the text
+ * owner sets the Frame you want to show the toast on
+ * text is the String you want to show on the toast 
+ * @param owner
+ * @param text
+ * @return
+ */
 	public static Message makeText(JFrame owner, String text){
 		return makeText(owner, text, LENGTH_SHORT);
 	}
-
+/**
+ * Set the text 
+ * owner sets the Frame you want to show the toast on
+ * text is the String you want to show on the toast 
+ * Style sets the background color of the toast(Error Red, Normal Black, Success Green)
+ * @param owner
+ * @param text
+ * @param style
+ * @return
+ */
 	public static Message makeText(JFrame owner, String text, Style style){
 		return makeText(owner, text, LENGTH_SHORT, style);
 	}
-    
+    /**
+     * Set the text
+     * owner sets the Frame you want to show the toast on
+     * text is the String you want to show in the toast 
+     * Duration is in ms and sets the duration the toast is shown
+     * @param owner
+     * @param text
+     * @param duration
+     * @return
+     */
     public static Message makeText(JFrame owner, String text, int duration){
     	return makeText(owner, text, duration, Style.NORMAL);
     }
-    
+    /**
+     * Set the text
+     * owner sets the Frame you want to show the toast on
+     * text is the String you want to show in the toast 
+     * Duration is in ms and sets the duration the toast is shown
+     * 
+     * @param owner
+     * @param text
+     * @param duration
+     * @param style
+     * @return
+     */
     public static Message makeText(JFrame owner, String text, int duration, Style style){
     	Message toast = new Message(owner);
     	toast.mText = text;
@@ -158,7 +215,9 @@ public class Message extends JDialog {
     	
     	return toast;
     }
-        
+        /**
+         * starts the thread
+         */
     public void display(){
         new Thread(new Runnable() {
             @Override

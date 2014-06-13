@@ -733,7 +733,6 @@ public class PanelSettings extends JPanel {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				startParser(false);
-				System.out.println("hallo");
 			}
 		};
 	}
