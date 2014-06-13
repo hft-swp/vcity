@@ -141,6 +141,24 @@ public class ParserTest {
 	}
 	
 	@Test
+	public void testReadHFTInnenstadt() {
+		try {
+
+			Parser parser = Parser.getInstance();
+			assertNotNull(parser);
+			
+			City.getInstance().getBuildings().clear();
+
+			City city = parser.parse("HfT_Innenstadt_LOD2.gml");
+			assertNotNull(city);
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			fail();
+		}
+	}
+	
+	@Test
 	public void testExportToCSV() {
 		try {
 			Parser parser = Parser.getInstance();

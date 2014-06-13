@@ -26,7 +26,8 @@ public class ParserTest {
 		
 		long id = System.currentTimeMillis();
 		
-	String inputFileName = "Gruenbuehl_LOD2.gml";
+	String inputFileName = "HfT_Innenstadt_LOD2.gml";
+//	String inputFileName = "Gruenbuehl_LOD2.gml";
 //	String inputFileName = "LB_MITTE_CITYGML_LB_3513294_5416846_GML.gml";
 //	String inputFileName = "einHaus.gml";
 		

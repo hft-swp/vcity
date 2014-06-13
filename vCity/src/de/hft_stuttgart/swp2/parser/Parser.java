@@ -12,13 +12,12 @@ import org.citygml4j.model.citygml.CityGML;
 import org.citygml4j.model.citygml.CityGMLClass;
 import org.citygml4j.model.citygml.building.AbstractBoundarySurface;
 import org.citygml4j.model.citygml.building.BoundarySurfaceProperty;
+import org.citygml4j.model.citygml.building.BuildingPartProperty;
 import org.citygml4j.model.citygml.core.AbstractCityObject;
 import org.citygml4j.model.citygml.core.CityModel;
 import org.citygml4j.model.citygml.core.CityObjectMember;
-import org.citygml4j.model.gml.feature.BoundingShape;
 import org.citygml4j.model.gml.geometry.primitives.AbstractRingProperty;
 import org.citygml4j.model.gml.geometry.primitives.DirectPositionList;
-import org.citygml4j.model.gml.geometry.primitives.Envelope;
 import org.citygml4j.model.gml.geometry.primitives.LinearRing;
 import org.citygml4j.model.gml.geometry.primitives.SurfaceProperty;
 import org.citygml4j.model.xal.Locality;
@@ -108,8 +107,9 @@ public class Parser implements ParserInterface {
 
 	/**
 	 * find the smallest vertex value based on the smallest x coordinate
+	 * @throws ParserException 
 	 */
-	private void findReferenceValue() {
+	private void findReferenceValue() throws ParserException {
 
 		// Step 1: Find reference coordinate
 		for (CityObjectMember cityObjectMember : cityModel.getCityObjectMember()) {
@@ -119,47 +119,20 @@ public class Parser implements ParserInterface {
 			if (cityObject.getCityGMLClass() == CityGMLClass.BUILDING) {
 				org.citygml4j.model.citygml.building.Building building = (org.citygml4j.model.citygml.building.Building) cityObject;
 
-				if (building.isSetBoundedBySurface()) {
-
-					// read EPSG
-					BoundingShape bs = building.getBoundedBy();
-					Envelope env = bs.getEnvelope();
-					epsg = env.getSrsName();
-
-					// Step 3: Find all surfaces
-					for (BoundarySurfaceProperty property : building.getBoundedBySurface()) {
-
-						if (property.isSetObject()) {
-							AbstractBoundarySurface boundarySurface = property.getObject();
-
-							if (boundarySurface.isSetLod2MultiSurface()
-									&& boundarySurface.getLod2MultiSurface().isSetMultiSurface()
-									&& boundarySurface.getLod2MultiSurface().getMultiSurface().isSetSurfaceMember()) {
-
-								List<SurfaceProperty> surfaces = boundarySurface.getLod2MultiSurface().getMultiSurface().getSurfaceMember();
-
-								// Step 4: Find the positions of each polygon's edges
-								for (int i = 0; i < surfaces.size(); i++) {
-
-									org.citygml4j.model.gml.geometry.primitives.Polygon poly = (org.citygml4j.model.gml.geometry.primitives.Polygon) surfaces.get(i).getSurface();
-									AbstractRingProperty ringp = poly.getExterior();
-									LinearRing ring = (LinearRing) ringp.getRing();
-									DirectPositionList poslist = ring.getPosList();
-									List<Double> polypoints = poslist.getValue();
-
-									for (int j = 0; j < polypoints.size(); j += 3) {
-
-										// Step 5: If the coordinate is smaller than the current reference, replace it
-										if (polypoints.get(j) < reference[0]) {
-											reference[0] = polypoints.get(j);
-											reference[1] = polypoints.get(j + 1);
-											reference[2] = polypoints.get(j + 2);
-										}
-									}
-								}
-							}
+				if (building.isSetBoundedBySurface()) { // Way #1
+					for (BoundarySurfaceProperty sp : building.getBoundedBySurface()) {
+						referenceRunner(sp);
+					}
+				}
+				else if (building.isSetConsistsOfBuildingPart()) { // Way #2
+					for (BuildingPartProperty bpp : building.getConsistsOfBuildingPart()) {
+						for (BoundarySurfaceProperty sp : bpp.getBuildingPart().getBoundedBySurface()) {
+							referenceRunner(sp);
 						}
 					}
+				}
+				else {
+					throw new ParserException("Couldn't parse GML file.");
 				}
 			}
 		}
@@ -183,102 +156,169 @@ public class Parser implements ParserInterface {
 				
 				// INTERNAL Building
 				Building build = new Building("" + building.getId());
-
-				Locality loc = building.getAddress().get(0).getAddress().getXalAddress().getAddressDetails().getCountry().getLocality();
-
 				String streetName = "";
 				String cityName = "";
-				try {
-					streetName = loc.getThoroughfare().getThoroughfareName().get(0).getContent();
-					cityName = loc.getLocalityName().get(0).getContent();
-				} catch (NullPointerException e) {
+				
+				if (building.isSetBoundedBySurface()) { // Way #1
+					
+					if (building.isSetAddress()) {
+						try {
+							Locality loc = building.getAddress().get(0).getAddress().getXalAddress().getAddressDetails().getCountry().getLocality();
+							streetName = loc.getThoroughfare().getThoroughfareName().get(0).getContent();
+							cityName = loc.getLocalityName().get(0).getContent();
+						} catch (NullPointerException e) {
+						} catch (IndexOutOfBoundsException e) {
+						}
+					}
+
+					build.setCityName(cityName);
+					build.setStreetName(streetName);
+					
+					for (BoundarySurfaceProperty property : building.getBoundedBySurface()) {
+						surfaceRunner(property, build, polyTriangles);
+					}
 				}
 				
-				build.setCityName(cityName);
-				build.setStreetName(streetName);
-
-				if (building.isSetBoundedBySurface()) {
-
-					for (BoundarySurfaceProperty property : building.getBoundedBySurface()) {
-
-						if (property.isSetObject()) {
-							AbstractBoundarySurface boundarySurface = property.getObject();
-
-							if (boundarySurface.isSetLod2MultiSurface()
-									&& boundarySurface.getLod2MultiSurface().isSetMultiSurface()
-									&& boundarySurface.getLod2MultiSurface().getMultiSurface().isSetSurfaceMember()) {
-								
-								
-								
-								List<SurfaceProperty> surfaces = boundarySurface.getLod2MultiSurface().getMultiSurface().getSurfaceMember();
-								
-								BoundarySurface bSurface = new BoundarySurface(boundarySurface.getId());
-								
-								CityGMLClass cg = boundarySurface.getCityGMLClass();
-								if (cg == CityGMLClass.BUILDING_GROUND_SURFACE){
-									bSurface.setType(SurfaceType.GROUND);
-								}else if (cg == CityGMLClass.BUILDING_ROOF_SURFACE){
-									bSurface.setType(SurfaceType.ROOF);
-								}else if (cg == CityGMLClass.BUILDING_WALL_SURFACE){
-									bSurface.setType(SurfaceType.WALL);
-								}else {
-									bSurface.setType(SurfaceType.OTHER);
-								}
-								
-								for (int i = 0; i < surfaces.size(); i++) {
-									polyTriangles.clear();
-									org.citygml4j.model.gml.geometry.primitives.Polygon poly = (org.citygml4j.model.gml.geometry.primitives.Polygon) surfaces.get(i).getSurface();
-									Polygon bPolygon = new Polygon(poly.getId());
-
-									AbstractRingProperty ringp = poly.getExterior();
-									LinearRing ring = (LinearRing) ringp.getRing();
-									DirectPositionList poslist = ring.getPosList();
-
-									List<Double> polypoints = poslist.getValue();
-
-									ArrayList<VertexDouble> p = new ArrayList<VertexDouble>();
-
-									for (int j = 0; j < polypoints.size(); j++) {
-										p.add(new VertexDouble(
-												polypoints.get(j),
-												polypoints.get(++j),
-												polypoints.get(++j)
-												)
-										);
-									}
-
-									// Translate to Origin
-									ArrayList<Vertex> pp = PolygonTranslate.translateToOrigin(p, reference);
-
-									// Triangulate
-									ArrayList<Triangle> tri = PolygonTriangulator.triangulate(pp);
-
-									// Round
-									ArrayList<Vertex> vertNew = new ArrayList<Vertex>();
-
-									for (Triangle t : tri) {
-										vertNew.clear();
-										for (Vertex ve : t.getVertices()) {
-											float newx = (float) ((Math.round(ve.getX() * 1000.0)) / 1000.0);
-											float newy = (float) ((Math.round(ve.getY() * 1000.0)) / 1000.0);
-											float newz = (float) ((Math.round(ve.getZ() * 1000.0)) / 1000.0);
-											vertNew.add(new Vertex(newx, newy, newz));
-										}
-										Triangle tNew = new Triangle(vertNew.get(0), vertNew.get(1), vertNew.get(2));
-
-										// Norm vector
-										tNew.setNormalVector(calculateNormalVector(t));
-
-										bPolygon.addTriangle(tNew);
-									}
-									bSurface.addPolygon(bPolygon);
-								}
-								build.addBoundarySurface(bSurface);
-							}
+				else if (building.isSetConsistsOfBuildingPart()) { // Way #2
+					
+					if (building.getConsistsOfBuildingPart().get(0).getBuildingPart().isSetAddress()) {
+						try {
+							Locality loc = building.getConsistsOfBuildingPart().get(0).getBuildingPart().getAddress().get(0).getAddress().getXalAddress().getAddressDetails().getLocality();
+							streetName = loc.getThoroughfare().getThoroughfareName().get(0).getContent();
+							cityName = loc.getLocalityName().get(0).getContent();
+						} catch (NullPointerException e) {
+						} catch (IndexOutOfBoundsException e) {
+						}
+					}
+					build.setCityName(cityName);
+					build.setStreetName(streetName);
+					
+					for (BuildingPartProperty bpp : building.getConsistsOfBuildingPart()) {
+						for (BoundarySurfaceProperty property : bpp.getBuildingPart().getBoundedBySurface()) {
+							surfaceRunner(property, build, polyTriangles);
 						}
 					}
 				}
 				city.addBuilding(build);
+			}
+		}
+	}
+	
+	/**
+	 * 
+	 * @param property Boundary Surface
+	 */
+	private void referenceRunner(BoundarySurfaceProperty property) {
+		if (property.isSetObject()) {
+			AbstractBoundarySurface boundarySurface = property.getObject();
+	
+			if (boundarySurface.isSetLod2MultiSurface()
+					&& boundarySurface.getLod2MultiSurface().isSetMultiSurface()
+					&& boundarySurface.getLod2MultiSurface().getMultiSurface().isSetSurfaceMember()) {
+	
+				List<SurfaceProperty> surfaces = boundarySurface.getLod2MultiSurface().getMultiSurface().getSurfaceMember();
+	
+				// Step 4: Find the positions of each polygon's edges
+				for (int i = 0; i < surfaces.size(); i++) {
+	
+					org.citygml4j.model.gml.geometry.primitives.Polygon poly = (org.citygml4j.model.gml.geometry.primitives.Polygon) surfaces.get(i).getSurface();
+					AbstractRingProperty ringp = poly.getExterior();
+					LinearRing ring = (LinearRing) ringp.getRing();
+					DirectPositionList poslist = ring.getPosList();
+					List<Double> polypoints = poslist.getValue();
+	
+					for (int j = 0; j < polypoints.size(); j += 3) {
+	
+						// Step 5: If the coordinate is smaller than the current reference, replace it
+						if (polypoints.get(j) < reference[0]) {
+							reference[0] = polypoints.get(j);
+							reference[1] = polypoints.get(j + 1);
+							reference[2] = polypoints.get(j + 2);
+						}
+					}
+				}
+			}
+		}
+	}
+
+	/**
+	 * Handle a surface
+	 * @param property
+	 * @param build
+	 * @param polyTriangles
+	 */
+	private void surfaceRunner(BoundarySurfaceProperty property, Building build, ArrayList<Triangle> polyTriangles) {
+		if (property.isSetObject()) {
+			AbstractBoundarySurface boundarySurface = property.getObject();
+	
+			if (boundarySurface.isSetLod2MultiSurface()
+					&& boundarySurface.getLod2MultiSurface().isSetMultiSurface()
+					&& boundarySurface.getLod2MultiSurface().getMultiSurface().isSetSurfaceMember()) {
+				
+				List<SurfaceProperty> surfaces = boundarySurface.getLod2MultiSurface().getMultiSurface().getSurfaceMember();
+				
+				BoundarySurface bSurface = new BoundarySurface(boundarySurface.getId());
+				
+				CityGMLClass cg = boundarySurface.getCityGMLClass();
+				if (cg == CityGMLClass.BUILDING_GROUND_SURFACE){
+					bSurface.setType(SurfaceType.GROUND);
+				}else if (cg == CityGMLClass.BUILDING_ROOF_SURFACE){
+					bSurface.setType(SurfaceType.ROOF);
+				}else if (cg == CityGMLClass.BUILDING_WALL_SURFACE){
+					bSurface.setType(SurfaceType.WALL);
+				}else {
+					bSurface.setType(SurfaceType.OTHER);
+				}
+				
+				for (int i = 0; i < surfaces.size(); i++) {
+					polyTriangles.clear();
+					org.citygml4j.model.gml.geometry.primitives.Polygon poly = (org.citygml4j.model.gml.geometry.primitives.Polygon) surfaces.get(i).getSurface();
+					Polygon bPolygon = new Polygon(poly.getId());
+	
+					AbstractRingProperty ringp = poly.getExterior();
+					LinearRing ring = (LinearRing) ringp.getRing();
+					DirectPositionList poslist = ring.getPosList();
+	
+					List<Double> polypoints = poslist.getValue();
+	
+					ArrayList<VertexDouble> p = new ArrayList<VertexDouble>();
+	
+					for (int j = 0; j < polypoints.size(); j++) {
+						p.add(new VertexDouble(
+								polypoints.get(j),
+								polypoints.get(++j),
+								polypoints.get(++j)
+								)
+						);
+					}
+	
+					// Translate to Origin
+					ArrayList<Vertex> pp = PolygonTranslate.translateToOrigin(p, reference);
+	
+					// Triangulate
+					ArrayList<Triangle> tri = PolygonTriangulator.triangulate(pp);
+	
+					// Round
+					ArrayList<Vertex> vertNew = new ArrayList<Vertex>();
+	
+					for (Triangle t : tri) {
+						vertNew.clear();
+						for (Vertex ve : t.getVertices()) {
+							float newx = (float) ((Math.round(ve.getX() * 1000.0)) / 1000.0);
+							float newy = (float) ((Math.round(ve.getY() * 1000.0)) / 1000.0);
+							float newz = (float) ((Math.round(ve.getZ() * 1000.0)) / 1000.0);
+							vertNew.add(new Vertex(newx, newy, newz));
+						}
+						Triangle tNew = new Triangle(vertNew.get(0), vertNew.get(1), vertNew.get(2));
+	
+						// Norm vector
+						tNew.setNormalVector(calculateNormalVector(t));
+	
+						bPolygon.addTriangle(tNew);
+					}
+					bSurface.addPolygon(bPolygon);
+				}
+				build.addBoundarySurface(bSurface);
 			}
 		}
 	}
