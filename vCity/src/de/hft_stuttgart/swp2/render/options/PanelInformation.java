@@ -59,6 +59,7 @@ public class PanelInformation extends JPanel{
 			}
 		}
 		txtaInformation.append(info + Main.newline);
+		txtaInformation.validate();
 	}
 	
 	public static void addNewTopic(String topic){
@@ -79,6 +80,7 @@ public class PanelInformation extends JPanel{
 		}
 		addProgrammInfo(str);
 		addProgrammInfo(line);
+		txtaInformation.validate();
 
 	}
 }

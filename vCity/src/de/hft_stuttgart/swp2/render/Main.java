@@ -45,8 +45,7 @@ public class Main {
 	public static Runnable startVolumeCalculationRunnable = new StartVolumeCalculationRunnable();
 	public static Runnable startShadowCalculationRunnable = new StartShadowCalculationRunnable(
 			ShadowPrecision.VERY_LOW, splitAzimuth, splitHeight);
-	static Message message = new Message(cityMap3D);
-
+	static Message message;
 	/**
 	 * @param args
 	 */
@@ -65,7 +64,6 @@ public class Main {
 		}
 		
 		createGUI();
-		
 	}
 
 	/**
@@ -95,6 +93,7 @@ public class Main {
 		return currentDate;
 	}
 
+	
 	/**
 	 * Creates the GUI of the program.
 	 */
@@ -110,6 +109,7 @@ public class Main {
 						cityMap3D = new CityMap3D(width,height);
 						cityMap3D.setVisible(true);
 						cityMap3D.setExtendedState(JFrame.MAXIMIZED_BOTH);
+						message = new Message(cityMap3D);
 //						cityMap3D.setAlwaysOnTop(true);
 					}
 
@@ -134,10 +134,12 @@ public class Main {
 			long end;
 			System.out.println("Starting volume calculation...");			
 			start = System.currentTimeMillis();
-			try {				
+			try {
+//				Message message = new Message(cityMap3D);
 //				message.makeText(cityMap3D,"Starting volume calculation...",Style.NORMAL).display();
 				backend.calculateVolume();
-				Message.makeText(cityMap3D,"Volume calculation successful",Style.SUCCESS).display(); 
+				backend.calculateVolume();
+				Message.makeText(cityMap3D,"Volume calculation successful",Style.SUCCESS).display();
 			} catch (OpenClException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -162,7 +164,7 @@ public class Main {
 			start = System.currentTimeMillis();
 			try {
 				backend.calculateShadow(shadowPrecision, splitAzimuth, splitHeight); // VERY_LOW(5),
-				Message.makeText(cityMap3D,"Shadow calculation successful",Style.SUCCESS).display();
+				Message.makeText(cityMap3D,"Shadow calculation successful",Style.SUCCESS).display(); 
 				// LOW(2.5f),
 				// MID(1.25f),
 				// HIGH(0.75f),
@@ -179,11 +181,6 @@ public class Main {
 		}
 	}
 	
-	/**
-	 * 
-	 * 
-	 * @return 
-	 */
 	public static boolean isCalculateVolume(){
 		return optionGUI.isCalculateVolume();
 	}
@@ -204,7 +201,7 @@ public class Main {
 		long start;
 		long end;
 		System.out.println("Starting parsing...");
-		message.makeText(cityMap3D, "Start parsing...", Style.NORMAL).display();
+		Message.makeText(cityMap3D, "Start parsing...", Style.NORMAL).display();
 		start = System.currentTimeMillis();
 		try {
 			ParserInterface parser = Parser.getInstance();
@@ -248,7 +245,6 @@ public class Main {
 	 * returns true if parser was successful
 	 * @return
 	 */
-	
 	public static boolean isParserSuccess() {
 		return isParserSuccess;
 	}

@@ -20,6 +20,8 @@ public class StartVolumeCalculationRunnable implements Runnable{
 		oldText = "vCity - 3D Stadtansicht";
 		Main.getCityMap3D().setTitle(oldText);
 		PanelCityInfo.updateCityInfo();
+//		Main.getOptionGUI().setCbVolumeAmount(true);
+		Main.getOptionGUI().setSelectVolumeView(true);
 	}
 
 }

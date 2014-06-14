@@ -74,7 +74,7 @@ public class PanelSettings extends JPanel {
 
 	private JButton btnFileChooser;
 	final JButton btnInformation = new JButton("< Programminformationen");
-	final JButton btnExport = new JButton("Export >");
+	final JButton btnExport = new JButton("< Export");
 	JTextField txtHours = new JTextField(String.valueOf(DEFAULT_VALUE_HOURS));
 	JTextField txtMin = new JTextField(getMinutesToText(DEFAULT_VALUE_MINUTES));
 	JTextField txtSplitAzimuth = new JTextField();
@@ -969,11 +969,16 @@ public class PanelSettings extends JPanel {
 				}
 			} else if (source == cbVolume) {
 				if (cbVolume.isSelected()) {
+					cbVolumeAmount.setEnabled(true);
 					if (!Main.getCityMap3D().isFirstTimeVolumeCalc()) {
 						if (Main.isParserSuccess()) {
 							Main.executor
 									.execute(Main.startVolumeCalculationRunnable);
 						}
+					}
+				}else{
+					if(!Main.getCityMap3D().isFirstTimeVolumeCalc()){
+						cbVolumeAmount.setEnabled(false);
 					}
 				}
 			} else if (source == cbVolumeAmount) {

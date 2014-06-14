@@ -31,6 +31,7 @@ public class StartShadowCalculationRunnable  implements Runnable{
 		oldText = "vCity - 3D Stadtansicht";
 		Main.getCityMap3D().setTitle(oldText);
 		PanelCityInfo.updateCityInfo();
+		Main.getOptionGUI().setSelectShadowView(true);
 	}
 
 	public static boolean isShadowCalculated() {

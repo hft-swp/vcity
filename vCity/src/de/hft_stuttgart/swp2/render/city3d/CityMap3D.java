@@ -114,7 +114,14 @@ public class CityMap3D extends JFrame implements GLEventListener {
 	}
 
 
-
+	public void resetValues(){
+		isFirstTimeVolumeCalc = false;
+		isVolumeChange = true;
+		isShadowChange = true;
+		isFirstTimeShadowCalc = false;
+		isCalculating = false;
+		isStartCalculation = true;
+	}
 
 	public boolean isFirstTimeShadowCalc() {
 		return isFirstTimeShadowCalc;
@@ -215,6 +222,15 @@ public class CityMap3D extends JFrame implements GLEventListener {
 		sunPositions = new SunPositionCalculator[24];
 		for (int j = 0; j < 24; ++j) {
 			utcCal.set(2014, month, day, j, 0, 0);
+			while (Parser.getInstance().getEPSG() == null){
+				try {
+					Thread.sleep(500);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+			System.out.println(Parser.getInstance().getEPSG());
 			sunPositions[j] = new SunPositionCalculator(utcCal.getTime(),
 					Parser.getInstance());
 		}
@@ -411,7 +427,7 @@ public class CityMap3D extends JFrame implements GLEventListener {
 
 		// TODO Wenn sich der Pfad ändert alles neuberechnen, wenn nicht city
 		// Objekte speichern
-		if (isStartCalculation) {
+		if (isStartCalculation && Main.isParserSuccess()) {
 			StartShadowCalculationRunnable.setShadowCalculated(false);
 			if (Main.isCalculateShadow()) {
 				isFirstTimeShadowCalc = true;
@@ -441,7 +457,7 @@ public class CityMap3D extends JFrame implements GLEventListener {
 			isStartCalculation = false;
 		}
 		changeView();
-		if (glBuildings != null) {
+		if (glBuildings != null && Main.isParserSuccess()) {
 			setZBuffer(gl);
 			boolean isViewShadow = Main.getOptionGUI().isShadowViewSelected();
 			boolean isViewVolume = Main.getOptionGUI().isVolumeViewSelected();
