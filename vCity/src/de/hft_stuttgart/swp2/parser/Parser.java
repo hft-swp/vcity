@@ -95,11 +95,14 @@ public class Parser implements ParserInterface {
 						// Try searching for a global value
 						epsg = cityModel.getBoundedBy().getEnvelope().getSrsName();
 					} catch (NullPointerException e) {}
-					if (epsg == null) {
+					if (epsg == null || epsg.equals("undef")) {
 						try {
 							// Try searching for a value inside the first building
 							epsg = ((org.citygml4j.model.citygml.building.Building) cityModel.getCityObjectMember().get(0).getCityObject()).getBoundedBy().getEnvelope().getSrsName();
 						} catch (NullPointerException e) {}
+					}
+					if (epsg == null) {
+						epsg = "";
 					}
 					
 					findReferenceValue();
