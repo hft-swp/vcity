@@ -316,7 +316,8 @@ public class GLBuildingEntity extends GLEntity {
 			drawVolumeBuildings(gl, building);
 		}
 //		if (isShowVolumeAmount) {
-		if (Main.getCityMap3D().isShowVolumeAmount()) {
+		if (Main.getCityMap3D().isShowVolumeAmount() && 
+				!(Main.getCityMap3D().getCmd()== CityMap3D.getSelect())) {
 			drawBuildingVolumeAmount(gl, building);
 		}
 		

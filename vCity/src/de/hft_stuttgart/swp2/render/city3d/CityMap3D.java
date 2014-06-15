@@ -351,7 +351,7 @@ public class CityMap3D extends JFrame implements GLEventListener {
 		gl.glPushMatrix();
 		gl.glLoadIdentity();
 		System.out.println("x " + x + " " + (double) viewPort[3] + " -" + y + " viewport: "+ viewPort);
-		glu.gluPickMatrix(x, (double) viewPort[3] - y, 20d, 20d,
+		glu.gluPickMatrix(x, (double) viewPort[3] - y, 50d, 50d,
 				viewPort, 0);
 //		camera.setPerspective((int)x, (int)y);
 		glu.gluPerspective(60, (double) x / y, 0.1, 20000);
@@ -409,104 +409,121 @@ public class CityMap3D extends JFrame implements GLEventListener {
 		splitAzimuth = Main.getSplitAzimuth();
 		splitHeight = Main.getSplitHeight();
 		gl.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT);
-		gl.glLoadIdentity();
+
 		// apply camera modifications
-		camera.lookAt();
-		// drawing building 0
-		drawHemisphere(gl);
-		drawAxis(gl);
-		drawSkyModel(gl);
-		// setGround(minGroundSize, maxGroundSize);
-		if (enableDrawCenters) {
-			drawCentersOfHemisphere(gl);
-		}
-		
-		gl.glColor3f(1f, 1f, 1f);
-		
+		if(cmd == UPDATE){
+			gl.glLoadIdentity();
+			camera.lookAt();
+			// drawing building 0
+			drawHemisphere(gl);
+			drawAxis(gl);
+			drawSkyModel(gl);
+			// setGround(minGroundSize, maxGroundSize);
+			if (enableDrawCenters) {
+				drawCentersOfHemisphere(gl);
+			}
+			
+			gl.glColor3f(1f, 1f, 1f);
+			
 
 
-		// TODO Wenn sich der Pfad ändert alles neuberechnen, wenn nicht city
-		// Objekte speichern
-		if (isStartCalculation && Main.isParserSuccess()) {
-			StartShadowCalculationRunnable.setShadowCalculated(false);
-			if (Main.isCalculateShadow()) {
-				isFirstTimeShadowCalc = true;
-			} else {
-				isFirstTimeShadowCalc = false;
-			}
-			if (Main.isCalculateVolume()) {
-				isFirstTimeVolumeCalc = true;
-			} else {
-				isFirstTimeVolumeCalc = false;
-			}
-			calculation();
-			// Berechnung der GL-Buildings
-			if (City.getInstance().getBuildings() != null) {
-				glBuildings = new GLBuildingEntity[City.getInstance()
-						.getBuildings().size()];
-				GLBuildingEntity glBuilding;
-				int buildingCounter = 0;
-				for (Building building : City.getInstance().getBuildings()) {
-					glBuilding = new GLBuildingEntity(gl, glu, glut, building,
-							isVolumeCalc, isShadowCalc, isPolygon, isShowGrid,
-							isShowVolumeAmount);
-					glBuildings[buildingCounter] = glBuilding;
-					buildingCounter++;
-				}
-			}
-			isStartCalculation = false;
-		}
-		changeView();
-		if (glBuildings != null && Main.isParserSuccess()) {
-			setZBuffer(gl);
-			boolean isViewShadow = Main.getOptionGUI().isShadowViewSelected();
-			boolean isViewVolume = Main.getOptionGUI().isVolumeViewSelected();
-			// DRAW BUILDINGS
-			if (!isChangeValue(isShadowCalc, isVolumeCalc,
-					Main.getOptionGUI().isCalculateShadow(), 
-					Main.getOptionGUI().isCalculateVolume())
-					&& !isRecalculateShadow) {
-				for (GLBuildingEntity glBuilding : glBuildings) {
-					glBuilding.setShadowCalc(isViewShadow);
-					glBuilding.setVolumeCalc(isViewVolume);
-					glBuilding.draw();
-				}
-			} else {
-				isShadowCalc = Main.getOptionGUI().isCalculateShadow();
-				isVolumeCalc = Main.getOptionGUI().isCalculateVolume();
-				isRecalculateShadow = false;
-				if (isFirstTimeShadowCalc == false && isShadowCalc) {
-					// notice the query: if(isFirstTimeVolumeCalc == false &&
-					// isVolumeCalc)
-					// is not needed because you can't press so fast the two
-					// checkboxes
-					// as the display-Method runs
+			// TODO Wenn sich der Pfad ändert alles neuberechnen, wenn nicht city
+			// Objekte speichern
+			if (isStartCalculation && Main.isParserSuccess()) {
+				StartShadowCalculationRunnable.setShadowCalculated(false);
+				if (Main.isCalculateShadow()) {
 					isFirstTimeShadowCalc = true;
-					calculation();
-				} else if (isFirstTimeVolumeCalc == false && isVolumeCalc) {
-					isFirstTimeVolumeCalc = true;
-					calculation();
+				} else {
+					isFirstTimeShadowCalc = false;
 				}
-				//View boolean values
+				if (Main.isCalculateVolume()) {
+					isFirstTimeVolumeCalc = true;
+				} else {
+					isFirstTimeVolumeCalc = false;
+				}
+				calculation();
+				// Berechnung der GL-Buildings
+				if (City.getInstance().getBuildings() != null) {
+					glBuildings = new GLBuildingEntity[City.getInstance()
+							.getBuildings().size()];
+					GLBuildingEntity glBuilding;
+					int buildingCounter = 0;
+					for (Building building : City.getInstance().getBuildings()) {
+						glBuilding = new GLBuildingEntity(gl, glu, glut, building,
+								isVolumeCalc, isShadowCalc, isPolygon, isShowGrid,
+								isShowVolumeAmount);
+						glBuildings[buildingCounter] = glBuilding;
+						buildingCounter++;
+					}
+				}
+				isStartCalculation = false;
+			}
+			changeView();
+			if (glBuildings != null && Main.isParserSuccess()) {
+				setZBuffer(gl);
+				boolean isViewShadow = Main.getOptionGUI().isShadowViewSelected();
+				boolean isViewVolume = Main.getOptionGUI().isVolumeViewSelected();
+				// DRAW BUILDINGS
+				if (!isChangeValue(isShadowCalc, isVolumeCalc,
+						Main.getOptionGUI().isCalculateShadow(), 
+						Main.getOptionGUI().isCalculateVolume())
+						&& !isRecalculateShadow) {
+					for (GLBuildingEntity glBuilding : glBuildings) {
+						glBuilding.setShadowCalc(isViewShadow);
+						glBuilding.setVolumeCalc(isViewVolume);
+						glBuilding.draw();
+					}
+				} else {
+					isShadowCalc = Main.getOptionGUI().isCalculateShadow();
+					isVolumeCalc = Main.getOptionGUI().isCalculateVolume();
+					isRecalculateShadow = false;
+					if (isFirstTimeShadowCalc == false && isShadowCalc) {
+						// notice the query: if(isFirstTimeVolumeCalc == false &&
+						// isVolumeCalc)
+						// is not needed because you can't press so fast the two
+						// checkboxes
+						// as the display-Method runs
+						isFirstTimeShadowCalc = true;
+						calculation();
+					} else if (isFirstTimeVolumeCalc == false && isVolumeCalc) {
+						isFirstTimeVolumeCalc = true;
+						calculation();
+					}
+					//View boolean values
+					for (GLBuildingEntity glBuilding : glBuildings) {
+						glBuilding.setShadowCalc(isViewShadow);
+						glBuilding.setVolumeCalc(isViewVolume);
+						glBuilding.draw();
+					}
+				}
+				disableZBuffer(gl);
+			}
+
+
+			
+			isShadowCalc = Main.getOptionGUI().isCalculateShadow();
+			isVolumeCalc = Main.getOptionGUI().isCalculateVolume();
+			isCalculating = false; //Variable must stand on the end
+			
+//		    gl.glStencilFunc(GL.GL_EQUAL, 1, 0xFF); // Pass test if stencil value is 1
+//		    gl.glStencilMask(0x00); // Don't write anything to stencil buffer
+		    gl.glDepthMask(true); // Write to depth buffer
+		    gl.glFlush();
+		}else{
+			if (glBuildings != null && Main.isParserSuccess()) {
+				boolean isViewShadow = Main.getOptionGUI().isShadowViewSelected();
+				boolean isViewVolume = Main.getOptionGUI().isVolumeViewSelected();
+				// DRAW BUILDINGS
 				for (GLBuildingEntity glBuilding : glBuildings) {
 					glBuilding.setShadowCalc(isViewShadow);
 					glBuilding.setVolumeCalc(isViewVolume);
 					glBuilding.draw();
 				}
+
+			    gl.glFlush();
 			}
-			disableZBuffer(gl);
 		}
 
-
-		
-		isShadowCalc = Main.getOptionGUI().isCalculateShadow();
-		isVolumeCalc = Main.getOptionGUI().isCalculateVolume();
-		isCalculating = false; //Variable must stand on the end
-		
-//	    gl.glStencilFunc(GL.GL_EQUAL, 1, 0xFF); // Pass test if stencil value is 1
-//	    gl.glStencilMask(0x00); // Don't write anything to stencil buffer
-	    gl.glDepthMask(true); // Write to depth buffer
-	    gl.glFlush();
 	}
 
 	private void drawSkyModel(GL2 gl2) {
