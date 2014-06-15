@@ -89,6 +89,19 @@ public class Parser implements ParserInterface {
 
 				if (citygml.getCityGMLClass() == CityGMLClass.CITY_MODEL) {
 					cityModel = (CityModel) citygml;
+					
+					// Set EPSG
+					try {
+						// Try searching for a global value
+						epsg = cityModel.getBoundedBy().getEnvelope().getSrsName();
+					} catch (NullPointerException e) {}
+					if (epsg == null) {
+						try {
+							// Try searching for a value inside the first building
+							epsg = ((org.citygml4j.model.citygml.building.Building) cityModel.getCityObjectMember().get(0).getCityObject()).getBoundedBy().getEnvelope().getSrsName();
+						} catch (NullPointerException e) {}
+					}
+					
 					findReferenceValue();
 					parseCityModel();
 				}
