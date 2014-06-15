@@ -32,6 +32,7 @@ import de.hft_stuttgart.swp2.opencl.ShadowPrecision;
 import de.hft_stuttgart.swp2.opencl.SunPositionCalculator;
 import de.hft_stuttgart.swp2.parser.Parser;
 import de.hft_stuttgart.swp2.render.Main;
+import de.hft_stuttgart.swp2.render.options.PanelCityInfo;
 import de.hft_stuttgart.swp2.render.options.PanelSettings;
 import de.hft_stuttgart.swp2.render.threads.StartShadowCalculationRunnable;
 
@@ -350,7 +351,7 @@ public class CityMap3D extends JFrame implements GLEventListener {
 		gl.glMatrixMode(GL2.GL_PROJECTION);
 		gl.glPushMatrix();
 		gl.glLoadIdentity();
-		System.out.println("x " + x + " " + (double) viewPort[3] + " -" + y + " viewport: "+ viewPort);
+		System.out.println("x " + x + " " + (double) viewPort[3] + " -" + y);
 		glu.gluPickMatrix(x, (double) viewPort[3] - y, 50d, 50d,
 				viewPort, 0);
 //		camera.setPerspective((int)x, (int)y);
@@ -372,35 +373,46 @@ public class CityMap3D extends JFrame implements GLEventListener {
 	public void processHits(int hits, IntBuffer buffer) {
 		System.out.println("---------------------------------");
 		System.out.println(" HITS: " + hits);
+		int [] buildingIds = new int [hits]; 
+		int buildingCounter = 0;
 		int offset = 0;
-		int names;
+		int names = -1;
+		int finalBuildingId;
 		float z1, z2;
+		names = buffer.get(offset);
 		for (int i = 0; i < hits; i++) {
 			System.out.println("- - - - - - - - - - - -");
 			System.out.println(" hit: " + (i + 1));
 			names = buffer.get(offset);
 			offset++;
-			System.out.println("0xffffffffL " + 0xffffffffL);
-			System.out.println("offset " + offset);
-			System.out.println("buffer.get(offset) " + buffer.get(offset));
+//			System.out.println("0xffffffffL " + 0xffffffffL);
+//			System.out.println("offset " + offset);
+//			System.out.println("buffer.get(offset) " + buffer.get(offset));
 			z1 = (float) (buffer.get(offset) & 0xffffffffL) / 0x7fffffff;
 			offset++;
 			z2 = (float) (buffer.get(offset) & 0xffffffffL) / 0x7fffffff;
+			System.out.println(" z1: " + z1 + ", z2: " + z2);
 			offset++;
-			System.out.println(" number of names: " + names);
-			System.out.println(" z1: " + z1);
-			System.out.println(" z2: " + z2);
-			System.out.println(" names: ");
-			System.out.println(names);
 			for (int j = 0; j < names; j++) {
-				System.out.print("       " + buffer.get(offset));
-				if (j == (names - 1))
-					System.out.println("<-");
-				else
-					System.out.println();
+//				if (j == (names - 1))
+//					System.out.println("<-");
+//				else
+//					System.out.println();
 				offset++;
 			}
 			System.out.println("- - - - - - - - - - - -");
+			System.out.println("Building id: " + (names - 1));
+			buildingIds[buildingCounter] = names - 1;
+			buildingCounter++;
+		}
+		
+		if(hits != 0 && names != -1){
+			finalBuildingId = buildingIds[buildingCounter/2];
+			System.out.println("- - - - - - - - - - - -");
+			System.out.println("Selected Building id: " + finalBuildingId);
+			PanelCityInfo.appendCityInfoOneBuilding(glBuildings[finalBuildingId].building);
+		}else{
+			PanelCityInfo.updateCityInfo();
 		}
 		System.out.println("---------------------------------");
 	}
@@ -519,7 +531,6 @@ public class CityMap3D extends JFrame implements GLEventListener {
 					glBuilding.setVolumeCalc(isViewVolume);
 					glBuilding.draw();
 				}
-
 			    gl.glFlush();
 			}
 		}
