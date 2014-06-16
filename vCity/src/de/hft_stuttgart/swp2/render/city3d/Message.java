@@ -14,6 +14,8 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.Timer;
 
+import de.hft_stuttgart.swp2.render.Main;
+
 
 public class Message extends JDialog {
 	private static final long serialVersionUID = -1602907470843951525L;
@@ -58,7 +60,7 @@ public class Message extends JDialog {
             }
         });
         
-        setAlwaysOnTop(true);
+//        setAlwaysOnTop(true);
         setUndecorated(true);
         setFocusableWindowState(false);
         setModalityType(ModalityType.MODELESS);
@@ -219,7 +221,7 @@ public class Message extends JDialog {
          * starts the thread
          */
     public void display(){
-        new Thread(new Runnable() {
+        Thread t = new Thread(new Runnable() {
             @Override
             public void run() {
             	try{
@@ -232,7 +234,17 @@ public class Message extends JDialog {
             		ex.printStackTrace();
             	}
             }
-        }).start();
+        });
+        t.start();
+        try {
+			t.join();
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+        Main.getOptionGUI().repaint();
+        Main.getOptionGUI().setAlwaysOnTop(true);
+        Main.getOptionGUI().setAlwaysOnTop(false);
     }
 
 }
