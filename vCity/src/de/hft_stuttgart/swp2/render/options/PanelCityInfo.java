@@ -17,6 +17,8 @@ public class PanelCityInfo extends JPanel{
 	private static JTextArea txtaCityInfo = new JTextArea(10, 10);
 	private static JScrollPane jspPanelShadowOptions;
 	private static String text;
+	private static int polygonCityCounter = 0;
+	private static int triangleCityCounter = 0;
 	
 	public PanelCityInfo() {
 		// TODO Auto-generated constructor stub
@@ -36,6 +38,16 @@ public class PanelCityInfo extends JPanel{
 		if (City.getInstance().getTotalVolume() > 0.0){
 			text += String.format(Main.newline + "Stadtvolumen: %.3f m³", City.getInstance().getTotalVolume());
 		}
+		polygonCityCounter = getPolygonCountOfCity(Main.getCity());
+		if (polygonCityCounter > 0){
+			text += Main.newline + "anz. Polygone: " + polygonCityCounter;
+		}
+		
+		triangleCityCounter = getTrianglesCountOfCity(Main.getCity());
+		if (triangleCityCounter > 0){
+			text += Main.newline + "anz. Dreiecke: " + triangleCityCounter;
+		}
+		
 		if (City.getInstance().getTotalShadowTrianglesCount() > 0){
 			text += Main.newline + "anz. Schattendreiecke: " + City.getInstance().getTotalShadowTrianglesCount();
 		}
@@ -96,6 +108,31 @@ public class PanelCityInfo extends JPanel{
 			return count;
 		}
 			
+	}
+	
+	private static int getPolygonCountOfCity(City city){
+		int counterOfPolygons = 0;
+		for (Building building : city.getBuildings()){
+			for (int i = 0; i < building.getBoundarySurfaces().size(); ++i) {
+				BoundarySurface surface = building.getBoundarySurfaces().get(i);
+				counterOfPolygons = surface.getPolygons().size() + counterOfPolygons;
+			}
+		}
+		return counterOfPolygons;
+	}
+	
+	private static int getTrianglesCountOfCity(City city){
+		int counterOfTriangles = 0;
+		for (Building building : city.getBuildings()){
+			for (int i = 0; i < building.getBoundarySurfaces().size(); ++i) {
+				BoundarySurface surface = building.getBoundarySurfaces().get(i);
+				for (int j = 0; j < surface.getPolygons().size(); ++j) {
+					Polygon p = surface.getPolygons().get(j);
+					counterOfTriangles = p.getTriangles().size() + counterOfTriangles;
+				}
+			}
+		}
+		return counterOfTriangles;
 	}
 	
 }
