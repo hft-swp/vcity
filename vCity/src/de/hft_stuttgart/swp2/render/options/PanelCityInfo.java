@@ -28,6 +28,9 @@ public class PanelCityInfo extends JPanel{
 		this.add(jspPanelShadowOptions, BorderLayout.CENTER);
 	}
 	
+	
+	
+	private static String updateInfoText = "";
 	/**
 	 * update the text in the city info panel
 	 */
@@ -51,25 +54,55 @@ public class PanelCityInfo extends JPanel{
 		if (City.getInstance().getTotalShadowTrianglesCount() > 0){
 			text += Main.newline + "anz. Schattendreiecke: " + City.getInstance().getTotalShadowTrianglesCount();
 		}
+		updateInfoText = text;
 		txtaCityInfo.setText(text);		
 	}
 	
+	private static String appendStr = "";
 	public static void appendCityInfoOneBuilding(Building building){
-		String appendStr = "-------------------------- Gebaeuede Infos --------------------------";
+		appendStr = "-------------------------- Gebaeuede Infos --------------------------";
 		appendStr += Main.newline;
 		String strId = "Die Gebaeude-ID lautet: " + building.getId();
 		String strStreet = "Straße: " + building.getStreetName();
-		String strVolume = "Gebaeude-Volumen: " + Math.round(building.getVolume()*1000)/1000.0 + " m³";
-		String strAmountVolumeTriangles = "Anzahl der Dreiecke fuer die " +
-				Main.newline + "Volumenberechnung des Gebaeudes: " + getVolumeTriangleAmount(building);
+		String strVolume = "";
+		if(building.getVolume() > 0.001){
+			strVolume = "Gebaeude-Volumen: " + Math.round(building.getVolume()*1000)/1000.0 + " m³";
+		}else{
+			strVolume = "Gebaeude-Volumen: - wurde noch nicht berechnet";
+		}
+		int volumeTriangleAmount = getVolumeTriangleAmount(building);
+		String strAmountVolumeTriangles = "";
+		if(volumeTriangleAmount > 0){
+			strAmountVolumeTriangles = "Anzahl der Dreiecke fuer die " +
+					Main.newline + "Volumenberechnung des Gebaeudes: " + volumeTriangleAmount;
+		}else{
+			strAmountVolumeTriangles = "Anzahl der Dreiecke fuer die " +
+					Main.newline + "Volumenberechnung des Gebaeudes: - wurde noch nicht berechnet";
+		}
+
 		int [] amount = getShadowTriangleAndPolygonAmount(building);
 		String strAmountPolygons = "Anzahl der Polygone: " + amount[0];
+		if(amount[0]> 0){
+			strAmountPolygons = "Anzahl der Polygone: " + amount[0];
+		}else{
+			strAmountPolygons = "Anzahl der Polygone: - wurde noch nicht berechnet";
+		}
+
 		String strAmountShadowTriangles = "Anzahl der Dreiecke fuer die " + Main.newline +
 				"Schattenberechnung des Gebaeudes: " + amount[1];
+		if(amount[1]> 0){
+			strAmountShadowTriangles = "Anzahl der Dreiecke fuer die " + Main.newline +
+					"Schattenberechnung des Gebaeudes: " + amount[1];
+		}else{
+			strAmountShadowTriangles = "Anzahl der Dreiecke fuer die " + Main.newline +
+					"Schattenberechnung des Gebaeudes: - wurde noch nicht berechnet";
+		}
+
 		appendStr += strId + Main.newline + strStreet + Main.newline + strVolume + Main.newline + strAmountVolumeTriangles + 
 				Main.newline + strAmountPolygons + Main.newline + strAmountShadowTriangles + Main.newline;
 		if(!text.contains(appendStr)){
-			text = appendStr + Main.newline + text;
+			text = "";
+			text = appendStr + Main.newline + updateInfoText;
 		}
 		txtaCityInfo.setText(text);
 		txtaCityInfo.validate();

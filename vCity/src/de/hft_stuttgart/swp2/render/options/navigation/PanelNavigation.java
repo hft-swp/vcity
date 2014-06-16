@@ -3,8 +3,6 @@ package de.hft_stuttgart.swp2.render.options.navigation;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.GridLayout;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
 import java.util.Dictionary;
 import java.util.Hashtable;
 import javax.swing.JLabel;
@@ -31,7 +29,7 @@ public class PanelNavigation extends JPanel implements  ChangeListener {
 	private JLabel btnDown = new JLabel();
 	private JLabel btnLeft = new JLabel();
 	private JLabel btnRight = new JLabel();
-	private JSlider jSliderZoom = new JSlider(JSlider.HORIZONTAL, 20, 100, 60);
+	private JSlider jSliderZoom = new JSlider(JSlider.HORIZONTAL, 1, 200, 100);
 //	private ActionThread at;
 
 	/**
@@ -69,14 +67,14 @@ public class PanelNavigation extends JPanel implements  ChangeListener {
 		// Die Abstände zwischen den
 		// Teilmarkierungen werden festgelegt
 		jSliderZoom.addChangeListener(this);
-		jSliderZoom.setMajorTickSpacing(40);
-		jSliderZoom.setMinorTickSpacing(20);
+		jSliderZoom.setMajorTickSpacing(50);
+		jSliderZoom.setMinorTickSpacing(25);
 		// create a new hashtable
 		Dictionary<Integer, JLabel> dict = new Hashtable<Integer, JLabel>();
 		// add elements in the hashtable
-		dict.put(20, new JLabel("20"));
-		dict.put(60, new JLabel("50"));
-		dict.put(100, new JLabel("100m"));
+		dict.put(1, new JLabel("1"));
+		dict.put(100, new JLabel("100"));
+		dict.put(200, new JLabel("200m"));
 		jSliderZoom.setLabelTable(dict);
 		// Standardmarkierungen werden erzeugt
 		// jSliderZoom.createStandardLabels(1);
@@ -98,7 +96,6 @@ public class PanelNavigation extends JPanel implements  ChangeListener {
 		if (source == jSliderZoom) {
 //			int currentCameraValue = (int) Main.getCityMap3D().camera.positionY;
 			int currentSliderValue = jSliderZoom.getValue();
-			int diff;
 //			if (currentSliderValue < currentCameraValue) {
 //				diff = currentCameraValue - currentSliderValue;
 //				Main.getCityMap3D().camera.moveForward(diff);
