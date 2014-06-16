@@ -149,6 +149,11 @@ public class Camera {
 		// positionY -= rightY * delta * speed;
 		positionZ -= rightZ * delta * speed;
 	}
+
+	public void slider(double delta) {
+		this.positionY = delta;
+	}
+
 	/**
 	 * Turns the camera up for an given angle.
 	 * 
@@ -164,6 +169,7 @@ public class Camera {
 		calcDirectionVector();
 		calcUpVector();
 	}
+
 	/**
 	 * Turns the camera down for an given angle.
 	 * 
@@ -188,17 +194,19 @@ public class Camera {
 		directionY = Math.sin(verticalAngle);
 		directionZ = Math.cos(verticalAngle) * Math.cos(horizontalAngle);
 	}
-/**
- * calculates the right vector for x,y,z
- */
+
+	/**
+	 * calculates the right vector for x,y,z
+	 */
 	private void calcRightVector() {
 		rightX = Math.sin(horizontalAngle - Math.PI / 2.0d);
 		rightY = 0;
 		rightZ = Math.cos(horizontalAngle - Math.PI / 2.0d);
 	}
-/**
- * calculates the up vector for x,y,z
- */
+
+	/**
+	 * calculates the up vector for x,y,z
+	 */
 	private void calcUpVector() {
 		// right x direction
 		upX = rightY * directionZ - rightZ * directionY;

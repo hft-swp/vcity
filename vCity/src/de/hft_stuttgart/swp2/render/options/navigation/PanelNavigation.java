@@ -18,10 +18,10 @@ import de.hft_stuttgart.swp2.render.Main;
 
 public class PanelNavigation extends JPanel implements  ChangeListener {
 	private void addActionListeners() {
-		this.btnUP.addMouseListener(new ML(Direction.up));
-		this.btnDown.addMouseListener(new ML(Direction.down));
-		this.btnLeft.addMouseListener(new ML(Direction.left));
-		this.btnRight.addMouseListener(new ML(Direction.right));
+		this.btnUP.addMouseListener(new ML(Direction.up, this.btnUP));
+		this.btnDown.addMouseListener(new ML(Direction.down, this.btnDown));
+		this.btnLeft.addMouseListener(new ML(Direction.left, this.btnLeft));
+		this.btnRight.addMouseListener(new ML(Direction.right, this.btnRight));
 	}
 	/**
 	 * 
@@ -96,16 +96,17 @@ public class PanelNavigation extends JPanel implements  ChangeListener {
 	public void stateChanged(ChangeEvent e) {
 		Object source = e.getSource();
 		if (source == jSliderZoom) {
-			int currentCameraValue = (int) Main.getCityMap3D().camera.positionY;
+//			int currentCameraValue = (int) Main.getCityMap3D().camera.positionY;
 			int currentSliderValue = jSliderZoom.getValue();
 			int diff;
-			if (currentSliderValue < currentCameraValue) {
-				diff = currentCameraValue - currentSliderValue;
-				Main.getCityMap3D().camera.moveForward(diff);
-			} else if (currentCameraValue < currentSliderValue) {
-				diff = currentSliderValue - currentCameraValue;
-				Main.getCityMap3D().camera.moveBackwards(diff);
-			}
+//			if (currentSliderValue < currentCameraValue) {
+//				diff = currentCameraValue - currentSliderValue;
+//				Main.getCityMap3D().camera.moveForward(diff);
+				Main.getCityMap3D().camera.slider(currentSliderValue);
+//			} else if (currentCameraValue < currentSliderValue) {
+//				diff = currentSliderValue - currentCameraValue;
+//				Main.getCityMap3D().camera.moveBackwards(diff);
+//			}
 		}
 	}
 }
