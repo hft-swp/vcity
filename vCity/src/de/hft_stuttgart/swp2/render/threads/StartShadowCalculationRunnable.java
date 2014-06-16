@@ -2,8 +2,8 @@ package de.hft_stuttgart.swp2.render.threads;
 
 import de.hft_stuttgart.swp2.opencl.ShadowPrecision;
 import de.hft_stuttgart.swp2.render.Main;
-import de.hft_stuttgart.swp2.render.options.OptionGUI;
 import de.hft_stuttgart.swp2.render.options.PanelCityInfo;
+
 
 public class StartShadowCalculationRunnable  implements Runnable{
 	private ShadowPrecision shadowPrecision;
@@ -28,8 +28,10 @@ public class StartShadowCalculationRunnable  implements Runnable{
 		Main.getCityMap3D().startAnimator();
 		Main.getOptionGUI().getBtnRecalculateShadow().setEnabled(true);
 		Main.getOptionGUI().getBtnStartParseOfPanelSettings().setEnabled(true);
-		oldText = "vCity - 3D Stadtansicht";
+		oldText = "vCity - 3D Stadtansicht:"
+				+ " " + Main.getOptionGUI().getFileName();
 		Main.getCityMap3D().setTitle(oldText);
+		Main.getOptionGUI().setTitleOfCityMap(Main.getOptionGUI().getTime().getTime());
 		PanelCityInfo.updateCityInfo();
 		Main.getOptionGUI().setSelectShadowView(true);
 	}

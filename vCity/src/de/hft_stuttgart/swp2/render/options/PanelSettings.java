@@ -1,5 +1,6 @@
 package de.hft_stuttgart.swp2.render.options;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
@@ -40,7 +41,6 @@ import org.jdesktop.swingx.JXDatePicker;
 import de.hft_stuttgart.swp2.opencl.ShadowPrecision;
 import de.hft_stuttgart.swp2.render.Main;
 import de.hft_stuttgart.swp2.render.Selection;
-import de.hft_stuttgart.swp2.render.city3d.CityMap3D;
 import de.hft_stuttgart.swp2.render.threads.StartParserRunnable;
 
 public class PanelSettings extends JPanel {
@@ -178,6 +178,7 @@ public class PanelSettings extends JPanel {
 	}
 
 	private void updateTime(Date userDate, int hours, int minutes) {
+		Date oldDate = gc.getTime();
 		gc.setTime(userDate);
 		try {
 			gc.set(gc.get(GregorianCalendar.YEAR),
@@ -193,6 +194,69 @@ public class PanelSettings extends JPanel {
 		int day = gc.get(Calendar.DAY_OF_MONTH);
 		int month = gc.get(Calendar.MONTH);
 		Main.getCityMap3D().initialSunPosition(month, day);
+		setTitleOfCityMap(oldDate);
+	}
+
+	public void setTitleOfCityMap(Date oldDate) {
+		//old date
+		GregorianCalendar gcOld = new GregorianCalendar();
+		gcOld.setTime(oldDate);
+		String minuteStrOld = "";
+		if(gcOld.get(GregorianCalendar.MINUTE) < 10){
+			minuteStrOld = "0" + gcOld.get(GregorianCalendar.MINUTE);
+		}else{
+			minuteStrOld = String.valueOf(gcOld.get(GregorianCalendar.MINUTE));
+		}
+		String hourStrOld = "";
+		if(gcOld.get(GregorianCalendar.HOUR_OF_DAY) < 10){
+			hourStrOld = "0" + gcOld.get(GregorianCalendar.HOUR_OF_DAY);
+		}else{
+			hourStrOld = String.valueOf(gcOld.get(GregorianCalendar.HOUR_OF_DAY));
+		}
+		String monthStrOld = "";
+		if((gcOld.get(GregorianCalendar.MONTH)+1) < 10){
+			monthStrOld = "0" + (gcOld.get(GregorianCalendar.MONTH)+1);
+		}else{
+			monthStrOld = String.valueOf((gcOld.get(GregorianCalendar.MONTH)+1));
+		}
+		String dayStrOld = "";
+		if(gcOld.get(GregorianCalendar.DAY_OF_MONTH) < 10){
+			dayStrOld = "0" + gcOld.get(GregorianCalendar.DAY_OF_MONTH);
+		}else{
+			dayStrOld = String.valueOf(gcOld.get(GregorianCalendar.DAY_OF_MONTH));
+		}
+		
+		//New date
+		String minuteStr = "";
+		if(gc.get(GregorianCalendar.MINUTE) < 10){
+			minuteStr = "0" + gc.get(GregorianCalendar.MINUTE);
+		}else{
+			minuteStr = String.valueOf(gc.get(GregorianCalendar.MINUTE));
+		}
+		String hourStr = "";
+		if(gc.get(GregorianCalendar.HOUR_OF_DAY) < 10){
+			hourStr = "0" + gc.get(GregorianCalendar.HOUR_OF_DAY);
+		}else{
+			hourStr = String.valueOf(gc.get(GregorianCalendar.HOUR_OF_DAY));
+		}
+		String monthStr = "";
+		if((gc.get(GregorianCalendar.MONTH)+1) < 10){
+			monthStr = "0" + (gc.get(GregorianCalendar.MONTH)+1);
+		}else{
+			monthStr = String.valueOf((gc.get(GregorianCalendar.MONTH)+1));
+		}
+		String dayStr = "";
+		if(gc.get(GregorianCalendar.DAY_OF_MONTH) < 10){
+			dayStr = "0" + gc.get(GregorianCalendar.DAY_OF_MONTH);
+		}else{
+			dayStr = String.valueOf(gc.get(GregorianCalendar.DAY_OF_MONTH));
+		}
+		String oldDateStr = " - " +dayStrOld + "." + monthStrOld + "." + gcOld.get(GregorianCalendar.YEAR) +
+				"  " + hourStrOld + ":" + minuteStrOld;
+		
+		Main.getCityMap3D().setTitle(Main.getCityMap3D().getTitle().replaceAll(oldDateStr, "") + 
+				" - " + dayStr + "." + monthStr + "." + gc.get(GregorianCalendar.YEAR) +
+				"  " + hourStr + ":" + minuteStr);
 	}
 
 	private String getHoursToText(int hours) {
@@ -282,13 +346,20 @@ public class PanelSettings extends JPanel {
 		constraints.insets = new Insets(0, 10, 0, 0);
 		constraints.anchor = GridBagConstraints.PAGE_START;
 		constraints.weightx = 1.0;// components
-		constraints.fill = GridBagConstraints.HORIZONTAL;
-		constraints.weighty = 0.3; // request any extra vertical space
+		constraints.fill = GridBagConstraints.BOTH;
+		constraints.weighty = 1.0; // request any extra vertical space
 		constraints.gridx = 0; // column 0
+		constraints.ipady = 0;
 		constraints.gridy = 0; // row 0
 		constraints.gridwidth = 2;
 		JPanel panelParser = generatePanelParser();
-		this.add(panelParser, constraints);
+		panelParser.setMinimumSize(new Dimension(150,200));
+		panelParser.setPreferredSize(new Dimension(200, 200));
+		JScrollPane jspPanelParser = new JScrollPane(panelParser);
+		jspPanelParser.setMinimumSize(new Dimension(150, 200));
+		jspPanelParser.setWheelScrollingEnabled(true);
+		jspPanelParser.getVerticalScrollBar().setUnitIncrement(14); 
+		this.add(jspPanelParser, constraints);
 
 		TitledBorder titledBorderOption;
 		titledBorderOption = BorderFactory.createTitledBorder("Optionen");
@@ -309,13 +380,17 @@ public class PanelSettings extends JPanel {
 		GridBagConstraints constraints = new GridBagConstraints();
 		JLabel lblChooseSource = new JLabel("Quelle wählen");
 		constraints.insets = new Insets(0, 10, 0, 0);
-		constraints.ipady = 15;
-		constraints.fill = GridBagConstraints.BOTH;
-		constraints.weightx = 1.0;// components
-		constraints.fill = GridBagConstraints.BOTH;
-		constraints.weighty = 1.0; // request any extra vertical space
+		constraints.ipady = 0;
+//		constraints.fill = GridBagConstraints.HORIZONTAL;
+//		constraints.weightx = 1.0;// components
+//		constraints.anchor = GridBagConstraints.PAGE_START;
+//		constraints.weighty = 1.0; // request any extra vertical space
 		constraints.gridx = 0; // column 0
+		constraints.weightx = 0.5;
+		constraints.weighty = 1.0;
 		constraints.gridy = 0; // row 0
+		constraints.insets = new Insets(0, 0, 10, 0);
+		constraints.fill = GridBagConstraints.HORIZONTAL;
 		constraints.gridwidth = 1;
 		lblChooseSource.setHorizontalAlignment(SwingConstants.LEFT);
 		// constraints.fill = GridBagConstraints.HORIZONTAL;
@@ -325,14 +400,15 @@ public class PanelSettings extends JPanel {
 		constraints.gridx = 1; // column 0
 		constraints.gridwidth = 1;
 		constraints.ipady = 0;
-		constraints.fill = GridBagConstraints.BOTH;
+		constraints.fill = GridBagConstraints.HORIZONTAL;
 		constraints.gridy = 0; // row 0
 		// constraints.fill = GridBagConstraints.NONE;
 		// constraints.anchor = GridBagConstraints.LINE_END;
 		cmbChooseSource.setSelectedIndex(0);
 		cmbChooseSource.addActionListener(chooseSourceAction());
 		panelParser.add(cmbChooseSource, constraints);
-
+		
+		constraints.insets = new Insets(-10, 10, 10, 0);
 		generatePanelFile();
 		generatePanelDataBase();
 		// constraints.gridwidth = GridBagConstraints.REMAINDER;
@@ -342,7 +418,8 @@ public class PanelSettings extends JPanel {
 		constraints.gridy = 1; // row 0
 		constraints.ipady = 0;
 		constraints.gridwidth = 2;
-		constraints.fill = GridBagConstraints.BOTH;
+		constraints.anchor = GridBagConstraints.PAGE_START;
+		constraints.fill = GridBagConstraints.HORIZONTAL;
 		if (cmbChooseSource.getSelectedItem().equals("Filesystem")) {
 			panelParser.add(panelFile, constraints);
 		} else if (cmbChooseSource.getSelectedItem().equals("Datenbank")) {
@@ -350,7 +427,12 @@ public class PanelSettings extends JPanel {
 		} else {
 			panelParser.add(panelFile, constraints);
 		}
-		return panelParser;
+		JPanel panelContentParser = new JPanel();
+		panelContentParser.setLayout(new BorderLayout());
+		panelContentParser.add(panelParser,BorderLayout.CENTER);
+		
+		
+		return panelContentParser;
 	}
 
 	private void generatePanelDataBase() {
@@ -419,7 +501,7 @@ public class PanelSettings extends JPanel {
 		constraints.weighty = 4.0; // request any extra vertical space
 		panelShadowOptions.setPreferredSize(new Dimension(200, 300));
 		jspPanelShadowOptions = new JScrollPane(panelShadowOptions);
-		jspPanelShadowOptions.setMinimumSize(new Dimension(150, 100));
+		jspPanelShadowOptions.setMinimumSize(new Dimension(150, 150));
 		jspPanelShadowOptions.setWheelScrollingEnabled(true);
 		jspPanelShadowOptions.getVerticalScrollBar().setUnitIncrement(14); 
 		
@@ -573,7 +655,11 @@ public class PanelSettings extends JPanel {
 		if (Main.getCityMap3D().isFirstTimeShadowCalc()) {
 			Main.executor.execute(Main.startShadowCalculationRunnable);
 		} else {
-			Main.getCityMap3D().calculation();
+			if(Main.getCityMap3D().isFirstTimeVolumeCalc()){
+				Main.executor.execute(Main.startShadowCalculationRunnable);
+			}else{
+				Main.getCityMap3D().calculation();
+			}
 		}
 		// Main.executor.execute(Main.startShadowCalculationRunnable);
 		Main.getCityMap3D().setRecalculateShadow(true);
@@ -758,6 +844,11 @@ public class PanelSettings extends JPanel {
 		};
 	}
 
+	private String gmlFileName = "";
+	public String getGmlFileName() {
+		return gmlFileName;
+	}
+
 	private void startParser(boolean isShadowCalculationButtonPressed) {
 		try {
 			if (!gmlFile.getPath().isEmpty()) {
@@ -767,6 +858,7 @@ public class PanelSettings extends JPanel {
 				// threadStartParsing.start();
 				Main.executor.execute(StartParserRunnable);
 				path = gmlFile.getPath();
+				this.gmlFileName = gmlFile.getName();
 			} else {
 				lblPath.setText("Kein gültiger Pfad");
 				lblPath.setForeground(Color.RED);
@@ -791,7 +883,7 @@ public class PanelSettings extends JPanel {
 		constraints.gridx = 0; // column 0
 		constraints.gridy = 0; // row 0
 		// constraints.anchor = GridBagConstraints.PAGE_START;
-		constraints.fill = GridBagConstraints.BOTH;
+		constraints.fill = GridBagConstraints.HORIZONTAL;
 		btnFileChooser = new JButton(strBtnFileChooser);
 		btnFileChooser.addActionListener(new ActionListener() {
 			@Override
@@ -809,7 +901,7 @@ public class PanelSettings extends JPanel {
 
 		constraints.gridx = 0; // column 0
 		constraints.gridy = 2; // row 0
-		constraints.fill = GridBagConstraints.BOTH;
+		constraints.fill = GridBagConstraints.HORIZONTAL;
 
 		btnStart = new JButton("Start");
 		btnStart.addActionListener(actionStartParsing());

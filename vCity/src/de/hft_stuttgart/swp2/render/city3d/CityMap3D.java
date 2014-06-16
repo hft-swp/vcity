@@ -310,7 +310,7 @@ public class CityMap3D extends JFrame implements GLEventListener {
 		return cmd;
 	}
 
-	private static final int NOTHING = 0, UPDATE = 1, SELECT = 2;
+	private static final int UPDATE = 1, SELECT = 2;
 	public static int getSelect() {
 		return SELECT;
 	}

@@ -6,7 +6,6 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 
 import de.hft_stuttgart.swp2.render.Main;
-import de.hft_stuttgart.swp2.render.city3d.Message.Style;
 
 public class KeyEventListener implements KeyListener {
 	private CityMap3D cityMap3D;

@@ -1,11 +1,9 @@
 package de.hft_stuttgart.swp2.render.options;
 
 import java.awt.BorderLayout;
-import java.awt.ComponentOrientation;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.GridLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -14,11 +12,9 @@ import java.util.GregorianCalendar;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
-import de.hft_stuttgart.swp2.model.City;
 import de.hft_stuttgart.swp2.render.options.navigation.PanelNavigation;
 
 
@@ -120,9 +116,16 @@ public class OptionGUI extends JFrame implements Refreshable{
 	public void setMinutes(int minutes){
 		panelSettings.setMinutes(minutes);
 	}
+	
+	public void setTitleOfCityMap(Date oldDate) {
+		panelSettings.setTitleOfCityMap(oldDate);
+	}
 
 	JPanel panelExport = new PanelExport();
 
+	public String getFileName (){
+		return panelSettings.getGmlFileName();
+	}
 	public OptionGUI() {
 		this.setLocation(this.getToolkit().getScreenSize().width- 315, 0);
 		this.setTitle("vCity - Einstellungen");
@@ -198,17 +201,18 @@ public class OptionGUI extends JFrame implements Refreshable{
 	}	
 
 	private void addPanelSettings() {
-		panelSettings.setPreferredSize(new Dimension(350,550));
-		panelSettings.setMinimumSize(new Dimension(350,500));
+		panelSettings.setPreferredSize(new Dimension(250,450));
+		panelSettings.setMinimumSize(new Dimension(250,350));
 		JScrollPane jspSettings = new JScrollPane(panelSettings);
-		jspSettings.setComponentOrientation(ComponentOrientation.RIGHT_TO_LEFT);
+		//jspSettings.setComponentOrientation(ComponentOrientation.RIGHT_TO_LEFT);
 		constraints.insets = INSET_PANEL;
 		constraints.gridx = 0;
 		constraints.gridy = 1;
 		constraints.gridheight = 1;
-		constraints.weighty = 2.0; //request any extra vertical space  
+		constraints.weighty = 3.0; //request any extra vertical space  
 		constraints.fill = GridBagConstraints.BOTH;
-		content_panel.add(panelSettings, constraints);
+		jspSettings.setMinimumSize(new Dimension(250,450));
+		content_panel.add(jspSettings, constraints);
 	}
 	
 	private void addPanelCityInfo() {
@@ -360,6 +364,7 @@ public class OptionGUI extends JFrame implements Refreshable{
 			this.setResizable(true);
 		}
 		content_panel.revalidate();
+		this.pack();
 	
 	}
 

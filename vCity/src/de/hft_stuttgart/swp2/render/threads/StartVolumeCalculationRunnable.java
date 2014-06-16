@@ -1,7 +1,6 @@
 package de.hft_stuttgart.swp2.render.threads;
 
 import de.hft_stuttgart.swp2.render.Main;
-import de.hft_stuttgart.swp2.render.options.OptionGUI;
 import de.hft_stuttgart.swp2.render.options.PanelCityInfo;
 
 public class StartVolumeCalculationRunnable implements Runnable{
@@ -17,7 +16,8 @@ public class StartVolumeCalculationRunnable implements Runnable{
 		Main.getCityMap3D().startAnimator();
 		Main.getOptionGUI().getBtnStartParseOfPanelSettings().setEnabled(true);
 		Main.getOptionGUI().getBtnRecalculateShadow().setEnabled(true);
-		oldText = "vCity - 3D Stadtansicht";
+		oldText = "vCity - 3D Stadtansicht:"
+				+ " " + Main.getOptionGUI().getFileName();
 		Main.getCityMap3D().setTitle(oldText);
 		PanelCityInfo.updateCityInfo();
 		Main.getOptionGUI().setCbVolumeAmount(true);
