@@ -35,6 +35,7 @@ public class PanelCityInfo extends JPanel{
 	 * update the text in the city info panel
 	 */
 	public static void updateCityInfo() {
+		text = "";
 		text = "-------------------------- Allgemeine Stadtinfos --------------------------";
 		text += Main.newline;
 		text += "Anz. Gebäude: " + City.getInstance().getBuildings().size();
@@ -55,7 +56,9 @@ public class PanelCityInfo extends JPanel{
 			text += Main.newline + "anz. Schattendreiecke: " + City.getInstance().getTotalShadowTrianglesCount();
 		}
 		updateInfoText = text;
-		txtaCityInfo.setText(text);		
+		txtaCityInfo.setText(text);
+		txtaCityInfo.setCaretPosition(0);
+		txtaCityInfo.validate();
 	}
 	
 	private static String appendStr = "";
@@ -105,6 +108,7 @@ public class PanelCityInfo extends JPanel{
 			text = appendStr + Main.newline + updateInfoText;
 		}
 		txtaCityInfo.setText(text);
+		txtaCityInfo.setCaretPosition(0);
 		txtaCityInfo.validate();
 	}
 	
