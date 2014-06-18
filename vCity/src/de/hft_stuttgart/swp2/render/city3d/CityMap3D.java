@@ -361,7 +361,12 @@ public class CityMap3D extends JFrame implements GLEventListener {
 		gl.glPopMatrix();
 		gl.glFlush();
 		hits = gl.glRenderMode(GL2.GL_RENDER);
-		processHits(hits, selectBuffer);
+		//unexpected value -1, if error in glRenderMode
+		if(hits >= 0){
+			processHits(hits, selectBuffer);	
+		}else{
+			PanelCityInfo.updateCityInfo();
+		}
 		cmd = UPDATE;
 		
 		gl.glMatrixMode(GL2.GL_MODELVIEW);
