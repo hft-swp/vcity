@@ -281,6 +281,10 @@ public class OptionGUI extends JFrame implements Refreshable{
 	public boolean isPanelInformationVisible(){
 		return panelInformation.isVisible();
 	}
+	
+	public void openOrCloseInformationPanel(){
+		panelSettings.openOrCloseInformationPanel();
+	}
 	public void addPanelInformation(){
 		if(!panelInformation.isVisible()){
 			int currentHeight = this.getHeight();

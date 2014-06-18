@@ -27,7 +27,6 @@ public class PanelExport extends JPanel {
 
 	private JComboBox<String> cmbFormat;
 	private static JButton btnSave = new JButton("Speichern");
-	private String programInfo = "";
 
 	private class ExportFormatFilter extends javax.swing.filechooser.FileFilter {
 		public boolean accept(File f) {
@@ -52,63 +51,7 @@ public class PanelExport extends JPanel {
 		btnSave.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				JFileChooser chooserExport = new JFileChooser(new File(System
-						.getProperty("user.home")));
-
-				// creation of file filter for CSV/XML/CGML files
-				FileFilter filter = new ExportFormatFilter();
-				// Add filter to JFileChooser
-				chooserExport.setAcceptAllFileFilterUsed(false);
-				chooserExport.setFileFilter(filter);
-
-				int rueckgabeWert = chooserExport.showDialog(null, "Speichern");
-
-				// query whether button "Oeffnen" was clicked or not
-				if (rueckgabeWert == JFileChooser.APPROVE_OPTION) {
-					// output chosen file
-					String filePath = chooserExport.getSelectedFile().getPath()
-							+ "." + (String) cmbFormat.getSelectedItem();
-					File exportFile = new File(filePath);
-					if (!exportFile.exists()) {
-						try {
-							// build file on hard drive
-							boolean isCreated = exportFile.createNewFile();
-							// check whether file was builded or not
-							if (isCreated) {
-								ParserExport parserExport = new ParserExport();
-								String exportEnding = (String) cmbFormat
-										.getSelectedItem();
-								try {
-									if (exportEnding.equals("xml")) {
-										parserExport.exportToXml(filePath);
-									} else if (exportEnding.equals("csv")) {
-										parserExport.exportToCsv(filePath);
-									} else if (exportEnding.equals("cgml")) {
-										parserExport.exportToCGML(filePath);
-									}
-									programInfo = filePath
-											+ Main.newline + "wurde erfolgreich erstellt";
-								} catch (ParserException pex) {
-									programInfo = "Fehler beim Exportieren - Parserfehler: \n" + pex.getMessage();
-								}
-
-							} else {
-								programInfo = filePath
-										+ Main.newline +  "wurde nicht erfolgreich erstellt";
-							}
-						} catch (IOException ex) {
-							// failure
-							programInfo = filePath
-									+ Main.newline + "wurde nicht erfolgreich erstellt";
-							ex.printStackTrace();
-						}
-					}else{
-						programInfo = filePath +"Diese Datei existiert schon und " +
-								"wurde deshalb nicht ueberschrieben.";
-					}
-					PanelInformation.addNewTopic("Exportieren von Parser-Daten");
-					PanelInformation.addProgrammInfo(programInfo + Main.newline);
-				}
+				saveToFile();
 			}
 		});
 
@@ -151,5 +94,75 @@ public class PanelExport extends JPanel {
 		titledBorderGraphicOption = BorderFactory.createTitledBorder("Export");
 		this.setBorder(titledBorderGraphicOption);
 
+	}
+
+	public void saveToFile() {
+		JFileChooser chooserExport = new JFileChooser(new File(System
+				.getProperty("user.home")));
+
+		// creation of file filter for CSV/XML/CGML files
+		FileFilter filter = new ExportFormatFilter();
+		// Add filter to JFileChooser
+		chooserExport.setAcceptAllFileFilterUsed(false);
+		chooserExport.setFileFilter(filter);
+
+		int rueckgabeWert = chooserExport.showDialog(null, "Speichern");
+
+		// query whether button "Oeffnen" was clicked or not
+		if (rueckgabeWert == JFileChooser.APPROVE_OPTION) {
+			// output chosen file
+			String filePath = chooserExport.getSelectedFile().getPath()
+					+ "." + (String) cmbFormat.getSelectedItem();
+			File exportFile = new File(filePath);
+			if (!exportFile.exists()) {
+				try {
+					// build file on hard drive
+					boolean isCreated = exportFile.createNewFile();
+					// check whether file was builded or not
+					if (isCreated) {
+						ParserExport parserExport = new ParserExport();
+						String exportEnding = (String) cmbFormat
+								.getSelectedItem();
+						try {
+							if (exportEnding.equals("xml")) {
+								parserExport.exportToXml(filePath);
+							} else if (exportEnding.equals("csv")) {
+								parserExport.exportToCsv(filePath);
+							} else if (exportEnding.equals("cgml")) {
+								parserExport.exportToCGML(filePath);
+							}
+							PanelInformation.addNewTopic("Exportieren von Parser-Daten");
+							PanelInformation.addProgrammInfo(filePath
+									+ Main.newline + "wurde erfolgreich erstellt");
+						} catch (ParserException pex) {
+							PanelInformation.addNewTopic("Exportieren von Parser-Daten");
+							PanelInformation.addProgrammInfo("Fehler beim Exportieren - Parserfehler: \n" + pex.getMessage());
+							Main.getOptionGUI().openOrCloseInformationPanel();
+						}
+
+					} else {
+						PanelInformation.addNewTopic("Exportieren von Parser-Daten");
+						PanelInformation.addProgrammInfo(filePath);
+						PanelInformation.addProgrammInfo("wurde nicht erfolgreich erstellt (2)");
+						Main.getOptionGUI().openOrCloseInformationPanel();
+					}
+				} catch (IOException ex) {
+					PanelInformation.addNewTopic("Exportieren von Parser-Daten");
+					PanelInformation.addProgrammInfo(filePath);
+					PanelInformation.addProgrammInfo("wurde nicht erfolgreich erstellt (1)");
+					PanelInformation.addProgrammInfo(ex.getMessage());
+					Main.getOptionGUI().openOrCloseInformationPanel();
+					ex.printStackTrace();
+				}
+			}else{
+				PanelInformation.addNewTopic("Exportieren von Parser-Daten");
+				PanelInformation.addProgrammInfo(filePath);
+				PanelInformation.addProgrammInfo(" ,diese Datei existiert schon und " );
+				PanelInformation.addProgrammInfo("wurde deshalb nicht ueberschrieben.");
+				Main.getOptionGUI().openOrCloseInformationPanel();
+
+			}
+
+		}
 	}
 }

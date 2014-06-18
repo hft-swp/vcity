@@ -938,26 +938,29 @@ public class PanelSettings extends JPanel {
 		constraints.gridx = 0; // column 0
 		constraints.gridy = 4; // row 0
 		btnInformation.addActionListener(new ActionListener() {
-
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				Point point = Main.getOptionGUI().getLocation();
-				if (!Main.getOptionGUI().isPanelInformationVisible()) {
-
-					Main.getOptionGUI().setLocation(point.x - 350, point.y);
-					openPanelInformation();
-					if (Main.getOptionGUI().isPanelExportVisible()) {
-						Main.getOptionGUI().setLocation(point.x + 135-350, point.y);
-					}
-					closePanelExport();
-
-				} else {
-					Main.getOptionGUI().setLocation(point.x + 350, point.y);
-					closePanelInformation();
-				}
+				openOrCloseInformationPanel();
 			}
 		});
 		panelFile.add(btnInformation, constraints);
+	}
+	
+	public void openOrCloseInformationPanel() {
+		Point point = Main.getOptionGUI().getLocation();
+		if (!Main.getOptionGUI().isPanelInformationVisible()) {
+
+			Main.getOptionGUI().setLocation(point.x - 350, point.y);
+			openPanelInformation();
+			if (Main.getOptionGUI().isPanelExportVisible()) {
+				Main.getOptionGUI().setLocation(point.x + 135-350, point.y);
+			}
+			closePanelExport();
+
+		} else {
+			Main.getOptionGUI().setLocation(point.x + 350, point.y);
+			closePanelInformation();
+		}
 	}
 
 	public void setBtnExportEnabled(boolean enabled) {

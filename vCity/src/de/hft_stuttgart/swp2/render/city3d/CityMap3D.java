@@ -760,8 +760,6 @@ public class CityMap3D extends JFrame implements GLEventListener {
 		camera = new Camera(glu);
 		camera.turnRight(-1.2);
 		camera.turnDown(0.3);
-
-		
 		setZBuffer(gl);
 	}
 

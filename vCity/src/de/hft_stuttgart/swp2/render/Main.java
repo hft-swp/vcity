@@ -137,7 +137,7 @@ public class Main {
 			try {
 //				Message message = new Message(cityMap3D);
 //				message.makeText(cityMap3D,"Starting volume calculation...",Style.NORMAL).display();
-				backend.calculateVolume();
+//				backend.calculateVolume();
 				backend.calculateVolume();
 				Message.makeText(cityMap3D,"Volume calculation successful",Style.SUCCESS).display();
 			} catch (OpenClException e) {
@@ -145,6 +145,9 @@ public class Main {
 				e.printStackTrace();
 			}
 			end = System.currentTimeMillis();
+			long millis = end - start;
+			PanelInformation.addNewTopic("Volumenberechnung");
+			printTimeDuration(millis, "Volumenberechnung");
 			System.out.printf("calculate volume took %d milliseconds\n",
 					(end - start));
 		}
@@ -176,8 +179,46 @@ public class Main {
 				e.printStackTrace();
 			}
 			end = System.currentTimeMillis();
+			PanelInformation.addNewTopic("Schattenberechnung");
+			long millis = end - start;
+			printTimeDuration(millis, "Schattenberechnung");
 			System.out.printf("calculate shadow took %d milliseconds\n",
 					(end - start));
+
+			
+		}
+	}
+
+	private static void printTimeDuration(long millis, String calculationType) {
+		if(millis > 1000){
+			double sec = millis / 1000.0;
+			if(sec > 60){
+				double min = sec/60.0;
+				sec = sec % 60;
+				if(min > 60){
+					double h = min/60;
+					min = min % 60;
+					if(h > 24){
+						double day = h/24;
+						h = h % 24;
+						PanelInformation.addProgrammInfo("Die "+calculationType +" dauerte: "
+								+ Math.round(day) + " Tag(e) "
+								+ Math.round(h) + " Stunde(n) " + Math.round(min) + " Minute(n) " +
+								"und " + Math.round(sec) + " Sekunde(n)");
+					}else{
+						PanelInformation.addProgrammInfo("Die "+calculationType +" dauerte: "
+								+ Math.round(h) + " Stunde(n) " + Math.round(min) + " Minute(n) " +
+								"und " + Math.round(sec) + " Sekunde(n)");	
+					}
+				}else{
+					PanelInformation.addProgrammInfo("Die "+calculationType +" dauerte: " + Math.round(min) + " Minute(n) " +
+							"und " + Math.round(sec) + " Sekunde(n)");
+				}
+			}else{
+				PanelInformation.addProgrammInfo("Die "+calculationType +" dauerte: " + Math.round(sec*100)/100.0 + " Sekunden");
+			}		
+		}else{
+			PanelInformation.addProgrammInfo("Die "+calculationType +" dauerte: " + Math.round(millis*100)/100.0 + " Millisekunden");
 		}
 	}
 	
