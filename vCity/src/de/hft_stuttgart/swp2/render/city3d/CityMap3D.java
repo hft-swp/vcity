@@ -301,7 +301,11 @@ public class CityMap3D extends JFrame implements GLEventListener {
 			drawScene(gl);
 			break;
 		case SELECT:
-			pickBuildingArea(gl);
+			if(Main.isCityAndBuildingsCalculated()){
+				pickBuildingArea(gl);
+			}else{
+				cmd = UPDATE;
+			}
 			break;
 		}
 	}
@@ -363,13 +367,9 @@ public class CityMap3D extends JFrame implements GLEventListener {
 		hits = gl.glRenderMode(GL2.GL_RENDER);
 		//unexpected value -1, if error in glRenderMode
 		if(hits >= 0){
-			if(Main.getCity().getBuildings() != null){
-				processHits(hits, selectBuffer);	
-			}
+			processHits(hits, selectBuffer);
 		}else{
-			if(Main.getCity().getBuildings() != null){
-				PanelCityInfo.updateCityInfo();	
-			}
+			PanelCityInfo.updateCityInfo();	
 		}
 		cmd = UPDATE;
 		

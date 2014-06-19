@@ -36,7 +36,7 @@ public class PanelCityInfo extends JPanel{
 	 */
 	public static void updateCityInfo() {
 		text = "";
-		text = "-------------------------- Allgemeine Stadtinfos --------------------------";
+		text = "-------------------------- Allgemeine Stadtinfos ----------------------------------------------------";
 		text += Main.newline;
 		text += "Anz. Geb‰ude: " + City.getInstance().getBuildings().size();
 		if (City.getInstance().getTotalVolume() > 0.0){
@@ -63,7 +63,7 @@ public class PanelCityInfo extends JPanel{
 	
 	private static String appendStr = "";
 	public static void appendCityInfoOneBuilding(Building building){
-		appendStr = "-------------------------- Gebaeuede Infos --------------------------";
+		appendStr = "-------------------------- Gebaeuede Infos ----------------------------------------------------------";
 		appendStr += Main.newline;
 		String strId = "Die Gebaeude-ID lautet: " + building.getId();
 		String strStreet = "Straﬂe: " + building.getStreetName();

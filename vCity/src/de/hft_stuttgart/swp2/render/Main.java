@@ -289,6 +289,18 @@ public class Main {
 	public static boolean isParserSuccess() {
 		return isParserSuccess;
 	}
+	
+	
+	public static boolean isCityAndBuildingsCalculated(){
+		if(city != null){
+			if(city.getBuildings() != null){
+				if(city.getBuildings().size() > 0){
+					return true;
+				}
+			}
+		}
+		return false;
+	}
 
 	public static String getPath() {
 		return optionGUI.getPath();
