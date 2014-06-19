@@ -25,8 +25,9 @@ public class StartParserRunnable implements Runnable{
 		oldText = "vCity - 3D Stadtansicht:"
 				+ " " + Main.getOptionGUI().getFileName();
 		Main.getCityMap3D().setTitle(oldText);
-		PanelCityInfo.updateCityInfo();
-
+		if(Main.getCity().getBuildings() != null){
+			PanelCityInfo.updateCityInfo();	
+		}
 	}
 
 }

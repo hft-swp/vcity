@@ -32,7 +32,9 @@ public class StartShadowCalculationRunnable  implements Runnable{
 				+ " " + Main.getOptionGUI().getFileName();
 		Main.getCityMap3D().setTitle(oldText);
 		Main.getOptionGUI().setTitleOfCityMap(Main.getOptionGUI().getTime().getTime());
-		PanelCityInfo.updateCityInfo();
+		if(Main.getCity().getBuildings() != null){
+			PanelCityInfo.updateCityInfo();	
+		}
 		Main.getOptionGUI().setSelectShadowView(true);
 	}
 
