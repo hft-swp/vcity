@@ -14,7 +14,9 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.SwingUtilities;
 
+import de.hft_stuttgart.swp2.render.Main;
 import de.hft_stuttgart.swp2.render.options.navigation.PanelNavigation;
 
 
@@ -27,6 +29,7 @@ public class OptionGUI extends JFrame implements Refreshable{
 	private JPanel panelNavigation = new PanelNavigation();
 	private JPanel panelInformation = new PanelInformation();
 	private JButton btn1 = new JButton("Einstellungen");
+	private JButton btnCombine = new JButton("+");
 	private JButton btn2 = new JButton("Stadtinfo");
 	private JButton btn3 = new JButton("Steuerung");
 	
@@ -50,7 +53,7 @@ public class OptionGUI extends JFrame implements Refreshable{
 	private final Insets INSET_BUTTON = new Insets(INSET_TOP_BUTTON, 
 			INSET_LEFT_BUTTON, INSET_BOTTOM_BUTTON, INSET_RIGHT_BUTTON);
 	
-	private JPanel content_panel = new JPanel();
+	private static JPanel content_panel;
 	private PanelSettings panelSettings = new PanelSettings();
 	
 	public Boolean isCalculateVolume(){
@@ -146,26 +149,30 @@ public class OptionGUI extends JFrame implements Refreshable{
 //		this.setLocationRelativeTo(null);
 		frameHeight = this.getHeight();
 	}
-	
 
 
 	private void setPanelContent() {
-		content_panel.setPreferredSize(new Dimension(PREF_WIDTH,PREF_HEIGHT));
-		content_panel.setLayout(new GridBagLayout());
-		
-		addBtn1();
-		addPanelSettings();
-		addBtn2();
-		addPanelCityInfo();
-		addBtn3();
-		addPanelNavigation();
-		
+		if(content_panel == null){
+			content_panel = new JPanel();
+			content_panel.setPreferredSize(new Dimension(PREF_WIDTH,PREF_HEIGHT));
+			content_panel.setLayout(new GridBagLayout());
+			
+			addBtn1();
+			addPanelSettings();
+			addBtn2();
+			addPanelCityInfo();
+			addBtn3();
+			addPanelNavigation();
+			
 
-		
-		panelSettings.setVisible(true);
-		panelCityInfo.setVisible(true);
-		panelNavigation.setVisible(true);
-		addButtonActionListeners();
+			
+			panelSettings.setVisible(true);
+			panelCityInfo.setVisible(true);
+			panelNavigation.setVisible(true);
+			addButtonActionListeners();
+		}else{
+			btnCombine.setText("+");
+		}
 	}
 	
 	private void addBtn1(){
@@ -177,9 +184,81 @@ public class OptionGUI extends JFrame implements Refreshable{
 		constraints.gridy = 0; // row 0
 		constraints.anchor = GridBagConstraints.PAGE_START;
 		constraints.fill = GridBagConstraints.HORIZONTAL;
-		content_panel.add(btn1, constraints);
+		
+		JPanel panelSettingButtons = createPanelSettingButtons();
+
+		content_panel.add(panelSettingButtons, constraints);
 	}
 	
+	private JPanel createPanelSettingButtons() {
+		JPanel panelSettingButtons = new JPanel();
+		panelSettingButtons.setLayout(new GridBagLayout());
+		GridBagConstraints constraintsPanelSettingsButtons = new GridBagConstraints();
+		constraintsPanelSettingsButtons.weightx = 0.5;// components
+		constraintsPanelSettingsButtons.weighty = 0;   //request any extra vertical space
+		constraintsPanelSettingsButtons.gridx = 0; // column 0
+		constraintsPanelSettingsButtons.fill = GridBagConstraints.BOTH;
+		constraintsPanelSettingsButtons.gridy = 0; // row 0
+		constraintsPanelSettingsButtons.gridwidth = 3; // row 0
+		panelSettingButtons.add(btn1,constraintsPanelSettingsButtons);
+		constraintsPanelSettingsButtons.weightx = 0.2;// components
+		constraintsPanelSettingsButtons.gridwidth = 1; // row 0
+		constraintsPanelSettingsButtons.gridx = 4; // column 0
+		panelSettingButtons.add(btnCombine,constraintsPanelSettingsButtons);
+		btnCombine.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				combineToCityMap();
+			}
+		});
+		return panelSettingButtons;
+	}
+	
+	public void updateBtnCombine(){
+		if(btnCombine.getText().equals("-")){
+			btnCombine.setText("+");
+		}
+	}
+	
+	private void combineToCityMap(){
+		SwingUtilities.invokeLater(new Runnable() {
+			@Override
+			public void run() {
+				if(btnCombine.getText().equals("+")){
+					Thread t = new Thread(new Runnable() {
+					      @Override
+				            public void run() {
+								btnCombine.setText("-");
+								Main.getOptionGUI().setAlwaysOnTop(false);
+								Main.getCityMap3D().add(content_panel, BorderLayout.EAST);
+								Main.getCityMap3D().revalidate();
+								Main.getOptionGUI().setVisible(false);
+								Main.getOptionGUI().dispose();
+				            }
+				        });
+					t.start();
+				}else{
+					Thread t = new Thread(new Runnable() {
+			            @Override
+			            public void run() {
+							btnCombine.setText("+");
+							Main.getCityMap3D().remove(content_panel);
+							Main.getCityMap3D().repaint();
+							Main.getCityMap3D().revalidate();
+							Main.getOptionGUI().remove(content_panel);
+							Main.getOptionGUI().add(content_panel, BorderLayout.CENTER);
+							Main.getOptionGUI().setLocation(Main.getOptionGUI().getToolkit().getScreenSize().width- 315, 0);
+							Main.getOptionGUI().pack();
+							Main.getOptionGUI().setAlwaysOnTop(true);
+							Main.getOptionGUI().setVisible(true);
+			            }
+			        });
+					t.start();
+				}
+			}
+		});
+	}
+
 	private void addBtn2() {
 		constraints.insets = INSET_BUTTON;
 		constraints.gridx = 0;
@@ -226,6 +305,10 @@ public class OptionGUI extends JFrame implements Refreshable{
 		content_panel.add(panelCityInfo, constraints);
 	}
 	
+	public JPanel getContent_panel() {
+		return content_panel;
+	}
+
 	private void addPanelNavigation() {
 		constraints.insets = INSET_PANEL;
 		constraints.fill = GridBagConstraints.BOTH;
@@ -370,6 +453,10 @@ public class OptionGUI extends JFrame implements Refreshable{
 		content_panel.revalidate();
 		this.pack();
 	
+	}
+	
+	public JPanel getContent_Panel(){
+		return content_panel;
 	}
 
 

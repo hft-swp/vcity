@@ -1,6 +1,7 @@
 package de.hft_stuttgart.swp2.render.city3d;
 
 import java.awt.AWTException;
+import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.DisplayMode;
 import java.awt.GraphicsDevice;
@@ -98,6 +99,14 @@ public class CityMap3D extends JFrame implements GLEventListener {
 	private boolean isPolygon = false;
 	private boolean isCalculating = false;
 	GLBuildingEntity[] glBuildings;
+	public GLBuildingEntity[] getGlBuildings() {
+		return glBuildings;
+	}
+
+	public void setGlBuildings(GLBuildingEntity[] glBuildings) {
+		this.glBuildings = glBuildings;
+	}
+
 	private boolean isFirstTimeShadowCalc = false;
 	private GLCapabilities caps;
 	private GLCanvas canvas;
@@ -171,6 +180,7 @@ public class CityMap3D extends JFrame implements GLEventListener {
 	
 	public CityMap3D(int width, int height) {
 		super("vCity - 3D Stadtansicht");
+		this.setLayout(new BorderLayout());
 		this.setSize(width, height);
 		this.requestFocus();
 		// setGround(minGroundSize, maxGroundSize);
@@ -200,7 +210,7 @@ public class CityMap3D extends JFrame implements GLEventListener {
 
 		canvas = new GLCanvas(caps);
 		canvas.setPreferredSize(new Dimension(width, height));
-		getContentPane().add(canvas);
+		add(canvas, BorderLayout.CENTER);
 
 		// draw the scene at FPS fps
 		animator = new FPSAnimator(canvas, FPS);
@@ -356,7 +366,7 @@ public class CityMap3D extends JFrame implements GLEventListener {
 		gl.glPushMatrix();
 		gl.glLoadIdentity();
 		System.out.println("x " + x + " " + (double) viewPort[3] + " -" + y);
-		glu.gluPickMatrix(x, (double) viewPort[3] - y, 50d, 50d,
+		glu.gluPickMatrix(x, (double) viewPort[3] - y, 5.0d, 5.0d,
 				viewPort, 0);
 //		camera.setPerspective((int)x, (int)y);
 		glu.gluPerspective(60, (double) x / y, 0.1, 20000);
