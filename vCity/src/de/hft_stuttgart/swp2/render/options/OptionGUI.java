@@ -32,6 +32,8 @@ public class OptionGUI extends JFrame implements Refreshable{
 	private JButton btnCombine = new JButton("+");
 	private JButton btn2 = new JButton("Stadtinfo");
 	private JButton btn3 = new JButton("Steuerung");
+	JPanel topPanel = new JPanel();
+	private static JPanel content_panel;
 	
 	private JScrollPane scrollPane; 
 	private GridBagConstraints constraints = new GridBagConstraints();
@@ -53,7 +55,6 @@ public class OptionGUI extends JFrame implements Refreshable{
 	private final Insets INSET_BUTTON = new Insets(INSET_TOP_BUTTON, 
 			INSET_LEFT_BUTTON, INSET_BOTTOM_BUTTON, INSET_RIGHT_BUTTON);
 	
-	private static JPanel content_panel;
 	private PanelSettings panelSettings = new PanelSettings();
 	
 	public Boolean isCalculateVolume(){
@@ -86,6 +87,10 @@ public class OptionGUI extends JFrame implements Refreshable{
 	
 	public void setSelectShadowView(boolean select){
 		panelSettings.setSelectShadowView(select);
+	}
+	
+	public void setTitleOfBtnRecalculateShadow(String title){
+		panelSettings.setTitleOfBtnRecalculateShadow(title);
 	}
 	
 	public boolean isShadowViewSelected(){
@@ -135,9 +140,10 @@ public class OptionGUI extends JFrame implements Refreshable{
 		scrollPane = new JScrollPane( JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
                 JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED );
 		scrollPane.setViewportView( content_panel );
-		this.setLayout(new BorderLayout());
+		topPanel.setLayout(new BorderLayout());
 		setPanelContent();
-		this.add(content_panel, BorderLayout.CENTER);
+		topPanel.add(content_panel, BorderLayout.CENTER);
+		this.setContentPane(topPanel);
 		this.setMaximumSize(new Dimension(500,2000));
 //		this.add(panelExport, BorderLayout.EAST);
 		panelExport.setVisible(false);
@@ -229,8 +235,7 @@ public class OptionGUI extends JFrame implements Refreshable{
 					      @Override
 				            public void run() {
 								btnCombine.setText("-");
-								Main.getOptionGUI().setAlwaysOnTop(false);
-								Main.getCityMap3D().add(content_panel, BorderLayout.EAST);
+								Main.getCityMap3D().add(topPanel, BorderLayout.EAST);
 								Main.getCityMap3D().revalidate();
 								Main.getOptionGUI().setVisible(false);
 								Main.getOptionGUI().dispose();
@@ -242,14 +247,20 @@ public class OptionGUI extends JFrame implements Refreshable{
 			            @Override
 			            public void run() {
 							btnCombine.setText("+");
-							Main.getCityMap3D().remove(content_panel);
+							Main.getCityMap3D().remove(topPanel);
 							Main.getCityMap3D().repaint();
 							Main.getCityMap3D().revalidate();
-							Main.getOptionGUI().remove(content_panel);
-							Main.getOptionGUI().add(content_panel, BorderLayout.CENTER);
-							Main.getOptionGUI().setLocation(Main.getOptionGUI().getToolkit().getScreenSize().width- 315, 0);
+							Main.getOptionGUI().remove(topPanel);
+							Main.getOptionGUI().setContentPane(topPanel);
+							int extraSize = 0;
+							if(isPanelExportVisible()){
+								extraSize = panelExport.getWidth();
+							}else if(isPanelInformationVisible()){
+								extraSize = panelInformation.getWidth();
+							}
+							Main.getOptionGUI().setLocation(
+									Main.getOptionGUI().getToolkit().getScreenSize().width- (315+extraSize), 0);
 							Main.getOptionGUI().pack();
-							Main.getOptionGUI().setAlwaysOnTop(true);
 							Main.getOptionGUI().setVisible(true);
 			            }
 			        });
@@ -373,9 +384,13 @@ public class OptionGUI extends JFrame implements Refreshable{
 			int currentHeight = this.getHeight();
 			int currentWidth = this.getWidth();
 			panelInformation.setVisible(true);
-			this.add(panelInformation, BorderLayout.WEST);
+			topPanel.add(panelInformation, BorderLayout.WEST);
+			topPanel.revalidate();
 			this.pack();
 			this.setSize(new Dimension(currentWidth, currentHeight));
+			Main.getOptionGUI().setLocation(
+					Main.getOptionGUI().getToolkit().getScreenSize().width- 
+					(315+panelInformation.getWidth()), 0);
 		}
 	}
 	
@@ -407,9 +422,13 @@ public class OptionGUI extends JFrame implements Refreshable{
 			int currentHeight = this.getHeight();
 			int currentWidth = this.getWidth();
 			panelExport.setVisible(true);
-			this.add(panelExport, BorderLayout.WEST);
+			topPanel.add(panelExport, BorderLayout.WEST);
+			topPanel.revalidate();
 			this.pack();
 			this.setSize(new Dimension(currentWidth, currentHeight));
+			Main.getOptionGUI().setLocation(
+					Main.getOptionGUI().getToolkit().getScreenSize().width- 
+					(315+panelExport.getWidth()), 0);
 		}
 	}
 	

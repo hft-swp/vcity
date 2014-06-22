@@ -36,6 +36,7 @@ public class StartShadowCalculationRunnable  implements Runnable{
 			PanelCityInfo.updateCityInfo();	
 		}
 		Main.getOptionGUI().setSelectShadowView(true);
+		Main.getOptionGUI().setTitleOfBtnRecalculateShadow("Neu rechnen");
 	}
 
 	public static boolean isShadowCalculated() {

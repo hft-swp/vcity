@@ -10,6 +10,7 @@ import java.awt.Robot;
 import java.awt.Toolkit;
 import java.nio.IntBuffer;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.TimeZone;
 
@@ -71,7 +72,8 @@ public class CityMap3D extends JFrame implements GLEventListener {
 	private boolean isShadowCalc = false;
 	private boolean isVolumeCalc = true;
 	private boolean isShowGrid = true, isStartCalculation = true;
-	
+	private static int selectedBuildingId = -1;
+
 	//if the checkbox for shadow isSelected and 
 	//if is isShadowCalcViaCheckBoxLock=false
 	//then it will be calculated immediately with
@@ -81,9 +83,7 @@ public class CityMap3D extends JFrame implements GLEventListener {
 	private boolean isShadowCalcViaCheckBoxLock = true; 
 	private boolean isRecalculateShadow = false; 
 
-	public void setRecalculateShadow(boolean isRecalculateShadow) {
-		this.isRecalculateShadow = isRecalculateShadow;
-	}
+
 
 	private int splitAzimuth = Main.getSplitAzimuth();
 	private int splitHeight = Main.getSplitHeight();
@@ -98,18 +98,26 @@ public class CityMap3D extends JFrame implements GLEventListener {
 	public int month = 0;
 	private boolean isPolygon = false;
 	private boolean isCalculating = false;
-	GLBuildingEntity[] glBuildings;
-	public GLBuildingEntity[] getGlBuildings() {
-		return glBuildings;
-	}
-
-	public void setGlBuildings(GLBuildingEntity[] glBuildings) {
-		this.glBuildings = glBuildings;
-	}
-
+	private GLBuildingEntity[] glBuildings;
 	private boolean isFirstTimeShadowCalc = false;
 	private GLCapabilities caps;
 	private GLCanvas canvas;
+	
+	private boolean isFirstTimeVolumeCalc = false;
+	private boolean isVolumeChange = true;
+	private boolean isShadowChange = true;
+	public boolean drawPolygons = true;
+	
+	public int ray = 0;
+	
+	public static int getSelectedBuildingId() {
+		return selectedBuildingId;
+	}
+	
+	public GLBuildingEntity getGlBuildingsViaID(int id) {
+		return glBuildings[id];
+	}
+
 	
 	public GLCanvas getCanvas() {
 		return canvas;
@@ -123,24 +131,27 @@ public class CityMap3D extends JFrame implements GLEventListener {
 		this.isShowVolumeAmount = isShowVolumeAmount;
 	}
 
+	public void setRecalculateShadow(boolean isRecalculateShadow) {
+		this.isRecalculateShadow = isRecalculateShadow;
+	}
 
 	public void resetValues(){
+		isShadowCalc = false;
+		isVolumeCalc = true;
+		isStartCalculation = true;
+		isRecalculateShadow = false; 
+		isCalculating = false;
+		isFirstTimeShadowCalc = false;
 		isFirstTimeVolumeCalc = false;
 		isVolumeChange = true;
 		isShadowChange = true;
-		isFirstTimeShadowCalc = false;
-		isCalculating = false;
-		isStartCalculation = true;
 	}
 
 	public boolean isFirstTimeShadowCalc() {
 		return isFirstTimeShadowCalc;
 	}
 
-	private boolean isFirstTimeVolumeCalc = false;
-	private boolean isVolumeChange = true;
-	private boolean isShadowChange = true;
-	public boolean drawPolygons = true;
+
 	
 	
 	public boolean isFirstTimeVolumeCalc() {
@@ -155,10 +166,6 @@ public class CityMap3D extends JFrame implements GLEventListener {
 	public SunPositionCalculator getSunPos() {
 		return sunPos;
 	}
-
-	public int ray = 0;
-
-
 
 
 	public void setIsStartCalculation(Boolean isStartCalculation) {
@@ -180,6 +187,8 @@ public class CityMap3D extends JFrame implements GLEventListener {
 	
 	public CityMap3D(int width, int height) {
 		super("vCity - 3D Stadtansicht");
+		GregorianCalendar gc = new GregorianCalendar();
+		gc.setTime(new Date());
 		this.setLayout(new BorderLayout());
 		this.setSize(width, height);
 		this.requestFocus();
@@ -241,7 +250,6 @@ public class CityMap3D extends JFrame implements GLEventListener {
 					e.printStackTrace();
 				}
 			}
-			System.out.println(Parser.getInstance().getEPSG());
 			sunPositions[j] = new SunPositionCalculator(utcCal.getTime(),
 					Parser.getInstance());
 		}
@@ -365,7 +373,6 @@ public class CityMap3D extends JFrame implements GLEventListener {
 		gl.glMatrixMode(GL2.GL_PROJECTION);
 		gl.glPushMatrix();
 		gl.glLoadIdentity();
-		System.out.println("x " + x + " " + (double) viewPort[3] + " -" + y);
 		glu.gluPickMatrix(x, (double) viewPort[3] - y, 5.0d, 5.0d,
 				viewPort, 0);
 //		camera.setPerspective((int)x, (int)y);
@@ -426,9 +433,10 @@ public class CityMap3D extends JFrame implements GLEventListener {
 		}
 		
 		if(hits != 0 && names != -1){
-			finalBuildingId = buildingIds[buildingCounter/2];
+			finalBuildingId = buildingIds[0];
 			System.out.println("- - - - - - - - - - - -");
 			System.out.println("Selected Building id: " + finalBuildingId);
+			CityMap3D.selectedBuildingId = finalBuildingId;
 			PanelCityInfo.appendCityInfoOneBuilding(glBuildings[finalBuildingId].building);
 		}else{
 			PanelCityInfo.updateCityInfo();
@@ -851,14 +859,6 @@ public class CityMap3D extends JFrame implements GLEventListener {
 			int splitHeight) {
 		Main.startShadowCalculationRunnable = new StartShadowCalculationRunnable(
 				defaultShadowPrecision, splitAzimuth, splitHeight);
-	}
-
-	public void info() {
-		System.out.println("Horizontal angle: " + camera.horizontalAngle);
-		System.out.println("Vertical angle: " + camera.verticalAngle);
-		System.out.println("Pos x: " + camera.positionX);
-		System.out.println("Pos y: " + camera.positionY);
-		System.out.println("Pos z: " + camera.positionZ);
 	}
 
 }

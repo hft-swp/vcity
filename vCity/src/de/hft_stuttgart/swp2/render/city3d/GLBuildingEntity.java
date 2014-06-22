@@ -1,5 +1,6 @@
 package de.hft_stuttgart.swp2.render.city3d;
 
+import java.util.ArrayList;
 import javax.media.opengl.GL2;
 import javax.media.opengl.GLException;
 import javax.media.opengl.glu.GLU;
@@ -21,6 +22,11 @@ public class GLBuildingEntity extends GLEntity {
 	private boolean isShowVolumeAmount = true;
 	private boolean isVolumeCalc;
 	private boolean isShadowCalc;
+	private ArrayList <ShadowTriangle> listShadowTriangles = new ArrayList<ShadowTriangle>();
+
+	public ArrayList<ShadowTriangle> getListShadowTriangles() {
+		return listShadowTriangles;
+	}
 
 	public boolean isShowGrid() {
 		return isShowGrid;
@@ -97,10 +103,6 @@ public class GLBuildingEntity extends GLEntity {
 		float maxY = Float.MIN_VALUE;
 		float maxZ = Float.MIN_VALUE;
 		if (building.getVolume() == 0.0 && !isVolumeCalc) {
-			// TODO Fehlermeldung
-			// System.out.println("Um das Volumen der Gebaeude anzeigen zu lassen "
-			// +
-			// "muss es erst berechnet werden.");
 			if(!Main.getCityMap3D().isFirstTimeVolumeCalc()){
 				Main.getOptionGUI().setCbVolumeAmount(false);
 				PanelInformation.addNewTopic("Benutzer Problem");
@@ -203,7 +205,6 @@ public class GLBuildingEntity extends GLEntity {
 		}
 	}
 	
-	
 	private void drawShadowBuildingWithTriangles(GL2 gl, Building building) {
 		try {
 			int ray = Main.getCityMap3D().ray;
@@ -214,14 +215,21 @@ public class GLBuildingEntity extends GLEntity {
 					double grey = 0.0;
 					if (ray != -1) {
 						grey = 1.0 - polygon.getPercentageShadow()[ray] * 0.8;
+					}else{
+						grey = 0.0; //Max grey
 					}
 					for (ShadowTriangle t : polygon.getShadowTriangles()) {
 						gl.glBegin(GL2.GL_TRIANGLES);
-						if (t.getShadowSet().get(ray)) {
-							gl.glColor3d(grey, 0f, 0f);
-						} else {
-							gl.glColor3d(0f, grey, 0f);
+						if(ray != -1){
+							if (t.getShadowSet().get(ray)) {
+								gl.glColor3d(grey, 0f, 0f);
+							} else {
+								gl.glColor3d(0f, grey, 0f);
+							}	
+						}else{
+							gl.glColor3d(grey, grey, grey);
 						}
+
 						for (Vertex v : t.getVertices()) {
 							gl.glNormal3fv(t.getNormalVector().getCoordinates(), 0);
 							gl.glVertex3fv(v.getCoordinates(), 0);
@@ -322,4 +330,5 @@ public class GLBuildingEntity extends GLEntity {
 		}
 		
 	}
+
 }

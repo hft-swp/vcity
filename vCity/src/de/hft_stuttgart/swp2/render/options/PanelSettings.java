@@ -39,6 +39,7 @@ import javax.swing.border.TitledBorder;
 import org.jdesktop.swingx.JXDatePicker;
 
 import de.hft_stuttgart.swp2.opencl.ShadowPrecision;
+import de.hft_stuttgart.swp2.parser.Parser;
 import de.hft_stuttgart.swp2.render.Main;
 import de.hft_stuttgart.swp2.render.Selection;
 import de.hft_stuttgart.swp2.render.threads.StartParserRunnable;
@@ -51,7 +52,7 @@ public class PanelSettings extends JPanel {
 	private static final long serialVersionUID = -8682939653068331145L;
 	private final int DEFAULT_VALUE_HOURS = 12;
 	private final int DEFAULT_VALUE_MINUTES = 0;
-	private static final String strRecalculate = "Schatten neu berechnen";
+	private static final String strRecalculate = "Schatten berechnen";
 
 	public static String getStrRecalculate() {
 		return strRecalculate;
@@ -176,9 +177,10 @@ public class PanelSettings extends JPanel {
 			updateTime(userDate, hours, minutes);
 		}
 	}
-
+	public static boolean changeHoursForGLBuildingSelected = false;
 	private void updateTime(Date userDate, int hours, int minutes) {
 		Date oldDate = gc.getTime();
+		int oldHours = gc.get(GregorianCalendar.HOUR);
 		gc.setTime(userDate);
 		try {
 			gc.set(gc.get(GregorianCalendar.YEAR),
@@ -193,7 +195,18 @@ public class PanelSettings extends JPanel {
 		}
 		int day = gc.get(Calendar.DAY_OF_MONTH);
 		int month = gc.get(Calendar.MONTH);
-		Main.getCityMap3D().initialSunPosition(month, day);
+		int newHours = gc.get(Calendar.HOUR);
+		if(oldHours != newHours){
+			changeHoursForGLBuildingSelected = true;
+		}else{
+			changeHoursForGLBuildingSelected = false;
+		}
+		if(Parser.getInstance().getEPSG() != null){
+			if(!Parser.getInstance().getEPSG().equals("undef")){
+				Main.getCityMap3D().initialSunPosition(month, day);
+				Main.getCityMap3D().setSunPosition(gc);	
+			}
+		}
 		setTitleOfCityMap(oldDate);
 	}
 
@@ -668,6 +681,10 @@ public class PanelSettings extends JPanel {
 			btnRecalculateShadow.setText("Neu rechnen");
 		}
 	}
+	
+	public void setTitleOfBtnRecalculateShadow(String title){
+		btnRecalculateShadow.setText(title);
+	}
 
 	private KeyListener getKeyListenerMinutes() {
 		return new KeyListener() {
@@ -965,6 +982,10 @@ public class PanelSettings extends JPanel {
 
 	public void setBtnExportEnabled(boolean enabled) {
 		btnExport.setEnabled(enabled);
+	}
+	
+	public void setBtnInformationEnabled(boolean enabled) {
+		btnInformation.setEnabled(enabled);
 	}
 
 	private void closePanelExport() {
