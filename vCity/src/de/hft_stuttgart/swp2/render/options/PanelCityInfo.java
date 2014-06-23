@@ -34,6 +34,10 @@ public class PanelCityInfo extends JPanel{
 	private static int polygonCityCounter = 0;
 	private static int triangleCityCounter = 0;
 	
+	private enum TimeScale {
+	    DAY, YEAR
+	}
+	
 	
 	public PanelCityInfo() {
 		// TODO Auto-generated constructor stub
@@ -114,12 +118,24 @@ public class PanelCityInfo extends JPanel{
 			strAmountShadowTriangles = "Anzahl der Dreiecke fuer die " + Main.newline +
 					"Schattenberechnung des Gebaeudes: - wurde noch nicht berechnet";
 		}
+		
+		SortedMap <ShadowTriangle,Integer> sorted_map_year = 
+				getProfitableShadowTriangles(building, TimeScale.YEAR);
+		String strProfitableShadowTrianglesYear;
+		if(sorted_map_year != null){
+			strProfitableShadowTrianglesYear = profitableShadowTrianglesYearMapToString(sorted_map_year, building);
+		}else{
+			strProfitableShadowTrianglesYear = "Noch keine Statistik über die möglichen Sonnenstuden im Jahr verfügbar";
+		}
 
-		SortedMap <ShadowTriangle,Integer> sorted_map = getProfitableShadowTriangles(building);
+		SortedMap <ShadowTriangle,Integer> sorted_map = 
+				getProfitableShadowTriangles(building, TimeScale.DAY);
 		String strProfitableShadowTriangles;
 		if(sorted_map != null){
-			strProfitableShadowTriangles = "Moegliche Schattendreiecke für Solarzellen auf dem Dach:" + 
-					Main.newline + profitableShadowTrianglesMapToString(sorted_map);
+			Date date = Main.getOptionGUI().getTime().getTime();
+			strProfitableShadowTriangles = "Moegliche Schattendreiecke für Solarzellen " +
+					Main.newline + "auf dem Dach (pro aktuellem Tag):" + 
+					Main.newline + profitableShadowTrianglesMapToString(sorted_map, date);
 		}else{
 			strProfitableShadowTriangles = "Es sind (noch) " +
 					"keine brauchbaren " + Main.newline +
@@ -128,7 +144,7 @@ public class PanelCityInfo extends JPanel{
 		
 		appendStr += strId + Main.newline + strStreet + Main.newline + strVolume + Main.newline + strAmountVolumeTriangles + 
 				Main.newline + strAmountPolygons + Main.newline + strAmountShadowTriangles + Main.newline + 
-				strProfitableShadowTriangles + Main.newline;
+				strProfitableShadowTrianglesYear + Main.newline + strProfitableShadowTriangles + Main.newline;
 		if(!text.contains(appendStr)){
 			text = "";
 			text = appendStr + Main.newline + updateInfoText;
@@ -139,9 +155,21 @@ public class PanelCityInfo extends JPanel{
 		txtaCityInfo.validate();
 	}
 	
-	private static SortedMap <ShadowTriangle,Integer> getProfitableShadowTriangles(Building building){
-		
-		ArrayList <ShadowTriangle> listShadowTriangles = getShadowTriangleListForSolarCalculation(building);
+	private static SortedMap <ShadowTriangle,Integer> getProfitableShadowTriangles(Building building, TimeScale timeScale){
+		ArrayList <ShadowTriangle> listShadowTriangles = new ArrayList<ShadowTriangle>();
+		Date date = Main.getOptionGUI().getTime().getTime();
+		if(timeScale.equals(TimeScale.DAY)){
+			listShadowTriangles = getShadowTriangleListForSolarCalculation(building, date);
+			GregorianCalendar gc = new GregorianCalendar();
+			gc.setTime(date);
+			Main.getCityMap3D().setSunPosition(gc);
+		}else{
+			listShadowTriangles = getShadowTriangleListForSolarCalculationYear(building, date);
+			GregorianCalendar gc = new GregorianCalendar();
+			gc.setTime(date);
+			Main.getCityMap3D().setSunPosition(gc);
+		}
+
 		if(listShadowTriangles.size() > 0){
 			HashMap <ShadowTriangle, Integer> hm = new HashMap <ShadowTriangle, Integer>();
 			for(ShadowTriangle t: listShadowTriangles){
@@ -175,19 +203,100 @@ public class PanelCityInfo extends JPanel{
 
 	}
 	
+	private static String profitableShadowTrianglesYearMapToString(
+			SortedMap<ShadowTriangle, Integer> profitableShadowTrianglesMap, Building building) {
+        String strShadowTriangles = "";
+        int gesValue = 0;
+        for(Map.Entry<ShadowTriangle,Integer> entry : profitableShadowTrianglesMap.entrySet()) {
+        	gesValue = entry.getValue() + gesValue;
+        }
+        //gesValue = profitableShadowTrianglesMap.size(); //(gesValue / 365)* profitableShadowTrianglesMap.size();
+        //(gesValue / 365)* profitableShadowTrianglesMap.size();
+        if(gesValue == 0){
+        	strShadowTriangles = "Noch keine Statistik über die möglichen Sonnenstuden im Jahr verfügbar.";
+        }else{
+        	strShadowTriangles = "Es sind insgesamt " + gesValue + 
+        			Main.newline + "Sonnenstunden im Jahr für alle Schattendreiecke auf dem Dach." + Main.newline;
+        	strShadowTriangles += "Es sind durschnittlich " + (gesValue/profitableShadowTrianglesMap.size()) + Main.newline + 
+        			"Sonnenstunden/Schattendreieck im Jahr auf dem Dach" + Main.newline;
+        	strShadowTriangles += "Durschnittlich sind das: "  + Main.newline + 
+        			((gesValue/profitableShadowTrianglesMap.size())/365) + " Sonnenstunden/Schattendreieck am Tag" + Main.newline;
+        	strShadowTriangles += "und"  + Main.newline + 
+        			((gesValue)/365) + " Sonnenstunden aller Schattendreiecke am Tag." + Main.newline;
+            Set <ShadowTriangle> setKeysOfShadowTriangles = profitableShadowTrianglesMap.keySet();
+            ShadowTriangle [] keysOfShadowTriangles = (ShadowTriangle[]) setKeysOfShadowTriangles.toArray(new ShadowTriangle[setKeysOfShadowTriangles.size()]);
+        	double shadowTriangleArea = getRoofAreaOfShadowTriangle(building, keysOfShadowTriangles[0]);
+        	double roofArea = shadowTriangleArea * profitableShadowTrianglesMap.size();
+        	System.out.println(roofArea);
+        	if(roofArea != 0){
+        		strShadowTriangles += "Bei einer Dachfläche von: "  + (Math.round(roofArea*100)/100.0) + "m²" +
+        				" und einer Fläche von: " + (Math.round(shadowTriangleArea*100)/100.0)+ "m²" + " pro Schattendreieck" + Main.newline;
+        		//1m2 = 0,1 kwh pro Tag => 0.0125 kw/h pro stunde sonne bei 0,654m2 => ca 1m2 pro solarzelle
+        		strShadowTriangles += "erbringen die Solarzellen (1m²/0.00125kWh) pro Sonnenstunde mit " + Main.newline +
+        				"durchschnittlicher Sonnenstundenanzahl gerechnet:" + Main.newline;
+        		double kwPerSunInOneHour = 0.00125;
+        		if(roofArea > 100){
+        			//Scaling
+        			kwPerSunInOneHour = 0.000125;
+        		}
+        		double kwPerDay = (((gesValue)/365.0)*roofArea) * kwPerSunInOneHour;
+        		double kwPerYear = kwPerDay * 365.0;	
+        		strShadowTriangles += (Math.round(kwPerDay*100)/100.0) + " kWh/Tag" + Main.newline;
+        		strShadowTriangles += "und " + (Math.round(kwPerYear*100)/100.0) + " kWh/Jahr"+ Main.newline;
+        	}
+        	
+        }
+        return strShadowTriangles;
+	}
 	
+	private static double getRoofAreaOfShadowTriangle(Building building, ShadowTriangle t) {
+		double area = 0.0;
+		
+		Vertex [] vertices = t.getVertices();
+		Vertex vertexA = vertices[0];
+		Vertex vertexB = vertices[1];
+		Vertex vertexC = vertices[2];
+		float ux = vertexB.getX() - vertexA.getX();
+		float uy = vertexB.getY() - vertexA.getY();
+		float uz = vertexB.getZ() - vertexA.getZ();
+		
+		float vx = vertexC.getX() - vertexA.getX();
+		float vy = vertexC.getY() - vertexA.getY();
+		float vz = vertexC.getZ() - vertexA.getZ();
+		//cross product
+		float kx = uy*vz - uz*vy;
+		float ky = uz*vx - ux*vz;
+		float kz = ux*vy - uy*vx;
+		
+		area = 0.5f * (float)Math.sqrt((kx*kx) + (ky*ky) + (kz*kz));
+		return area;
+	}
+
+
 	private static String profitableShadowTrianglesMapToString(
-			SortedMap<ShadowTriangle, Integer> profitableShadowTrianglesMap) {
+			SortedMap<ShadowTriangle, Integer> profitableShadowTrianglesMap, Date date) {
         Set <ShadowTriangle> setKeysOfShadowTriangles = profitableShadowTrianglesMap.keySet();
         ShadowTriangle [] keysOfShadowTriangles = (ShadowTriangle[]) setKeysOfShadowTriangles.toArray(new ShadowTriangle[setKeysOfShadowTriangles.size()]);
         int counter = 0;
         String strShadowTriangles = "";
+        int amount = 0;
+        for(Map.Entry<ShadowTriangle,Integer> entry : profitableShadowTrianglesMap.entrySet()) {
+        	amount = entry.getValue() + amount;
+        }
+        GregorianCalendar gc = new GregorianCalendar();
+        gc.setTime(date);
+        String strDate = gc.get(GregorianCalendar.DAY_OF_MONTH) +"." + (gc.get(GregorianCalendar.MONTH) + 1)+ "." + gc.get(GregorianCalendar.YEAR);
+        strShadowTriangles += "Aktuell "+ strDate + " gibt es insgesamt " + amount + " Sonnenstunden," + Main.newline;
+        strShadowTriangles += "Durschnittl. Sonnenstunden pro Schattendreieck: " + (amount/profitableShadowTrianglesMap.size()) + Main.newline ;
+        strShadowTriangles += "Auflistung aller Schattendreiecke mit Sonnenstunden:"+ Main.newline ;
         for(Map.Entry<ShadowTriangle,Integer> entry : profitableShadowTrianglesMap.entrySet()) {
         	   Integer value = entry.getValue();
         	   String [] strVertices = new String [keysOfShadowTriangles[counter].getVertices().length];
         	   int vertexCounter = 0;
         	   for(Vertex v: keysOfShadowTriangles[counter].getVertices()){
-        		   String strX = String.valueOf(v.getX()) ; String strY = String.valueOf(v.getY()); String strZ = String.valueOf(v.getZ());
+        		   String strX = String.valueOf(Math.round(v.getX()*1000)/1000.0) ; 
+        		   String strY = String.valueOf(Math.round(v.getY()*1000)/1000.0); 
+        		   String strZ = String.valueOf(Math.round(v.getZ()*1000)/1000.0);
         		   strVertices[vertexCounter] = "["+strX+"," + strY + "," + strZ + "]";
         		   vertexCounter++;
         	   }
@@ -201,9 +310,30 @@ public class PanelCityInfo extends JPanel{
         return strShadowTriangles;
 	}
 	
-	private static ArrayList<ShadowTriangle> getShadowTriangleListForSolarCalculation(Building building) {
+	private static ArrayList<ShadowTriangle> getShadowTriangleListForSolarCalculationYear(Building building,Date date) {
+		GregorianCalendar gc = new GregorianCalendar();
+		gc.setTime(date);
+		gc.set(GregorianCalendar.MONTH, 0);
+		ArrayList<ShadowTriangle> listWinter = getShadowTriangleListForSolarCalculation(building, gc.getTime());
+		gc.set(GregorianCalendar.MONTH, 4);
+		ArrayList<ShadowTriangle> listSpringAndAutumn = getShadowTriangleListForSolarCalculation(building, gc.getTime());
+		gc.set(GregorianCalendar.MONTH, 6);
+		ArrayList<ShadowTriangle> listSummer = getShadowTriangleListForSolarCalculation(building, gc.getTime());
+		ArrayList<ShadowTriangle> listYear = new ArrayList <ShadowTriangle>();
+		for(int i = 0; i < 90; i++){ //3Monate Dez = Jan = 31, Feb=28 => 31*2 + 28 = 90 
+			listYear.addAll(listWinter);
+		}
+		for(int i = 0; i < 183; i++){ //6Monate Mar =31  Apr = 30, Mai=31, Nov = 30, Okt = 31, Sept = 30 => 31*3 + 3 *30 = 183 
+			listYear.addAll(listSpringAndAutumn);
+		}
+		for(int i = 0; i < 92; i++){ //3Monate Jun =30 Jul = 31, Aug=31 => 92
+			listYear.addAll(listSummer);
+		}
+		return listYear;
+	}
+	
+	private static ArrayList<ShadowTriangle> getShadowTriangleListForSolarCalculation(Building building, Date date) {
 		ArrayList<ShadowTriangle> listShadowTriangles = new ArrayList<ShadowTriangle> ();
-		Date date = Main.getOptionGUI().getTime().getTime();
 		GregorianCalendar gc = new GregorianCalendar();
 		gc.setTime(date);
 		int currentMonth = gc.get(GregorianCalendar.MONTH);
@@ -252,9 +382,6 @@ public class PanelCityInfo extends JPanel{
 				}
 			}
 		}
-		gc.setTime(date);
-		Main.getCityMap3D().setSunPosition(gc);
-
 		return listShadowTriangles;
 	}
 	

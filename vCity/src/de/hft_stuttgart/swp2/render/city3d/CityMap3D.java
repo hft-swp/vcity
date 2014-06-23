@@ -433,7 +433,7 @@ public class CityMap3D extends JFrame implements GLEventListener {
 		}
 		
 		if(hits != 0 && names != -1){
-			finalBuildingId = buildingIds[0];
+			finalBuildingId = buildingIds[0]; // buildingIds[buildingCounter/2] is not really better
 			System.out.println("- - - - - - - - - - - -");
 			System.out.println("Selected Building id: " + finalBuildingId);
 			CityMap3D.selectedBuildingId = finalBuildingId;
