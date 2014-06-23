@@ -229,8 +229,8 @@ public class PanelCityInfo extends JPanel{
         	double roofArea = shadowTriangleArea * profitableShadowTrianglesMap.size();
         	System.out.println(roofArea);
         	if(roofArea != 0){
-        		strShadowTriangles += "Bei einer Dachfläche von: "  + (Math.round(roofArea*100)/100.0) + "m²" +
-        				" und einer Fläche von: " + (Math.round(shadowTriangleArea*100)/100.0)+ "m²" + " pro Schattendreieck" + Main.newline;
+        		strShadowTriangles += "Bei einer Dachfläche von: "  + (Math.round(roofArea*100)/100.0) + "m²" + Main.newline + 
+        				"und einer Fläche von: " + (Math.round(shadowTriangleArea*100)/100.0)+ "m²" + " pro Schattendreieck" + Main.newline;
         		//1m2 = 0,1 kwh pro Tag => 0.0125 kw/h pro stunde sonne bei 0,654m2 => ca 1m2 pro solarzelle
         		strShadowTriangles += "erbringen die Solarzellen (1m²/0.00125kWh) pro Sonnenstunde mit " + Main.newline +
         				"durchschnittlicher Sonnenstundenanzahl gerechnet:" + Main.newline;
@@ -286,7 +286,7 @@ public class PanelCityInfo extends JPanel{
         GregorianCalendar gc = new GregorianCalendar();
         gc.setTime(date);
         String strDate = gc.get(GregorianCalendar.DAY_OF_MONTH) +"." + (gc.get(GregorianCalendar.MONTH) + 1)+ "." + gc.get(GregorianCalendar.YEAR);
-        strShadowTriangles += "Aktuell "+ strDate + " gibt es insgesamt " + amount + " Sonnenstunden," + Main.newline;
+        strShadowTriangles += "Aktuell (am "+ strDate + ") gibt es insgesamt " + amount + " Sonnenstunden," + Main.newline;
         strShadowTriangles += "Durschnittl. Sonnenstunden pro Schattendreieck: " + (amount/profitableShadowTrianglesMap.size()) + Main.newline ;
         strShadowTriangles += "Auflistung aller Schattendreiecke mit Sonnenstunden:"+ Main.newline ;
         for(Map.Entry<ShadowTriangle,Integer> entry : profitableShadowTrianglesMap.entrySet()) {
